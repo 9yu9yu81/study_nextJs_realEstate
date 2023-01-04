@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Account {
+  id                String  @id
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Cart {
+  id        Int    @id @default(autoincrement())
+  userId    String
+  productId Int
+  quantity  Int
+  amount    Int
+}
+
+model Categories {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  orderItemId Int      @unique
+  rate        Int
+  contents    String?
+  images      String?
+  updatedAt   DateTime
+}
+
+model OrderItem {
+  id        Int @id @default(autoincrement())
+  productId Int
+  quantity  Int
+  amount    Int
+  price     Int
+}
+
+model Orders {
+  id           Int      @id @default(autoincrement())
+  userId       String
+  orderItemIds String
+  receiver     String?
+  address      String?
+  phoneNumber  String?
+  createdAt    DateTime @default(now())
+  status       Int
+}
+
+model Products {
+  id          Int      @id @default(autoincrement())
+  name        String
+  image_url   String?
+  category_id Int
+  createdAt   DateTime @default(now())
+  contents    String?
+  price       Int      @default(20000)
+
+  @@index([category_id], map: "products_category_id_idx")
+}
+
+model Session {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  @@index([userId])
+}
+
+model User {
+  id            String    @id
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Wishlist {
+  id         Int    @id @default(autoincrement())
+  userId     String @unique
+  productIds String
+}
