@@ -11,7 +11,7 @@ export default function Header() {
   const router = useRouter()
   const { data: session } = useSession()
   return (
-    <div className="border-solid border-b border-zinc-400 fixed top-0 left-4 right-4 p-2">
+    <div className="bg-white border-solid border-b border-zinc-400 fixed top-0 left-4 right-4 p-2">
       <div className="w-full flex items-center">
         <Link href="/" className="flex">
           <Image

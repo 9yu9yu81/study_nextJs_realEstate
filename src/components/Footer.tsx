@@ -8,7 +8,7 @@ export default function Footer() {
   //todo
   return (
     <>
-      <div className="border-double border-t border-zinc-400 p-4">
+      <div className="border-double border-t-2 border-zinc-400 p-4">
         <div className="text-zinc-700 text-sm flex space-x-3">
           <Link href="/" className="flex">
             <Image
@@ -36,7 +36,7 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className="border-double border-t border-zinc-400 pt-6 pb-2 mr-2 ml-2 pl-2  text-xs text-zinc-500">
+      <div className="border-solid border-t border-zinc-300 pt-6 pb-2 mr-2 ml-2 pl-2  text-xs text-zinc-500">
         MySpot
         <br />
         developer : 9yu9yu81
@@ -46,7 +46,7 @@ export default function Footer() {
         email : 9yu9yu81@gmail.com
         <br />
       </div>
-      <div className="flex mt-4 pl-4 text-xs text-zinc-500">
+      <div className="flex mt-4 mb-4 pl-4 text-xs text-zinc-500">
         <span>찾아주셔서 감사드립니다.</span>
         <IconBrandInstagram
           className="ml-auto mr-4"
