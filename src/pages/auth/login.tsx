@@ -1,4 +1,4 @@
-import SignIn from 'components/Signin'
+import SignIn from 'components/SignIn'
 
 export default function Login() {
   return (

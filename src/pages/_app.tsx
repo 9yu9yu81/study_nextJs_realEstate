@@ -10,7 +10,11 @@ export default function App({
   Component,
   pageProps: { session, ...pageProps },
 }: AppProps) {
-  const queryClient = new QueryClient()
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { staleTime: Infinity },
+    },
+  })
   return (
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
@@ -18,9 +22,11 @@ export default function App({
           <title>Myspot</title>
           <meta name="description" content="My Spot direct transaction" />
         </Head>
-        <div>
+        <div className="relative">
           <Header />
-          <Component {...pageProps} />
+          <div className="m-5 mt-20">
+            <Component {...pageProps} />
+          </div>
           <Footer />
         </div>
       </QueryClientProvider>

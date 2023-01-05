@@ -1,6 +1,8 @@
+import { Button } from '@mantine/core'
+
 export default function Home() {
   return (
-    <div className="border-solid border-2 border-black">
+    <div>
       <div>home</div>
     </div>
   )
