@@ -42,6 +42,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  phone         String?
 }
 
 model VerificationToken {
@@ -50,4 +51,35 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Room {
+  id   Int    @id @default(autoincrement())
+  category Int
+  deposit Int
+  area Int
+  address String
+  phone String
+  image String
+  contents String
+  updatedAt DateTime @default(now())
+  userId String
+}
+
+model Community {
+  id   Int    @id @default(autoincrement())
+  category Int
+  images String
+  contents String
+  updatedAt DateTime @default(now())
+  commentid Int
+  userId String
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  contents    String
+  updatedAt   DateTime @updatedAt
+  userId      String
+  communityId Int
 }
