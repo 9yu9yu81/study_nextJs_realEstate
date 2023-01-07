@@ -1,4 +1,4 @@
-import { IconHeart, IconUser } from '@tabler/icons'
+import { IconUser } from '@tabler/icons'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
@@ -34,7 +34,7 @@ export default function Header() {
         <Button
           variant="subtle"
           color="gray"
-          onClick={() => router.push('/map')}
+          onClick={() => router.push('/mainMap')}
         >
           지도
         </Button>

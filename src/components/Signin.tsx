@@ -1,5 +1,5 @@
 import { useSession, signIn, signOut } from 'next-auth/react'
-import { Button, Loader } from '@mantine/core'
+import { Button } from '@mantine/core'
 import { IconBrandGoogle, IconLogout } from '@tabler/icons'
 import { useRouter } from 'next/router'
 
