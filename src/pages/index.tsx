@@ -52,7 +52,16 @@ export default function Home() {
               color="gray"
               onClick={() => {}}
             >
-              투∙쓰리룸
+              투룸
+            </Button>
+            <Button
+              size="xs"
+              variant="outline"
+              radius="xs"
+              color="gray"
+              onClick={() => {}}
+            >
+              쓰리룸
             </Button>
           </div>
         </div>

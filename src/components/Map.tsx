@@ -3,7 +3,13 @@ import Head from 'next/head'
 import Script from 'next/script'
 import { useState, useEffect, useRef, useCallback } from 'react'
 
-export default function Map() {
+export default function Map({
+  width,
+  height,
+}: {
+  width: string
+  height: string
+}) {
   const [level, setLevel] = useState(8) //지도레벨
   const mapRef = useRef<HTMLDivElement>(null) // 지도 ref
 
@@ -37,8 +43,8 @@ export default function Map() {
           className="border-solid border border-zinc-500"
           ref={mapRef}
           style={{
-            width: '95vw',
-            height: '90vh',
+            width: width,
+            height: height,
           }}
         ></div>
       </div>
