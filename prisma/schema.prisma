@@ -63,6 +63,7 @@ model Room {
   detailAddress String
   phone String
   image String
+  title String
   contents String
   updatedAt DateTime @default(now())
   userId String

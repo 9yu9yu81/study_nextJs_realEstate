@@ -8,7 +8,7 @@ export default function Footer() {
   //todo
   return (
     <>
-      <div className="border-double border-t-2 border-zinc-400 p-4">
+      <div className="border-double border-t-2 border-zinc-400 p-4 mt-5">
         <div className="text-zinc-700 text-sm flex space-x-3">
           <Link href="/" className="flex">
             <Image

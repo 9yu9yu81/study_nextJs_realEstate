@@ -1,16 +1,23 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Badge, Button, Input, SegmentedControl } from '@mantine/core'
+import { Badge, Button, Input, SegmentedControl, Textarea } from '@mantine/core'
 import { IconExclamationCircle } from '@tabler/icons'
 import Map from 'components/Map'
 
 export default function upload() {
+  const placeholder = `[상세설명 작성 주의사항]
+  - 매물 정보와 관련없는 홍보성 정보는 입력할 수 없습니다.
+  - 매물등록 규정에 위반되는 금칙어는 입력할 수 없습니다.
+
+  위 주의사항 위반시 임의로 매물 삭제 혹은 서비스 이용이 제한될 수 있습니다.`
   const [isUploadPage, setIsUploadPage] = useState(true)
   //todo segmentedControl value -> setCategory -> Room category
   //todo 주소검색 전에는 빈 지도를 보여주고 주소 검색 후에 그 주소가 지도에 보이게끔 하기
   //todo 거래 정보에서 월세, 전세 선택에 따라 보여지는 정보 다르게(월세: 보증금/월세 전세:전세)
-  //todo 여유가 된다면 추가정보도 받을 수 있게 해보자
+  //todo 여유가 된다면 추가정보 및 디테일 들도 받을 수 있게 해보자
+  //todo upload 데이터 받아서 db Room table create
+  //todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게 -> db updated
 
   const [category, setCategory] = useState<string>('0')
   const [ym, setYm] = useState<string>('0')
@@ -56,7 +63,7 @@ export default function upload() {
               <span>매물 정보</span>
             </div>
             <div className="flex w-full border-solid border-t border-zinc-400 text-xs items-center">
-              <div className="pr-10 pl-10">매물 종류</div>
+              <div className="w-32 flex justify-center">매물 종류</div>
               <div className="flex justify items-center p-3 border-solid border-l border-zinc-400">
                 <SegmentedControl
                   value={category}
@@ -95,8 +102,8 @@ export default function upload() {
               </div>
             </div>
             <div className="flex w-full border-solid border-t border-zinc-400 text-xs items-center">
-              <div className="pr-10 pl-10">주소</div>
-              <div className="w-96 h-80 border-solid border-l border-zinc-400 p-5 pt-24">
+              <div className="w-32 flex justify-center">주소</div>
+              <div className="h-72 border-solid border-l border-zinc-400 pl-10 pt-14">
                 <div className="flex items-center text-zinc-400 mb-3">
                   <IconExclamationCircle className="mr-1" />
                   <span>
@@ -120,30 +127,24 @@ export default function upload() {
                     주소 검색
                   </Button>
                 </form>
-                <Input
+                <Textarea
                   className="w-full"
-                  id="input-demo"
-                  type={'text'}
-                  placeholder="상세주소"
+                  minRows={4}
+                  placeholder="상세 주소"
                 />
               </div>
-              <div className="p-4">
-                <Map width="350px" height="350px" />
+              <div className="ml-12 p-3">
+                <Map width="330px" height="330px" />
               </div>
             </div>
           </div>
           <div className="relative flex flex-col border-solid border border-zinc-400 mt-6 justify-center items-center">
             <div className="flex text-sm font-bold m-3">
               <span>거래 정보</span>
-              <div className="absolute right-5">
-                <span className="text-zinc-400" style={{ fontSize: 12 }}>
-                  *등기부등본 상의 주소를 입력해 주세요.
-                </span>
-              </div>
             </div>
             <div className="flex w-full border-solid border-t border-zinc-400 text-xs items-center">
-              <div className="pr-10 pl-10">거래 종류</div>
-              <div className="flex justify items-center p-3 border-solid border-l border-zinc-400">
+              <div className="w-32 flex justify-center">거래 종류</div>
+              <div className="flex justify-center items-center p-3 border-solid border-l border-zinc-400">
                 <SegmentedControl
                   className="mr-5"
                   value={ym}
@@ -181,6 +182,46 @@ export default function upload() {
                     </div>
                   </>
                 )}
+              </div>
+            </div>
+          </div>
+          <div className="relative flex flex-col border-solid border border-zinc-400 mt-6 justify-center items-center">
+            <div className="flex text-sm font-bold m-3">
+              <span>기본 정보</span>
+            </div>
+            <div className="flex w-full border-solid border-t border-zinc-400 text-xs items-center">
+              <div className="w-32 flex justify-center">건물 크기</div>
+              <div className="flex justify-center items-center p-3 border-solid border-l border-zinc-400">
+                <div className="flex ">
+                  <Input type="text" placeholder="평" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="relative flex flex-col border-solid border border-zinc-400 mt-6 justify-center items-center">
+            <div className="flex text-sm font-bold m-3">
+              <span>상세 정보</span>
+            </div>
+            <div className="flex flex-col w-full border-solid border-t border-zinc-400 text-xs items-center">
+              <div className="flex w-full items-center border-solid border-b border-zinc-300">
+                <div className="w-32 flex justify-center">제목</div>
+                <div className="p-3 border-solid border-l border-zinc-400">
+                  <Input
+                    style={{ width: '78vw' }}
+                    placeholder="예) 신논현역 도보 5분거리, 혼자 살기 좋은 방 입니다."
+                  />
+                </div>
+              </div>
+              <div className="flex w-full items-center">
+                <div className="w-32 flex justify-center">상세 설명</div>
+                <div className="p-3 border-solid border-l border-zinc-400">
+                  <Textarea
+                    style={{ width: '78vw' }}
+                    minRows={8}
+                    wrap="hard"
+                    placeholder={placeholder}
+                  />
+                </div>
               </div>
             </div>
           </div>
