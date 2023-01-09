@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Badge, Button, Input, SegmentedControl, Textarea } from '@mantine/core'
+import { Input, SegmentedControl, Textarea } from '@mantine/core'
 import { IconExclamationCircle } from '@tabler/icons'
 import Map from 'components/Map'
+import Postcode from 'components/Postcode'
 
 export default function upload() {
   const placeholder = `[상세설명 작성 주의사항]
@@ -13,7 +14,9 @@ export default function upload() {
   위 주의사항 위반시 임의로 매물 삭제 혹은 서비스 이용이 제한될 수 있습니다.`
   const [isUploadPage, setIsUploadPage] = useState(true)
   //todo segmentedControl value -> setCategory -> Room category
+
   //todo 주소검색 전에는 빈 지도를 보여주고 주소 검색 후에 그 주소가 지도에 보이게끔 하기
+
   //todo 거래 정보에서 월세, 전세 선택에 따라 보여지는 정보 다르게(월세: 보증금/월세 전세:전세)
   //todo 여유가 된다면 추가정보 및 디테일 들도 받을 수 있게 해보자
   //todo upload 데이터 받아서 db Room table create
@@ -110,23 +113,15 @@ export default function upload() {
                     도로명, 건물명, 지번에 대해 통합검색이 가능합니다.
                   </span>
                 </div>
-                <form className="flex mb-5">
+                <div className="flex mb-5">
                   <Input
                     className="w-full"
                     id="input-demo"
                     type={'text'}
                     placeholder="예) 번동 10-1, 강북구 번동"
                   />
-                  <Button
-                    className="bg-zinc-600 text-zinc-100 ml-1"
-                    radius={'sm'}
-                    type="submit"
-                    color={'gray'}
-                    onSubmit={() => {}}
-                  >
-                    주소 검색
-                  </Button>
-                </form>
+                  <Postcode />
+                </div>
                 <Textarea
                   className="w-full"
                   minRows={4}
