@@ -2,8 +2,8 @@
 //todo 카테고리에 맞는 글 뿌려주기
 //todo pagination 구현
 
-import { Button, Input } from '@mantine/core'
-import { IconSearch, IconZoomIn } from '@tabler/icons'
+import { Input } from '@mantine/core'
+import { IconSearch } from '@tabler/icons'
 
 export default function index() {
   return (
@@ -11,7 +11,7 @@ export default function index() {
       <div className="p-10 w-full">
         <Input icon={<IconSearch />} placeholder="검색" />
       </div>
-      <div className=" border border-zinc-300 p-10 m-5 text-zinc-600">
+      <div className=" border border-zinc-300 p-10 m-5 mr-20 ml-20 text-zinc-600">
         <div className="flex justify-center border-b mb-5 p-2 font-bold text-2xl">
           category
         </div>

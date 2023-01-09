@@ -1,8 +1,8 @@
 import { Button, Card, Input } from '@mantine/core'
 import { IconSearch } from '@tabler/icons'
-import { useState } from 'react'
 
-export default function Home() {
+
+export default function home() {
   return (
     <div className="justify-center items-center text-zinc-500 mt-20">
       <div className="h-72 flex  border-b border-zinc-300">

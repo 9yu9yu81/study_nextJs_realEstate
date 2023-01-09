@@ -27,7 +27,7 @@ export default function upload() {
         <Link href="/" className="flex">
           <Image
             className="mr-1"
-            src="/../public/home.png"
+            src="/../public/images/home.png"
             alt="logo"
             width={55}
             height={55}

@@ -1,4 +1,4 @@
-import { IconLogout, IconSearch, IconSettings, IconUser } from '@tabler/icons'
+import { IconLogout, IconSearch, IconUser } from '@tabler/icons'
 import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
@@ -10,18 +10,19 @@ export default function Header() {
   //todo 커뮤니티 (방구하기, 양도하기, 정보 스팟, 자유 스팟)
   const router = useRouter()
   const { data: session } = useSession()
+
   return (
-    <div className="bg-white  border-b border-zinc-400  p-2">
+    <div className="bg-white  border-b border-zinc-400 p-3">
       <div className="w-full flex items-center">
         <Link href="/" className="flex">
           <Image
             className="mr-1"
-            src="/../public/home.png"
+            src="/../public/images/home.png"
             alt="logo"
             width={30}
             height={30}
           ></Image>
-          <div className="text-sm text-zinc-700">MySpot</div>
+          <div className="text-sm text-zinc-600">MySpot</div>
         </Link>
         <span className="m-auto" />
         <Button
