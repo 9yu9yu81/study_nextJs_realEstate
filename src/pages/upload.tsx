@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Input, SegmentedControl, Textarea } from '@mantine/core'
+import { Button, Input, SegmentedControl, Textarea } from '@mantine/core'
 import { IconExclamationCircle } from '@tabler/icons'
 import Map from 'components/Map'
 import Postcode from 'components/Postcode'
+import ImageUploader from 'components/ImageUploader'
 
 export default function upload() {
   const placeholder = `[상세설명 작성 주의사항]
@@ -42,7 +43,7 @@ export default function upload() {
         <>
           <div className="flex justify-center items-center mt-14 text-sm">
             <button
-              className=" border border-zinc-400 bg-zinc-700 text-zinc-100"
+              className=" border border-zinc-400 bg-zinc-600 text-zinc-100"
               style={{ width: '50vw', height: '5vh' }}
               onClick={() => setIsUploadPage(true)}
             >
@@ -220,6 +221,46 @@ export default function upload() {
               </div>
             </div>
           </div>
+          <div className="relative flex flex-col  border border-zinc-400 mt-6 items-center">
+            <div className="flex text-sm font-bold m-3">
+              <span>사진 등록</span>
+            </div>
+            <div className="flex flex-col w-full p-3  border-t border-zinc-400 text-xs items-center">
+              <div className="p-3 w-full border border-zinc-300 text-zinc-500 text-xs leading-5">
+                - 사진은 가로로 찍은 사진을 권장합니다.
+                <br />- 사진 용량은 사진 한 장당 200KB 까지 등록 가능합니다.
+                <br />- 사진은 최소 3장 이상 등록해야하며, 최대 8장 까지
+                권장합니다.
+              </div>
+              <div>
+                <ImageUploader />
+              </div>
+              <div
+                className="flex items-center text-zinc-400 mr-auto"
+                style={{ fontSize: '13px' }}
+              >
+                <IconExclamationCircle size={18} className="mr-1" />
+                <span>
+                  허위 매물을 등록할 경우 MySpot에서 임의로 계정 및 매물 전체
+                  삭제 처리됩니다.
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="flex m-5 justify-center items-center space-x-5 text-sm">
+            <button
+              className=" border border-zinc-400 rounde"
+              style={{ width: '120px', height: '50px' }}
+            >
+              취소
+            </button>
+            <button
+              className=" border border-zinc-400 bg-zinc-600 text-zinc-100"
+              style={{ width: '120px', height: '50px' }}
+            >
+              등록하기
+            </button>
+          </div>
         </>
       ) : (
         <>
@@ -232,7 +273,7 @@ export default function upload() {
               방 내놓기
             </button>
             <button
-              className=" border border-zinc-400 bg-zinc-700 text-zinc-100"
+              className=" border border-zinc-400 bg-zinc-600 text-zinc-100"
               style={{ width: '50vw', height: '5vh' }}
               onClick={() => setIsUploadPage(false)}
             >

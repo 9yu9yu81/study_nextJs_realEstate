@@ -29,30 +29,35 @@ export default function Products() {
   }, [files])
 
   return (
-    <>
-      <div>
+    <div className="m-5 p-5 bg-zinc-100" style={{ width: '950px' }}>
+      <div className="mb-5">
         <FileButton accept="image/*" multiple onChange={setFiles}>
           {(props) => (
-            <Button {...props} variant="default" color={'gray'}>
+            <Button
+              {...props}
+              className="bg-zinc-600 text-zinc-100 ml-1"
+              radius={'sm'}
+              color={'gray'}
+            >
               사진 추가하기
             </Button>
           )}
         </FileButton>
-
-        <div className="grid grid-cols-4 grid-rows-3 space-x-3">
-          {images &&
-            images.length > 0 &&
-            images.map((image, idx) => (
-              <Image
-                alt={'img'}
-                key={idx}
-                src={image}
-                width={200}
-                height={200}
-              />
-            ))}
-        </div>
       </div>
-    </>
+      <div className="grid grid-cols-4">
+        {images &&
+          images.length > 0 &&
+          images.map((image, idx) => (
+            <Image
+              className="border border-zinc-400"
+              alt={'img'}
+              key={idx}
+              src={image}
+              width={200}
+              height={200}
+            />
+          ))}
+      </div>
+    </div>
   )
 }
