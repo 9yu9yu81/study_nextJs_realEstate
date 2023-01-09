@@ -1,11 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button, Input, SegmentedControl, Textarea } from '@mantine/core'
-import { IconExclamationCircle } from '@tabler/icons'
+import { IconExclamationCircle, IconMapPin } from '@tabler/icons'
 import Map from 'components/Map'
 import Postcode from 'components/Postcode'
 import ImageUploader from 'components/ImageUploader'
+
+const id = 'daum-postcode' // script가 이미 rending 되어 있는지 확인하기 위한 ID
+const src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
 
 export default function upload() {
   const placeholder = `[상세설명 작성 주의사항]
@@ -16,15 +19,61 @@ export default function upload() {
   const [isUploadPage, setIsUploadPage] = useState(true)
   //todo segmentedControl value -> setCategory -> Room category
 
-  //todo 주소검색 전에는 빈 지도를 보여주고 주소 검색 후에 그 주소가 지도에 보이게끔 하기
-
   //todo 거래 정보에서 월세, 전세 선택에 따라 보여지는 정보 다르게(월세: 보증금/월세 전세:전세)
   //todo 여유가 된다면 추가정보 및 디테일 들도 받을 수 있게 해보자
   //todo upload 데이터 받아서 db Room table create
   //todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게 -> db updated
 
+  //db에 올릴 state
   const [category, setCategory] = useState<string>('0')
   const [ym, setYm] = useState<string>('0')
+  //todo 등록하기 버튼 onClick => addr, detailAddr 합쳐서 address에 집어넣기
+  const [address, setAddress] = useState<string>('')
+  //todo 등록하기 버튼 => 건물크기, 제목, 상세설명, 이미지 state 받고 db Room 테이블에 추가
+
+  //daum-postcode
+  const addrRef = useRef<HTMLInputElement | null>(null)
+  const [addr, setAddr] = useState<string>('')
+  const detailAddrRef = useRef<HTMLTextAreaElement | null>(null)
+  const [detailAddr, setDetailAddr] = useState<string>('')
+  const [mapAddr, setMapAddr] = useState<string>('')
+  //daum-postcode 띄우는 함수
+  const loadLayout = () => {
+    window.daum.postcode.load(() => {
+      const postcode = new window.daum.Postcode({
+        oncomplete: function (data: any) {
+          if (data.userSelectedType === 'R') {
+            // 사용자가 도로명 주소를 선택했을 경우
+            setAddr(data.roadAddress)
+          } else {
+            // 사용자가 지번 주소를 선택했을 경우(J)
+            setAddr(data.jibunAddress)
+          }
+          if (addrRef.current?.value) {
+            addrRef.current.value = addr
+          }
+          setMapAddr(data.address)
+        },
+      })
+      postcode.open({
+        q: addr,
+      })
+    })
+  }
+  //daum-postcode 를 위해 script문 생성
+  useEffect(() => {
+    const isAlready = document.getElementById(id)
+
+    if (!isAlready) {
+      const script = document.createElement('script')
+      script.src = src
+      script.id = id
+      document.body.append(script)
+    }
+  }, [])
+
+  useMemo(() => {}, [])
+
   return (
     <div className="mt-10">
       <div className="flex justify-center items-center">
@@ -32,7 +81,7 @@ export default function upload() {
           <Image
             className="mr-1"
             src="/../public/images/home.png"
-            alt="logo"
+            alt="home"
             width={55}
             height={55}
           ></Image>
@@ -81,7 +130,7 @@ export default function upload() {
                     active: {
                       marginRight: 10,
                       marginLeft: 10,
-                      backgroundColor: '#52525A',
+                      backgroundColor: '#52525B',
                     },
                     control: { borderWidth: '0px !important' },
                   })}
@@ -117,20 +166,50 @@ export default function upload() {
                 <div className="flex mb-5">
                   <Input
                     className="w-full"
-                    id="input-demo"
+                    id="input"
                     type={'text'}
                     placeholder="예) 번동 10-1, 강북구 번동"
+                    ref={addrRef}
+                    value={addr}
+                    disabled
+                    onChange={() =>
+                      addrRef.current?.value && setAddr(addrRef.current?.value)
+                    }
                   />
-                  <Postcode />
+                  <Button
+                    className="bg-zinc-600 text-zinc-100 ml-1"
+                    radius={'sm'}
+                    color={'gray'}
+                    onClick={loadLayout}
+                  >
+                    주소 검색
+                  </Button>
                 </div>
                 <Textarea
                   className="w-full"
                   minRows={4}
-                  placeholder="상세 주소"
+                  placeholder="상세 주소) 동, 호수 등"
+                  value={detailAddr}
+                  ref={detailAddrRef}
+                  onChange={() =>
+                    detailAddrRef.current?.value &&
+                    setDetailAddr(detailAddrRef.current?.value)
+                  }
                 />
               </div>
               <div className="ml-12 p-3">
-                <Map width="330px" height="330px" />
+                {addr !== '' ? (
+                  <Map width="330px" height="300px" address={mapAddr} />
+                ) : (
+                  <div
+                    className="border flex flex-col justify-center items-center text-zinc-400"
+                    style={{ width: '330px', height: '300px' }}
+                  >
+                    <IconMapPin />
+                    <div>주소 검색을 하시면</div>
+                    <div>해당 위치가 지도에 표시됩니다.</div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -154,7 +233,7 @@ export default function upload() {
                     active: {
                       marginRight: 10,
                       marginLeft: 10,
-                      backgroundColor: '#52525A',
+                      backgroundColor: '#52525B',
                     },
                     control: { borderWidth: '0px !important' },
                   })}

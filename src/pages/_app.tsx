@@ -5,7 +5,8 @@ import Header from 'components/Header'
 import Footer from 'components/Footer'
 import { SessionProvider } from 'next-auth/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import Script from 'next/script'
+import { KAKAOMAP_KEY } from 'constants/googleAuth'
 
 export default function App({
   Component,
@@ -24,6 +25,10 @@ export default function App({
           <title>Myspot</title>
           <meta name="description" content="My Spot direct transaction" />
         </Head>
+        <Script
+          strategy="beforeInteractive"
+          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAOMAP_KEY}&autoload=false&libraries=services`}
+        />
         <div className="relative">
           <Header />
           <div className="flex justify-center">

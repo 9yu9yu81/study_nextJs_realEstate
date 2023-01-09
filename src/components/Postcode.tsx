@@ -4,8 +4,9 @@ import { useEffect, useRef } from 'react'
 const id = 'daum-postcode' // script가 이미 rending 되어 있는지 확인하기 위한 ID
 const src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
 
-export default function Postcode() {
+export default function Postcode({ addr }: { addr: string }) {
   const postcodeRef = useRef<HTMLDivElement>(null)
+
   const loadLayout = () => {
     window.daum.postcode.load(() => {
       const postcode = new window.daum.Postcode({
@@ -13,7 +14,9 @@ export default function Postcode() {
           console.log(data)
         },
       })
-      postcode.open()
+      postcode.open({
+        q: addr,
+      })
     })
   }
 

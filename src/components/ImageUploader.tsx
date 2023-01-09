@@ -44,7 +44,7 @@ export default function Products() {
           )}
         </FileButton>
       </div>
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-4 items-center space-y-2">
         {images &&
           images.length > 0 &&
           images.map((image, idx) => (
