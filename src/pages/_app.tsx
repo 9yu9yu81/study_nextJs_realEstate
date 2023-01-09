@@ -27,7 +27,7 @@ export default function App({
         <div className="relative">
           <Header />
           <div className="flex justify-center">
-            <div className="mt-20 m-5 w-full" style={{ maxWidth: '1000px' }}>
+            <div className="m-5 w-full" style={{ maxWidth: '1000px' }}>
               <Component {...pageProps} />
               <Footer />
             </div>

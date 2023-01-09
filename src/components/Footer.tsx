@@ -24,19 +24,19 @@ export default function Footer() {
             <div className="pl-3 pr-3">
               <Link href="/introduce">사업소개</Link>
             </div>
-            <div className=" border-solid border-l border-zinc-400 pl-3 pr-3">
+            <div className="  border-l border-zinc-400 pl-3 pr-3">
               <Link href="/introduce">이용약관</Link>
             </div>
-            <div className=" border-solid border-l border-zinc-400 pl-3 pr-3">
+            <div className="  border-l border-zinc-400 pl-3 pr-3">
               <Link href="/introduce">개인정보처리방침</Link>
             </div>
-            <div className=" border-solid border-l border-zinc-400 pl-3 pr-3">
+            <div className="  border-l border-zinc-400 pl-3 pr-3">
               <Link href="/introduce">매물관리규정</Link>
             </div>
           </div>
         </div>
       </div>
-      <div className="border-solid border-t border-zinc-300 pt-6 pb-2 mr-2 ml-2 pl-2  text-xs text-zinc-500">
+      <div className=" border-t border-zinc-300 pt-6 pb-2 mr-2 ml-2 pl-2  text-xs text-zinc-500">
         MySpot
         <br />
         developer : 9yu9yu81

@@ -61,7 +61,6 @@ model Room {
   area Int
   address String
   detailAddress String
-  phone String
   image String
   title String
   contents String

@@ -1,17 +1,17 @@
-import { IconUser } from '@tabler/icons'
-import { useSession } from 'next-auth/react'
+import { IconLogout, IconSearch, IconSettings, IconUser } from '@tabler/icons'
+import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Button } from '@mantine/core'
+import { Button, Menu } from '@mantine/core'
 
 export default function Header() {
   //todo 유저 아이콘 클릭 => list (계약목록, 내가 게시한 매물, 로그아웃 ) 구현
-  //todo 커뮤니티 (방구하기, 양도하기, 일반 게시판)
+  //todo 커뮤니티 (방구하기, 양도하기, 정보 스팟, 자유 스팟)
   const router = useRouter()
   const { data: session } = useSession()
   return (
-    <div className="bg-white border-solid border-b border-zinc-400  p-2">
+    <div className="bg-white  border-b border-zinc-400  p-2">
       <div className="w-full flex items-center">
         <Link href="/" className="flex">
           <Image
@@ -38,13 +38,32 @@ export default function Header() {
         >
           지도
         </Button>
-        <Button
-          variant="subtle"
-          color="gray"
-          onClick={() => router.push('/comunity')}
-        >
-          커뮤니티
-        </Button>
+        <Menu shadow="sm" width={150}>
+          <Menu.Target>
+            <Button variant="subtle" color="gray">
+              커뮤니티
+            </Button>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item onClick={() => router.push('/community')}>
+              전체 글
+            </Menu.Item>
+            <Menu.Item onClick={() => router.push('/community/0')}>
+              방 구하기
+            </Menu.Item>
+            <Menu.Item onClick={() => router.push('/community/1')}>
+              방 양도하기
+            </Menu.Item>
+            <Menu.Item onClick={() => router.push('/community/2')}>
+              정보 게시판
+            </Menu.Item>
+            <Menu.Item onClick={() => router.push('/community/3')}>
+              자유 게시판
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item icon={<IconSearch size={15} />}>검색</Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
         <Button
           variant="subtle"
           color="gray"
@@ -60,14 +79,28 @@ export default function Header() {
           관심목록
         </Button>{' '}
         {session ? (
-          <Image
-            className="rounded-sm mr-3 ml-3"
-            src={session.user?.image!}
-            alt="profile"
-            width={30}
-            height={30}
-            onClick={() => router.push('/my')}
-          />
+          <Menu shadow="sm" width={150}>
+            <Menu.Target>
+              <Image
+                className="rounded-sm mr-3 ml-3"
+                src={session.user?.image!}
+                alt="profile"
+                width={30}
+                height={30}
+              />
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item>내 방 목록</Menu.Item>
+              <Menu.Item>내가 쓴 글</Menu.Item>
+              <Menu.Divider />
+              <Menu.Item
+                icon={<IconLogout size={15} />}
+                onClick={() => signOut()}
+              >
+                로그아웃
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
         ) : (
           <Button
             variant="outline"

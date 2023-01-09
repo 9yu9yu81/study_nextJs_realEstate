@@ -10,7 +10,7 @@ export default function SignIn() {
     router.push('/')
   }
   return (
-    <div className="h-96 w-96 m-auto flex justify-center items-center border-solid border border-zinc-200">
+    <div className="h-96 w-96 m-auto flex justify-center items-center  border border-zinc-200">
       {session ? (
         <div>
           <Button
@@ -23,7 +23,7 @@ export default function SignIn() {
         </div>
       ) : (
         <div>
-          <div className="font-bold text-3xl mb-10 pb-7 border-solid border-b border-zinc-200">
+          <div className="font-bold text-3xl mb-10 pb-7  border-b border-zinc-200">
             로그인
           </div>
           <div className="font-bold text-xs mb-10">

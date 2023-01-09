@@ -4,13 +4,10 @@ import { useState } from 'react'
 
 export default function Home() {
   return (
-    <div className="justify-center items-center text-zinc-500">
-      <div className="h-72 flex border-solid border-b border-zinc-300">
-        <div className="p-10 w-full">
+    <div className="justify-center items-center text-zinc-500 mt-20">
+      <div className="h-72 flex  border-b border-zinc-300">
+        <div className="p-10 w-full space-y-5">
           <div className="h-16 text-3xl font-bold ">어떤 스팟을 찾으세요?</div>
-          <div className="flex space-x-1 text-sm m-1">
-            <span className="rounded-xl p-1 hover:bg-zinc-100">매물</span>
-          </div>
           <Input icon={<IconSearch />} placeholder="지역을 입력하세요" />
         </div>
       </div>

@@ -40,7 +40,7 @@ export default function Map({
       <div className="flex justify-center items-center">
         <div
           id="map"
-          className="border-solid border border-zinc-500"
+          className=" border border-zinc-500"
           ref={mapRef}
           style={{
             width: width,
