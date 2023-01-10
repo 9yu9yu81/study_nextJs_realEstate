@@ -4,11 +4,7 @@ import Image from 'next/image'
 import { Button, Input, SegmentedControl, Textarea } from '@mantine/core'
 import { IconExclamationCircle, IconMapPin } from '@tabler/icons'
 import Map from 'components/Map'
-import Postcode from 'components/Postcode'
 import ImageUploader from 'components/ImageUploader'
-
-const id = 'daum-postcode' // script가 이미 rending 되어 있는지 확인하기 위한 ID
-const src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
 
 export default function upload() {
   const placeholder = `[상세설명 작성 주의사항]
@@ -37,6 +33,7 @@ export default function upload() {
   const detailAddrRef = useRef<HTMLTextAreaElement | null>(null)
   const [detailAddr, setDetailAddr] = useState<string>('')
   const [mapAddr, setMapAddr] = useState<string>('')
+  const [isComplete, setIsComplete] = useState<boolean>(false) //주소 검색을 눌렀는지 확인하는 state
   //daum-postcode 띄우는 함수
   const loadLayout = () => {
     window.daum.postcode.load(() => {
@@ -52,7 +49,8 @@ export default function upload() {
           if (addrRef.current?.value) {
             addrRef.current.value = addr
           }
-          setMapAddr(data.address)
+          setMapAddr(data.address) //Map component 에 props로 보낼 주소 데이터
+          setIsComplete(true) //주소 검색이 되었는지 확인
         },
       })
       postcode.open({
@@ -60,19 +58,6 @@ export default function upload() {
       })
     })
   }
-  //daum-postcode 를 위해 script문 생성
-  useEffect(() => {
-    const isAlready = document.getElementById(id)
-
-    if (!isAlready) {
-      const script = document.createElement('script')
-      script.src = src
-      script.id = id
-      document.body.append(script)
-    }
-  }, [])
-
-  useMemo(() => {}, [])
 
   return (
     <div className="mt-10">
@@ -171,9 +156,11 @@ export default function upload() {
                     placeholder="예) 번동 10-1, 강북구 번동"
                     ref={addrRef}
                     value={addr}
-                    disabled
-                    onChange={() =>
-                      addrRef.current?.value && setAddr(addrRef.current?.value)
+                    onChange={
+                      () =>
+                        addrRef.current?.value
+                          ? setAddr(addrRef.current?.value)
+                          : setAddr('') //글자 지울때 마지막 하나 글자 지울 수 있게 함
                     }
                   />
                   <Button
@@ -191,14 +178,16 @@ export default function upload() {
                   placeholder="상세 주소) 동, 호수 등"
                   value={detailAddr}
                   ref={detailAddrRef}
-                  onChange={() =>
-                    detailAddrRef.current?.value &&
-                    setDetailAddr(detailAddrRef.current?.value)
+                  onChange={
+                    () =>
+                      detailAddrRef.current?.value
+                        ? setDetailAddr(detailAddrRef.current?.value)
+                        : setDetailAddr('') //글자 지울때 마지막 하나 글자 지울 수 있게 함
                   }
                 />
               </div>
               <div className="ml-12 p-3">
-                {addr !== '' ? (
+                {isComplete ? (
                   <Map width="330px" height="300px" address={mapAddr} />
                 ) : (
                   <div

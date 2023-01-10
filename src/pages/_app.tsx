@@ -29,6 +29,10 @@ export default function App({
           strategy="beforeInteractive"
           src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAOMAP_KEY}&autoload=false&libraries=services`}
         />
+        <Script
+          strategy="beforeInteractive"
+          src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+        />
         <div className="relative">
           <Header />
           <div className="flex justify-center">
