@@ -5,6 +5,7 @@ import { Button, Input, SegmentedControl, Textarea } from '@mantine/core'
 import { IconExclamationCircle, IconMapPin } from '@tabler/icons'
 import Map from 'components/Map'
 import ImageUploader from 'components/ImageUploader'
+import { Key } from 'readline'
 
 export default function upload() {
   const placeholder = `[상세설명 작성 주의사항]
@@ -15,7 +16,6 @@ export default function upload() {
   const [isUploadPage, setIsUploadPage] = useState(true)
   //todo segmentedControl value -> setCategory -> Room category
 
-  //todo 거래 정보에서 월세, 전세 선택에 따라 보여지는 정보 다르게(월세: 보증금/월세 전세:전세)
   //todo 여유가 된다면 추가정보 및 디테일 들도 받을 수 있게 해보자
   //todo upload 데이터 받아서 db Room table create
   //todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게 -> db updated
@@ -57,6 +57,15 @@ export default function upload() {
         q: addr,
       })
     })
+  }
+  //위치 정보 주소 쓰는 input에서 enter 를 누르면 바로 '주소검색' 버튼이 눌리게 기능 구현
+  const postcodeButtonRef = useRef<HTMLButtonElement | null>(null)
+  const handleEnterKeypress = (e: any) => {
+    if (e.keyCode == 13) {
+      if (postcodeButtonRef.current) {
+        postcodeButtonRef.current.click()
+      }
+    }
   }
 
   return (
@@ -158,16 +167,18 @@ export default function upload() {
                     value={addr}
                     onChange={
                       () =>
-                        addrRef.current?.value
-                          ? setAddr(addrRef.current?.value)
+                        addrRef.current
+                          ? setAddr(addrRef.current.value)
                           : setAddr('') //글자 지울때 마지막 하나 글자 지울 수 있게 함
                     }
+                    onKeyUp={handleEnterKeypress}
                   />
                   <Button
                     className="bg-zinc-600 text-zinc-100 ml-1"
                     radius={'sm'}
                     color={'gray'}
                     onClick={loadLayout}
+                    ref={postcodeButtonRef}
                   >
                     주소 검색
                   </Button>
@@ -180,8 +191,8 @@ export default function upload() {
                   ref={detailAddrRef}
                   onChange={
                     () =>
-                      detailAddrRef.current?.value
-                        ? setDetailAddr(detailAddrRef.current?.value)
+                      detailAddrRef.current
+                        ? setDetailAddr(detailAddrRef.current.value)
                         : setDetailAddr('') //글자 지울때 마지막 하나 글자 지울 수 있게 함
                   }
                 />
