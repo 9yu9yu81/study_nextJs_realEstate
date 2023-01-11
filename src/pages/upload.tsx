@@ -14,12 +14,18 @@ import { CenteringDiv } from 'components/styledComponent'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Room } from '@prisma/client'
 import { ROOM_QUERY_KEY } from 'constants/querykey'
-import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
+
+//todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게 -> db updated
+
+//todo 여유가 된다면 추가정보 및 디테일 들도 받을 수 있게 해보자
+
+//todo 방 내놓기 onSuccess => '내 방 관리'로, 다시 또 거기서 방 내 놓기 누르면 ref value  전부 초기화 되게 화면 reload
+
+//todo upload 페이지 진입할 때 로그인 되어있는지 검사 => 안 되어있다면 바로 로그인 페이지로 라우팅 시키기
 
 export default function upload() {
   const queryClient = useQueryClient()
-  const router = useRouter()
   const { data: session } = useSession()
   const placeholder = `[상세설명 작성 주의사항]
   - 매물 정보와 관련없는 홍보성 정보는 입력할 수 없습니다.
@@ -28,14 +34,6 @@ export default function upload() {
   위 주의사항 위반시 임의로 매물 삭제 혹은 서비스 이용이 제한될 수 있습니다.`
   //방 내놓기인지 내 방관리인지 확인하는 state
   const [isUploadPage, setIsUploadPage] = useState(true)
-  //todo segmentedControl value -> setCategory -> Room category
-
-  //todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게 -> db updated
-
-  //todo 등록하기 버튼 => 가격, 건물크기, 제목, 상세설명, 이미지 state 받고 db Room 테이블에 추가
-
-  //todo 여유가 된다면 추가정보 및 디테일 들도 받을 수 있게 해보자
-
   //db에 올릴 state
   const [category, setCategory] = useState<string>('0')
   const [ym, setYm] = useState<string>('0') //전/월세 -> 월세는 deposit 받음
@@ -48,11 +46,11 @@ export default function upload() {
 
   //daum-postcode
   const addrRef = useRef<HTMLInputElement | null>(null)
-  const [addr, setAddr] = useState<string>('')
+  // const [addr, setAddr] = useState<string>('')
   const detailAddrRef = useRef<HTMLTextAreaElement | null>(null)
-  const [detailAddr, setDetailAddr] = useState<string>('')
+  // const [detailAddr, setDetailAddr] = useState<string>('')
   //주소 검색을 눌렀는지 확인하는 state
-  const [isComplete, setIsComplete] = useState<boolean>(false)
+  const [addrSearchComplete, setAddrSearchComplete] = useState<boolean>(false)
   //daum-postcode 띄우는 함수
   const loadLayout = () => {
     window.daum.postcode.load(() => {
@@ -60,19 +58,20 @@ export default function upload() {
         oncomplete: function (data: any) {
           if (data.userSelectedType === 'R') {
             // 사용자가 도로명 주소를 선택했을 경우
-            setAddr(data.roadAddress)
+            if (addrRef.current) {
+              addrRef.current.value = data.roadAddress
+            }
           } else {
             // 사용자가 지번 주소를 선택했을 경우(J)
-            setAddr(data.jibunAddress)
+            if (addrRef.current) {
+              addrRef.current.value = data.jibunAddress
+            }
           }
-          if (addrRef.current?.value) {
-            addrRef.current.value = addr
-          }
-          setIsComplete(true) //주소 검색이 되었는지 확인
+          setAddrSearchComplete(true) //주소 검색이 되었는지 확인
         },
       })
       postcode.open({
-        q: addr,
+        q: addrRef.current?.value,
       })
     })
   }
@@ -129,8 +128,10 @@ export default function upload() {
       onMutate: () => {
         queryClient.invalidateQueries([ROOM_QUERY_KEY])
       },
-      onSuccess: () => {
-        router.reload()
+      onSuccess: async () => {
+        setCategory('0')
+        setYm('0')
+        setImages([])
         setIsUploadPage(false)
       },
     }
@@ -138,31 +139,33 @@ export default function upload() {
 
   const validate = (type: 'submit') => {
     if (type === 'submit') {
-      ym === '1' && depositRef.current?.value == null
-        ? alert('보증금을 입력하세요.')
-        : addrRef.current?.value == null
+      addrRef.current?.value == ''
         ? alert('주소를 입력하세요.')
-        : detailAddrRef.current?.value == null
+        : detailAddrRef.current?.value == ''
         ? alert('상세 주소를 입력하세요.')
-        : areaRef.current?.value == null
-        ? alert('건물 크기를 입력하세요.')
-        : priceRef.current?.value == null
+        : ym === '1' && depositRef.current?.value == ''
+        ? alert('보증금을 입력하세요.')
+        : priceRef.current?.value == ''
         ? alert('가격을 입력하세요.')
-        : titleRef.current?.value == null
+        : areaRef.current?.value == ''
+        ? alert('건물 크기를 입력하세요.')
+        : titleRef.current?.value == ''
         ? alert('제목을 입력하세요')
-        : descriptionRef.current?.value == null
+        : descriptionRef.current?.value == ''
         ? alert('상세 설명을 입력하세요.')
+        : images.length < 4
+        ? alert('최소 3장의 이미지를 추가해주세요')
         : addRoom({
             category: category,
             ym: ym,
-            address: addr,
-            detailAddress: detailAddr,
+            address: String(addrRef.current?.value),
+            detailAddress: String(detailAddrRef.current?.value),
             area: Number(areaRef.current?.value),
             price: Number(priceRef.current?.value),
             deposit: Number(depositRef.current?.value),
             images: images.join(','),
-            title: titleRef.current?.value,
-            description: descriptionRef.current?.value,
+            title: String(titleRef.current?.value),
+            description: String(descriptionRef.current?.value),
           })
     }
   }
@@ -264,13 +267,13 @@ export default function upload() {
                       type={'text'}
                       placeholder="예) 번동 10-1, 강북구 번동"
                       ref={addrRef}
-                      value={addr}
-                      onChange={
-                        () =>
-                          addrRef.current
-                            ? setAddr(addrRef.current.value)
-                            : setAddr('') //글자 지울때 마지막 하나 글자 지울 수 있게 함
-                      }
+                      // value={addr}
+                      // onChange={
+                      //   () =>
+                      //     addrRef.current
+                      //       ? setAddr(addrRef.current.value)
+                      //       : setAddr('') //글자 지울때 마지막 하나 글자 지울 수 있게 함
+                      // }
                       onKeyUp={handleEnterKeypress}
                     />
                     <Button
@@ -287,19 +290,23 @@ export default function upload() {
                     className="w-full"
                     minRows={4}
                     placeholder="상세 주소) 동, 호수 등"
-                    value={detailAddr}
                     ref={detailAddrRef}
-                    onChange={
-                      () =>
-                        detailAddrRef.current
-                          ? setDetailAddr(detailAddrRef.current.value)
-                          : setDetailAddr('') //글자 지울때 마지막 하나 글자 지울 수 있게 함
-                    }
+                    // value={detailAddr}
+                    // onChange={
+                    //   () =>
+                    //     detailAddrRef.current
+                    //       ? setDetailAddr(detailAddrRef.current.value)
+                    //       : setDetailAddr('') //글자 지울때 마지막 하나 글자 지울 수 있게 함
+                    // }
                   />
                 </div>
                 <div className="ml-12 p-3">
-                  {isComplete ? (
-                    <Map width="330px" height="300px" address={addr} />
+                  {addrSearchComplete ? (
+                    <Map
+                      width="330px"
+                      height="300px"
+                      address={addrRef.current?.value}
+                    />
                   ) : (
                     <CenteringDiv
                       className="border flex-col text-zinc-400"
