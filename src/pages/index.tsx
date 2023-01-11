@@ -4,7 +4,7 @@ import { IconSearch } from '@tabler/icons'
 
 export default function home() {
   return (
-    <div className="justify-center items-center text-zinc-500 mt-20">
+    <div className="text-zinc-500 mt-20">
       <div className="h-72 flex  border-b border-zinc-300">
         <div className="p-10 w-full space-y-5">
           <div className="h-16 text-3xl font-bold ">어떤 스팟을 찾으세요?</div>

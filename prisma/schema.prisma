@@ -49,7 +49,6 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-
   @@unique([identifier, token])
 }
 
@@ -61,18 +60,20 @@ model Room {
   area Int
   address String
   detailAddress String
-  image String
+  images String
   title String
-  contents String
+  description String
   updatedAt DateTime @default(now())
   userId String
+  price Int
+  status Int @default(0)
 }
 
 model Community {
   id   Int    @id @default(autoincrement())
   category Int
   images String
-  contents String
+  description String
   updatedAt DateTime @default(now())
   commentid Int
   userId String
@@ -80,7 +81,7 @@ model Community {
 
 model Comment {
   id          Int      @id @default(autoincrement())
-  contents    String
+  comment    String
   updatedAt   DateTime @updatedAt
   userId      String
   communityId Int
