@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 
 async function addRoom(
   userId: string,
-  room: Omit<Room, 'userId' | 'id' | 'updatedAt' | 'status'>
+  room: Omit<Room, 'userId' | 'id' | 'updatedAt' | 'status' | 'views'>
 ) {
   try {
     const response = await prisma.room.create({

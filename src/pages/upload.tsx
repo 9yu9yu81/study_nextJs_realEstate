@@ -17,20 +17,18 @@ import { Room } from '@prisma/client'
 import { ROOM_QUERY_KEY } from 'constants/querykey'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
+import {
+  DESCRIPTION_PLACEHOLDER,
+  DETAILADDR_PLACEHOLDER,
+} from 'constants/upload'
 
-//todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게 -> db updated
-
-//todo 여유가 된다면 추가정보 및 디테일 들도 받을 수 있게 해보자
+//todo Room 데이터 받아서 화면에 뿌릴 Layout 생각해보기
+//todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게(db update)
 
 export default function upload() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
-  const placeholder = `[상세설명 작성 주의사항]
-  - 매물 정보와 관련없는 홍보성 정보는 입력할 수 없습니다.
-  - 매물등록 규정에 위반되는 금칙어는 입력할 수 없습니다.
-  
-  위 주의사항 위반시 임의로 매물 삭제 혹은 서비스 이용이 제한될 수 있습니다.`
   //방 내놓기인지 내 방관리인지 확인하는 state
   const [isUploadPage, setIsUploadPage] = useState(true)
   //db에 올릴 state
@@ -113,7 +111,7 @@ export default function upload() {
   const { mutate: addRoom } = useMutation<
     unknown,
     unknown,
-    Omit<Room, 'userId' | 'id' | 'updatedAt' | 'status'>,
+    Omit<Room, 'userId' | 'id' | 'updatedAt' | 'status' | 'views'>,
     any
   >(
     (room) =>
@@ -292,7 +290,7 @@ export default function upload() {
                 <Textarea
                   className="w-full"
                   minRows={4}
-                  placeholder="상세 주소) 동, 호수 등"
+                  placeholder={DETAILADDR_PLACEHOLDER}
                   ref={detailAddrRef}
                   // value={detailAddr}
                   // onChange={
@@ -304,7 +302,7 @@ export default function upload() {
                 />
               </div>
               <div className="ml-12 p-3">
-                {addrSearchComplete ? (
+                {addrSearchComplete && addrRef.current?.value !== '' ? (
                   <Map
                     width="330px"
                     height="300px"
@@ -412,7 +410,7 @@ export default function upload() {
                     style={{ width: '800px' }}
                     minRows={8}
                     wrap="hard"
-                    placeholder={placeholder}
+                    placeholder={DESCRIPTION_PLACEHOLDER}
                     ref={descriptionRef}
                   />
                 </div>

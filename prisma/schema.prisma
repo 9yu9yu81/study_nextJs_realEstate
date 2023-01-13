@@ -63,10 +63,11 @@ model Room {
   images String
   title String
   description String
-  updatedAt DateTime @default(now())
-  userId String
   price Int
+  updatedAt DateTime @default(now())
   status Int @default(0)
+  views Int @default(0)
+  userId String
 }
 
 model Community {
