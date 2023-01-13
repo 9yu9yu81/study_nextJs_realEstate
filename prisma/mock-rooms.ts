@@ -52,7 +52,8 @@ addrMockData.map((addr, idx) => {
       '상세 설명 입니다.\n' +
       '상세 설명 입니다.\n' +
       '상세 설명 입니다.\n',
-    images: '',
+    images:
+      'https://cdn.pixabay.com/photo/2019/05/06/17/46/bed-4183710_1280.png,https://cdn.pixabay.com/photo/2018/03/01/17/36/room-3191241_1280.jpg',
     views: getRandom(0, 100),
     userId: 'clchojlw50000qjoixw2b0pen',
   })

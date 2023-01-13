@@ -9,3 +9,4 @@ export const DETAILADDR_PLACEHOLDER = `상세 주소
 
 export const ROOM_CATEGORY_MAP = ['원룸', '투룸', '쓰리룸', '그 외']
 export const ROOM_YM_MAP = ['전세', '월세']
+export const ROOM_STATUS_MAP = ['공개중', '거래완료', '기한만료']

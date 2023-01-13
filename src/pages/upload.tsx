@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
+  Badge,
   Button,
   FileButton,
   Input,
@@ -9,10 +10,20 @@ import {
   SegmentedControl,
   Textarea,
 } from '@mantine/core'
-import { IconExclamationCircle, IconMapPin, IconSlash } from '@tabler/icons'
+import {
+  IconEdit,
+  IconExclamationCircle,
+  IconEye,
+  IconEyeCheck,
+  IconHeart,
+  IconMapPin,
+  IconSlash,
+  IconView360,
+  IconX,
+} from '@tabler/icons'
 import Map from 'components/Map'
-import { CenteringDiv } from 'components/styledComponent'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Cbl, CenteringDiv } from 'components/styledComponent'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Room } from '@prisma/client'
 import { ROOM_QUERY_KEY } from 'constants/querykey'
 import { useSession } from 'next-auth/react'
@@ -20,17 +31,21 @@ import { useRouter } from 'next/router'
 import {
   DESCRIPTION_PLACEHOLDER,
   DETAILADDR_PLACEHOLDER,
+  ROOM_CATEGORY_MAP,
+  ROOM_STATUS_MAP,
+  ROOM_YM_MAP,
 } from 'constants/upload'
 
 //todo Room 데이터 받아서 화면에 뿌릴 Layout 생각해보기
 //todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게(db update)
+//todo 내방관리 x button -> 매물 삭제
 
 export default function upload() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
   //방 내놓기인지 내 방관리인지 확인하는 state
-  const [isUploadPage, setIsUploadPage] = useState(true)
+  const [isUploadPage, setIsUploadPage] = useState(false)
   //db에 올릴 state
   const [category, setCategory] = useState<string>('0')
   const [ym, setYm] = useState<string>('0') //전/월세 -> 월세는 deposit 받음
@@ -166,11 +181,14 @@ export default function upload() {
           })
     }
   }
-
-  //upload 페이지 진입할 때 로그인 되어있는지 검사
-  useEffect(() => {
-    session ?? router.push('/auth/login')
-  }, [])
+  // get Room data
+  const { data: rooms } = useQuery<{ rooms: Room[] }, unknown, Room[]>(
+    [ROOM_QUERY_KEY],
+    () =>
+      fetch(ROOM_QUERY_KEY)
+        .then((res) => res.json())
+        .then((data) => data.items)
+  )
 
   return session ? (
     <div className="text-sm">
@@ -515,15 +533,171 @@ export default function upload() {
             <br />∙ 공개중 : 내가 등록한 매물이 공개중인 상태
             <br />∙ 거래완료 : 등록한 매물이 거래완료된 상태
           </div>
-          <CenteringDiv className="mt-40 mb-40">
-            <div>등록된 매물이 없습니다.</div>
-          </CenteringDiv>
+          {rooms ? (
+            rooms.map((room, idx) => (
+              <>
+                <div
+                  className="relative flex-col  border border-zinc-400 mt-6 rounded-md font-light text-zinc-600"
+                  style={{ fontSize: '13px' }}
+                >
+                  <CenteringDiv className="border-zinc-400 border-b">
+                    <CenteringDiv
+                      className="border-r border-zinc-400 p-2"
+                      style={{ width: '100px' }}
+                    >
+                      {idx}
+                    </CenteringDiv>
+                    <div className="w-full p-2 text-sm font-">
+                      <Badge
+                        className="mr-3"
+                        color={room.status === 0 ? 'blue' : 'red'}
+                      >
+                        {ROOM_STATUS_MAP[room.status]}
+                      </Badge>
+                      {room.title}
+                    </div>
+                    <Cbl className="p-2" style={{ width: '80px' }}>
+                      <IconHeart size={18} stroke={1} />
+                      {room.views}
+                    </Cbl>
+                    <Cbl className="p-2" style={{ width: '80px' }}>
+                      <IconEyeCheck size={18} stroke={1} />
+                      {room.views}
+                    </Cbl>
+                    <Cbl className="p-2" style={{ width: '140px' }}>
+                      <IconEdit size={18} stroke={1} />
+                      수정하기
+                    </Cbl>
+                    <Cbl className="p-2" style={{ width: '140px' }}>
+                      <IconX size={18} stroke={1} />
+                      매물삭제
+                    </Cbl>
+                  </CenteringDiv>
+                  <div className="flex">
+                    <div
+                      className="relative m-3"
+                      style={{ width: '250px', height: '200px' }}
+                    >
+                      <Image
+                        className="border-zinc-400 border rounded-3xl"
+                        src={room.images.split(',')[0]}
+                        alt={'thumbnail'}
+                        fill
+                      />
+                    </div>
+                    <CenteringDiv>
+                      <div className="p-3">
+                        <div className="border border-zinc-400">
+                          <CenteringDiv className="border p-2">
+                            매물정보
+                          </CenteringDiv>
+                          <CenteringDiv>
+                            <CenteringDiv
+                              className="border-r"
+                              style={{ width: '60px' }}
+                            >
+                              매물종류
+                            </CenteringDiv>
+                            <div className="p-1">
+                              {ROOM_CATEGORY_MAP[Number(room.category)]}
+                            </div>
+                          </CenteringDiv>
+                        </div>
+                      </div>
+                      <div className="p-3" style={{ maxWidth: '270px' }}>
+                        <div className="border border-zinc-400">
+                          <CenteringDiv className="border-b p-2">
+                            위치정보
+                          </CenteringDiv>
+                          <CenteringDiv className="border-b">
+                            <CenteringDiv
+                              className="border-r"
+                              style={{ width: '60px' }}
+                            >
+                              주소
+                            </CenteringDiv>
+                            <div className="p-1 mr-auto">{room.address}</div>
+                          </CenteringDiv>
+                          <CenteringDiv>
+                            <CenteringDiv
+                              className="border-r"
+                              style={{ width: '60px' }}
+                            >
+                              상세주소
+                            </CenteringDiv>
+                            <div className="p-1 mr-auto">
+                              {room.detailAddress}
+                            </div>
+                          </CenteringDiv>
+                        </div>
+                      </div>
+                      <div className="p-3">
+                        <div className="border border-zinc-400">
+                          <CenteringDiv className="border p-2">
+                            거래정보
+                          </CenteringDiv>
+                          <CenteringDiv className="border-b">
+                            <CenteringDiv
+                              className="border-r"
+                              style={{ width: '60px' }}
+                            >
+                              거래종류
+                            </CenteringDiv>
+                            <div className="p-1 mr-auto">
+                              {ROOM_YM_MAP[Number(room.ym)]}
+                            </div>
+                          </CenteringDiv>
+                          <CenteringDiv>
+                            <CenteringDiv
+                              className="border-r"
+                              style={{ width: '60px' }}
+                            >
+                              가격
+                            </CenteringDiv>
+                            <div className="p-1 mr-auto">
+                              {room.ym == '0' ? (
+                                <>{room.price}만원</>
+                              ) : (
+                                <>
+                                  {room.deposit}/{room.price}만원
+                                </>
+                              )}
+                            </div>
+                          </CenteringDiv>
+                        </div>
+                      </div>
+                      <div className="p-3">
+                        <div className="border border-zinc-400">
+                          <CenteringDiv className="border p-2">
+                            기본정보
+                          </CenteringDiv>
+                          <CenteringDiv>
+                            <CenteringDiv
+                              className="border-r"
+                              style={{ width: '60px' }}
+                            >
+                              건물크기
+                            </CenteringDiv>
+                            <div className="p-1">{room.area}평</div>
+                          </CenteringDiv>
+                        </div>
+                      </div>
+                    </CenteringDiv>
+                  </div>
+                </div>
+              </>
+            ))
+          ) : (
+            <CenteringDiv className="mt-40 mb-40">
+              <div>등록된 매물이 없습니다.</div>
+            </CenteringDiv>
+          )}
         </>
       )}
     </div>
   ) : (
     <CenteringDiv className="m-40">
-      <Loader></Loader>
+      <Loader />
     </CenteringDiv>
   )
 }

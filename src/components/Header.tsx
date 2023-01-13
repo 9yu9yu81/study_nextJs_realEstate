@@ -68,7 +68,9 @@ export default function Header() {
         <Button
           variant="subtle"
           color="gray"
-          onClick={() => router.push('/upload')}
+          onClick={() =>
+            session ? router.push('/upload') : router.push('/auth/login')
+          }
         >
           방내놓기
         </Button>
