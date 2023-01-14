@@ -13,21 +13,18 @@ import {
 import {
   IconEdit,
   IconExclamationCircle,
-  IconEye,
   IconEyeCheck,
   IconHeart,
   IconMapPin,
   IconSlash,
-  IconView360,
   IconX,
 } from '@tabler/icons'
 import Map from 'components/Map'
-import { Cbl, CenteringDiv } from 'components/styledComponent'
+import { Cbl, CenteringDiv, StyledImage } from 'components/styledComponent'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Room } from '@prisma/client'
 import { ROOM_QUERY_KEY } from 'constants/querykey'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/router'
 import {
   DESCRIPTION_PLACEHOLDER,
   DETAILADDR_PLACEHOLDER,
@@ -35,17 +32,19 @@ import {
   ROOM_STATUS_MAP,
   ROOM_YM_MAP,
 } from 'constants/upload'
+import { useRouter } from 'next/router'
 
 //todo Room 데이터 받아서 화면에 뿌릴 Layout 생각해보기
 //todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게(db update)
 //todo 내방관리 x button -> 매물 삭제
+//todo date-fns 설치, 남은 기한 표시, 30일 기한 지날 시 status = 2 ('기한만료')
 
 export default function upload() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
   //방 내놓기인지 내 방관리인지 확인하는 state
-  const [isUploadPage, setIsUploadPage] = useState(false)
+  const [isUploadPage, setIsUploadPage] = useState(true)
   //db에 올릴 state
   const [category, setCategory] = useState<string>('0')
   const [ym, setYm] = useState<string>('0') //전/월세 -> 월세는 deposit 받음
@@ -165,8 +164,8 @@ export default function upload() {
         ? alert('제목을 입력하세요')
         : descriptionRef.current?.value == ''
         ? alert('상세 설명을 입력하세요.')
-        : images.length < 4
-        ? alert('최소 3장의 이미지를 추가해주세요')
+        : images.length < 6 || images.length > 10
+        ? alert('최소 5장, 최대 10장 이미지를 첨부해주세요')
         : addRoom({
             category: category,
             ym: ym,
@@ -443,8 +442,8 @@ export default function upload() {
               <div className="p-3 w-full border border-zinc-300 text-zinc-500 text-xs leading-5">
                 - 사진은 가로로 찍은 사진을 권장합니다.
                 <br />- 사진 용량은 사진 한 장당 200KB 까지 등록 가능합니다.
-                <br />- 사진은 최소 3장 이상 등록해야하며, 최대 8장 까지
-                권장합니다.
+                <br />- 사진은 최소 5장 이상 등록해야하며, 최대 10장까지 등록
+                가능합니다.
               </div>
               <div>
                 <div className="m-5 p-5 bg-zinc-100" style={{ width: '950px' }}>
@@ -537,15 +536,15 @@ export default function upload() {
             rooms.map((room, idx) => (
               <>
                 <div
-                  className="relative flex-col  border border-zinc-400 mt-6 rounded-md font-light text-zinc-600"
+                  className="relative flex-col  border border-zinc-400 mt-6 font-light text-zinc-600"
                   style={{ fontSize: '13px' }}
                 >
                   <CenteringDiv className="border-zinc-400 border-b">
                     <CenteringDiv
-                      className="border-r border-zinc-400 p-2"
+                      className="border-r border-zinc-400 p-2 bg-zinc-500 text-white font-normal"
                       style={{ width: '100px' }}
                     >
-                      {idx}
+                      {idx + 1}
                     </CenteringDiv>
                     <div className="w-full p-2 text-sm font-">
                       <Badge
@@ -557,34 +556,44 @@ export default function upload() {
                       {room.title}
                     </div>
                     <Cbl className="p-2" style={{ width: '80px' }}>
-                      <IconHeart size={18} stroke={1} />
+                      <IconHeart color="red" size={18} stroke={1} />
                       {room.views}
                     </Cbl>
                     <Cbl className="p-2" style={{ width: '80px' }}>
                       <IconEyeCheck size={18} stroke={1} />
                       {room.views}
                     </Cbl>
-                    <Cbl className="p-2" style={{ width: '140px' }}>
+                    <Cbl
+                      className="p-2 bg-blue-400 text-white font-normal"
+                      style={{ width: '140px' }}
+                    >
                       <IconEdit size={18} stroke={1} />
                       수정하기
                     </Cbl>
-                    <Cbl className="p-2" style={{ width: '140px' }}>
+                    <Cbl
+                      className="p-2 bg-red-500 text-white font-normal"
+                      style={{ width: '140px' }}
+                    >
                       <IconX size={18} stroke={1} />
                       매물삭제
                     </Cbl>
                   </CenteringDiv>
                   <div className="flex">
-                    <div
-                      className="relative m-3"
-                      style={{ width: '250px', height: '200px' }}
+                    <StyledImage
+                      onClick={() => router.push(`/rooms/${room.id}`)}
+                      style={{
+                        width: '260px',
+                        height: '200px',
+                        margin: '10px',
+                      }}
                     >
                       <Image
-                        className="border-zinc-400 border rounded-3xl"
+                        className="styled"
                         src={room.images.split(',')[0]}
                         alt={'thumbnail'}
                         fill
                       />
-                    </div>
+                    </StyledImage>
                     <CenteringDiv>
                       <div className="p-3">
                         <div className="border border-zinc-400">
@@ -697,7 +706,7 @@ export default function upload() {
     </div>
   ) : (
     <CenteringDiv className="m-40">
-      <Loader />
+      로그인이 필요합니다.
     </CenteringDiv>
   )
 }

@@ -49,6 +49,7 @@ export default function Footer() {
       <div className="flex mt-4 mb-4 pl-4">
         <span>찾아주셔서 감사드립니다.</span>
         <IconBrandInstagram
+          stroke={1.25}
           className="ml-auto mr-4"
           onClick={() => router.push('https://www.instagram.com/9yu9yu81/')}
         />

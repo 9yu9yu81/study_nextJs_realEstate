@@ -4,11 +4,11 @@ import { getSession } from 'next-auth/react'
 
 const prisma = new PrismaClient()
 
-async function getProduct(id: number) {
+async function getProduct(userId: string) {
   try {
-    const response = await prisma.room.findUnique({
+    const response = await prisma.room.findMany({
       where: {
-        id: id,
+        userId: userId,
       },
     })
     console.log(response)
@@ -27,14 +27,14 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const { id } = req.query
+  const session = await getSession({ req })
 
-  if (id == null) {
-    res.status(400).json({ message: 'no id' })
+  if (session == null) {
+    res.status(400).json({ message: 'no session' })
     return
   }
   try {
-    const products = await getProduct(Number(id))
+    const products = await getProduct(String(session.user?.id))
     res.status(200).json({ items: products, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'Failed' })

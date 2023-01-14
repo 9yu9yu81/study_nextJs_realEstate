@@ -1,1 +1,1 @@
-export const ROOM_QUERY_KEY = '/api/room/get-Room'
+export const ROOM_QUERY_KEY = '/api/room/get-Rooms'

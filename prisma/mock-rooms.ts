@@ -53,7 +53,7 @@ addrMockData.map((addr, idx) => {
       '상세 설명 입니다.\n' +
       '상세 설명 입니다.\n',
     images:
-      'https://cdn.pixabay.com/photo/2019/05/06/17/46/bed-4183710_1280.png,https://cdn.pixabay.com/photo/2018/03/01/17/36/room-3191241_1280.jpg',
+      'https://cdn.pixabay.com/photo/2019/05/06/17/46/bed-4183710_1280.png,https://cdn.pixabay.com/photo/2017/03/28/12/11/chairs-2181960__480.jpg,https://cdn.pixabay.com/photo/2017/03/28/12/17/chairs-2181994__480.jpg,https://cdn.pixabay.com/photo/2017/03/28/12/16/chairs-2181980__480.jpg,https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389__480.jpg',
     views: getRandom(0, 100),
     userId: 'clchojlw50000qjoixw2b0pen',
   })
