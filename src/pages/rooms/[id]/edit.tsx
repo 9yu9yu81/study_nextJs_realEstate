@@ -128,8 +128,11 @@ export default function roomEdit(props: Room) {
       }
     }
   }, [files])
-  //todo image delete 구현
-  const handlePicDel = () => {}
+
+  // 업로드된 image delete
+  const handleImgDel = (delImage: string) => {
+    setImages(images.filter((image) => image != delImage))
+  }
 
   //todo update 로 변경
   //입력받은 room data POST
@@ -399,7 +402,7 @@ export default function roomEdit(props: Room) {
                   {images &&
                     images.length > 0 &&
                     images.map((image, idx) => (
-                      <div className="relative">
+                      <div className="relative" key={idx}>
                         <Image
                           className="border border-zinc-400"
                           alt={'img'}
@@ -410,7 +413,7 @@ export default function roomEdit(props: Room) {
                         />
                         <HoverDiv
                           className="absolute top-0 right-5"
-                          onClick={handlePicDel}
+                          onClick={() => handleImgDel(image)}
                         >
                           <IconX color="red" size={18} stroke={1.5} />
                         </HoverDiv>

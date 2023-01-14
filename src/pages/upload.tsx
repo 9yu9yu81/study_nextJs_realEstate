@@ -24,6 +24,7 @@ import {
   CHoverDiv,
   Cbl,
   CenteringDiv,
+  HoverDiv,
   StyledImage,
 } from 'components/styledComponent'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -39,9 +40,7 @@ import {
 } from 'constants/upload'
 import { useRouter } from 'next/router'
 
-//todo Room 데이터 받아서 화면에 뿌릴 Layout 생각해보기
 //todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게(db update)
-//todo 내방관리 x button -> 매물 삭제
 //todo date-fns 설치, 남은 기한 표시, 30일 기한 지날 시 status = 2 ('기한만료')
 
 export default function upload() {
@@ -129,6 +128,11 @@ export default function upload() {
       }
     }
   }, [files])
+
+  // 업로드된 image delete
+  const handleImgDel = (delImage: string) => {
+    setImages(images.filter((image) => image != delImage))
+  }
 
   //입력받은 room data POST
   const { mutate: addRoom } = useMutation<
@@ -489,14 +493,22 @@ export default function upload() {
                     {images &&
                       images.length > 0 &&
                       images.map((image, idx) => (
-                        <Image
-                          className="border border-zinc-400"
-                          alt={'img'}
-                          key={idx}
-                          src={image}
-                          width={200}
-                          height={200}
-                        />
+                        <div className="relative" key={idx}>
+                          <Image
+                            className="border border-zinc-400"
+                            alt={'img'}
+                            key={idx}
+                            src={image}
+                            width={200}
+                            height={200}
+                          />
+                          <HoverDiv
+                            className="absolute top-0 right-5"
+                            onClick={() => handleImgDel(image)}
+                          >
+                            <IconX color="red" size={18} stroke={1.5} />
+                          </HoverDiv>
+                        </div>
                       ))}
                   </div>
                 </div>
@@ -588,7 +600,7 @@ export default function upload() {
                       {room.views}
                     </Cbl>
                     <CHoverDiv
-                        onClick={() => router.push(`/rooms/${room.id}/edit`)}
+                      onClick={() => router.push(`/rooms/${room.id}/edit`)}
                       className="p-2 bg-blue-400 text-white font-normal"
                       style={{ width: '140px' }}
                     >
