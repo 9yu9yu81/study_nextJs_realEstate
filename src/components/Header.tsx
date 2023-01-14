@@ -93,7 +93,11 @@ export default function Header() {
               />
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item>내 방 목록</Menu.Item>
+              <Menu.Item
+                onClick={() => router.push('/upload?isManagePage=true')}
+              >
+                내 방 관리
+              </Menu.Item>
               <Menu.Item>내가 쓴 글</Menu.Item>
               <Menu.Divider />
               <Menu.Item

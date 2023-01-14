@@ -20,7 +20,12 @@ import {
   IconX,
 } from '@tabler/icons'
 import Map from 'components/Map'
-import { Cbl, CenteringDiv, StyledImage } from 'components/styledComponent'
+import {
+  CHoverDiv,
+  Cbl,
+  CenteringDiv,
+  StyledImage,
+} from 'components/styledComponent'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Room } from '@prisma/client'
 import { ROOM_QUERY_KEY } from 'constants/querykey'
@@ -44,7 +49,9 @@ export default function upload() {
   const queryClient = useQueryClient()
   const { data: session } = useSession()
   //방 내놓기인지 내 방관리인지 확인하는 state
-  const [isUploadPage, setIsUploadPage] = useState(true)
+  const [isUploadPage, setIsUploadPage] = useState(() => {
+    router.query.isUploadPage === 'true' ? false : true
+  })
   //db에 올릴 state
   const [category, setCategory] = useState<string>('0')
   const [ym, setYm] = useState<string>('0') //전/월세 -> 월세는 deposit 받음
@@ -563,20 +570,20 @@ export default function upload() {
                       <IconEyeCheck size={18} stroke={1} />
                       {room.views}
                     </Cbl>
-                    <Cbl
+                    <CHoverDiv
                       className="p-2 bg-blue-400 text-white font-normal"
                       style={{ width: '140px' }}
                     >
                       <IconEdit size={18} stroke={1} />
                       수정하기
-                    </Cbl>
-                    <Cbl
+                    </CHoverDiv>
+                    <CHoverDiv
                       className="p-2 bg-red-500 text-white font-normal"
                       style={{ width: '140px' }}
                     >
                       <IconX size={18} stroke={1} />
                       매물삭제
-                    </Cbl>
+                    </CHoverDiv>
                   </CenteringDiv>
                   <div className="flex">
                     <StyledImage
@@ -705,8 +712,6 @@ export default function upload() {
       )}
     </div>
   ) : (
-    <CenteringDiv className="m-40">
-      로그인이 필요합니다.
-    </CenteringDiv>
+    <CenteringDiv className="m-40">로그인이 필요합니다.</CenteringDiv>
   )
 }

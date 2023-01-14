@@ -1,5 +1,3 @@
-//todo 각각의 방 보여주는 페이지 layout 생각해보기
-//todo  image -> carousel?
 import { Button, Modal } from '@mantine/core'
 import { Room } from '@prisma/client'
 import {
@@ -12,19 +10,23 @@ import {
   IconHeartBroken,
   IconX,
 } from '@tabler/icons'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   B,
   Bb,
   Bl,
   Bt,
   CHoverDiv,
+  Cbb,
   CenteringDiv,
   StyledImage,
 } from 'components/styledComponent'
+import { ROOM_QUERY_KEY } from 'constants/querykey'
 import { ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/upload'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import Carousel from 'nuka-carousel'
 import { useState } from 'react'
 
@@ -48,16 +50,41 @@ export default function RoomIndex(props: Room) {
   const [carousel, setCarousel] = useState(false)
   const { data: session } = useSession()
   const [isWished, setIsWished] = useState(false)
-
-  //todo 조회수 증가하게 하고 DB에 업데이트 되게끔 만들기
+  const queryClient = useQueryClient()
+  const router = useRouter()
+  //todo 조회수 증가하게 하고(useEffect) / DB에 업데이트 되게끔 만들기
   //todo 수정, 삭제가능하게 구현
   //todo 방에 하트 버튼 -> wishlist에 추가 (로그인 필요)
 
   //todo userId == session.user.id 일때 보여지는 layout이 따로 존재
   //todo 그 게시물을 올린 작성자가 아니라면 수정하기, 매물삭제 등의 ui가 조금 다르게 만들어보기
+
+  const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
+    (id) =>
+      fetch('/api/room/delete-Room', {
+        method: 'POST',
+        body: JSON.stringify(id),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: () => {
+        queryClient.invalidateQueries([ROOM_QUERY_KEY])
+      },
+      onSuccess: async () => {
+        router.push('/upload?isManagePage=true')
+      },
+    }
+  )
+
+  const validate = (type: 'delete' | 'modify') => {
+    if (type === 'delete') {
+      deleteRoom(props.id)
+    }
+  }
   return (
     <>
-      <CenteringDiv className="m-5 pb-3 text-xs font-light text-zinc-600 border-b">
+      <Cbb className="m-5 pb-3 text-xs font-light text-zinc-600">
         <div className="text-xl">{props.title}</div>
         <div className="ml-auto flex">
           {props.userId === session?.user.id ? (
@@ -70,20 +97,21 @@ export default function RoomIndex(props: Room) {
                 <IconHeart color="red" size={18} stroke={1} />
                 {props.views}
               </CenteringDiv>
-              <CenteringDiv
+              <CHoverDiv
                 className="p-2 bg-blue-400 text-white font-normal"
                 style={{ width: '140px' }}
               >
                 <IconEdit size={18} stroke={1} />
                 수정하기
-              </CenteringDiv>
-              <CenteringDiv
+              </CHoverDiv>
+              <CHoverDiv
+                onClick={() => validate('delete')}
                 className="p-2 bg-red-500 text-white font-normal"
                 style={{ width: '140px' }}
               >
                 <IconX size={18} stroke={1} />
                 매물삭제
-              </CenteringDiv>
+              </CHoverDiv>
             </>
           ) : (
             <>
@@ -107,7 +135,7 @@ export default function RoomIndex(props: Room) {
             </>
           )}
         </div>
-      </CenteringDiv>
+      </Cbb>
       <div>
         <Modal
           opened={carousel}
@@ -259,4 +287,3 @@ export default function RoomIndex(props: Room) {
     </>
   )
 }
-
