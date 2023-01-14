@@ -24,6 +24,7 @@ import {
   DETAILADDR_PLACEHOLDER,
   ROOM_CATEGORY_MAP,
 } from 'constants/upload'
+import { Router, useRouter } from 'next/router'
 
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
@@ -43,7 +44,7 @@ export const getServerSideProps: GetServerSideProps = async (
 
 export default function roomEdit(props: Room) {
   const queryClient = useQueryClient()
-
+  const router = useRouter()
   const [category, setCategory] = useState<string>(props.category)
   const [ym, setYm] = useState<string>(props.ym)
   const depositRef = useRef<HTMLInputElement | null>(null)
@@ -139,11 +140,11 @@ export default function roomEdit(props: Room) {
   const { mutate: updateRoom } = useMutation<
     unknown,
     unknown,
-    Omit<Room, 'userId' | 'id' | 'updatedAt' | 'status' | 'views'>,
+    Omit<Room, 'userId' | 'updatedAt' | 'status' | 'views'>,
     any
   >(
     (room) =>
-      fetch('/api/room/add-Room', {
+      fetch('/api/room/update-Room', {
         method: 'POST',
         body: JSON.stringify(room),
       })
@@ -154,9 +155,7 @@ export default function roomEdit(props: Room) {
         queryClient.invalidateQueries([ROOM_QUERY_KEY])
       },
       onSuccess: async () => {
-        setCategory('0')
-        setYm('0')
-        setImages([])
+        router.push('/upload?isManagePage=true')
       },
     }
   )
@@ -177,9 +176,10 @@ export default function roomEdit(props: Room) {
         ? alert('제목을 입력하세요')
         : descriptionRef.current?.value == ''
         ? alert('상세 설명을 입력하세요.')
-        : images.length < 6 || images.length > 10
+        : images.length < 5 || images.length > 10
         ? alert('최소 5장, 최대 10장 이미지를 첨부해주세요')
         : updateRoom({
+            id: props.id,
             category: category,
             ym: ym,
             address: String(addrRef.current?.value),
@@ -438,6 +438,7 @@ export default function roomEdit(props: Room) {
           <CHoverDiv
             className="p-2 bg-red-500 text-white font-normal"
             style={{ width: '140px' }}
+            onClick={() => router.back()}
           >
             <IconX size={18} />
             취소
