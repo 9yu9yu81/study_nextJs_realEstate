@@ -49,9 +49,11 @@ export default function upload() {
   const queryClient = useQueryClient()
   const { data: session } = useSession()
   //방 내놓기인지 내 방관리인지 확인하는 state
-  const [isUploadPage, setIsUploadPage] = useState(() => {
-    router.query.isUploadPage === 'true' ? false : true
-  })
+  const [isUploadPage, setIsUploadPage] = useState(true)
+  //내 방 관리로 바로 이동하게끔 함
+  useEffect(() => {
+    router.query.isManagePage === 'true' && setIsUploadPage(false)
+  }, [router.query.isManagePage])
   //db에 올릴 state
   const [category, setCategory] = useState<string>('0')
   const [ym, setYm] = useState<string>('0') //전/월세 -> 월세는 deposit 받음
@@ -151,6 +153,21 @@ export default function upload() {
         setYm('0')
         setImages([])
         setIsUploadPage(false)
+      },
+    }
+  )
+  //올린 매물 삭제
+  const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
+    (id) =>
+      fetch('/api/room/delete-Room', {
+        method: 'POST',
+        body: JSON.stringify(id),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onSuccess: async () => {
+        queryClient.invalidateQueries([ROOM_QUERY_KEY])
       },
     }
   )
@@ -571,6 +588,7 @@ export default function upload() {
                       {room.views}
                     </Cbl>
                     <CHoverDiv
+                        onClick={() => router.push(`/rooms/${room.id}/edit`)}
                       className="p-2 bg-blue-400 text-white font-normal"
                       style={{ width: '140px' }}
                     >
@@ -578,6 +596,7 @@ export default function upload() {
                       수정하기
                     </CHoverDiv>
                     <CHoverDiv
+                      onClick={() => deleteRoom(room.id)}
                       className="p-2 bg-red-500 text-white font-normal"
                       style={{ width: '140px' }}
                     >

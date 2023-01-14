@@ -53,7 +53,7 @@ export default function RoomIndex(props: Room) {
   const queryClient = useQueryClient()
   const router = useRouter()
   //todo 조회수 증가하게 하고(useEffect) / DB에 업데이트 되게끔 만들기
-  //todo 수정, 삭제가능하게 구현
+  //todo 수정하기 구현 -> 이미지 파일도 수정 가능하게끔
   //todo 방에 하트 버튼 -> wishlist에 추가 (로그인 필요)
 
   //todo userId == session.user.id 일때 보여지는 layout이 따로 존재
@@ -77,7 +77,7 @@ export default function RoomIndex(props: Room) {
     }
   )
 
-  const validate = (type: 'delete' | 'modify') => {
+  const validate = (type: 'delete') => {
     if (type === 'delete') {
       deleteRoom(props.id)
     }
@@ -98,6 +98,7 @@ export default function RoomIndex(props: Room) {
                 {props.views}
               </CenteringDiv>
               <CHoverDiv
+                onClick={() => router.push(`/rooms/${props.id}/edit`)}
                 className="p-2 bg-blue-400 text-white font-normal"
                 style={{ width: '140px' }}
               >
@@ -160,6 +161,7 @@ export default function RoomIndex(props: Room) {
           >
             {props.images.split(',').map((image, idx) => (
               <div
+                key={idx}
                 className="relative"
                 style={{ width: '700px', height: '500px' }}
               >
@@ -183,11 +185,11 @@ export default function RoomIndex(props: Room) {
             </StyledImage>
             <div className="grid grid-cols-2 grid-rows-2">
               {props.images.split(',').map(
-                (image, i) =>
-                  i > 0 &&
-                  i < 5 && (
+                (image, idx) =>
+                  idx > 0 &&
+                  idx < 5 && (
                     <StyledImage
-                      key={i}
+                      key={idx}
                       className="relative"
                       style={{ width: '240px', height: '190px', margin: '5px' }}
                     >
