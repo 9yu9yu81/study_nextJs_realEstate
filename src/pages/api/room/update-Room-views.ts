@@ -1,18 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient, Room } from '@prisma/client'
-
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function updateRoom(
-  room: Omit<Room, 'userId' | 'updatedAt' | 'status' | 'views'>
-) {
+async function updateView(id: number, views: number) {
   try {
     const response = await prisma.room.update({
       where: {
-        id: room.id,
+        id: id,
       },
-      data: { ...room },
+      data: { views: views },
     })
     // console.log(response)
     return response
@@ -33,7 +30,7 @@ export default async function handler(
   const items = JSON.parse(req.body)
 
   try {
-    const room = await updateRoom(items)
+    const room = await updateView(Number(items.id), Number(items.views))
     res.status(200).json({ items: room, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'add-Room Failed' })

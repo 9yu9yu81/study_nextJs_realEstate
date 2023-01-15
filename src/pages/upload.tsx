@@ -29,7 +29,7 @@ import {
 } from 'components/styledComponent'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Room } from '@prisma/client'
-import { ROOM_QUERY_KEY } from 'constants/querykey'
+import { ROOMS_QUERY_KEY } from 'constants/querykey'
 import { useSession } from 'next-auth/react'
 import {
   DESCRIPTION_PLACEHOLDER,
@@ -150,7 +150,7 @@ export default function upload() {
         .then((res) => res.items),
     {
       onMutate: () => {
-        queryClient.invalidateQueries([ROOM_QUERY_KEY])
+        queryClient.invalidateQueries([ROOMS_QUERY_KEY])
       },
       onSuccess: async () => {
         setCategory('0')
@@ -171,7 +171,7 @@ export default function upload() {
         .then((res) => res.items),
     {
       onSuccess: async () => {
-        queryClient.invalidateQueries([ROOM_QUERY_KEY])
+        queryClient.invalidateQueries([ROOMS_QUERY_KEY])
       },
     }
   )
@@ -208,11 +208,11 @@ export default function upload() {
           })
     }
   }
-  // get Room data
+  // get Rooms data
   const { data: rooms } = useQuery<{ rooms: Room[] }, unknown, Room[]>(
-    [ROOM_QUERY_KEY],
+    [ROOMS_QUERY_KEY],
     () =>
-      fetch(ROOM_QUERY_KEY)
+      fetch(ROOMS_QUERY_KEY)
         .then((res) => res.json())
         .then((data) => data.items)
   )

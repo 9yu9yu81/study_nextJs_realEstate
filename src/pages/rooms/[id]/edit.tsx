@@ -18,7 +18,7 @@ import Map from 'components/Map'
 import { CHoverDiv, CenteringDiv, HoverDiv } from 'components/styledComponent'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Room } from '@prisma/client'
-import { ROOM_QUERY_KEY } from 'constants/querykey'
+import { ROOMS_QUERY_KEY } from 'constants/querykey'
 import {
   DESCRIPTION_PLACEHOLDER,
   DETAILADDR_PLACEHOLDER,
@@ -135,8 +135,7 @@ export default function roomEdit(props: Room) {
     setImages(images.filter((image) => image != delImage))
   }
 
-  //todo update 로 변경
-  //입력받은 room data POST
+  //입력받은 room data POST -> update ROOM
   const { mutate: updateRoom } = useMutation<
     unknown,
     unknown,
@@ -152,14 +151,13 @@ export default function roomEdit(props: Room) {
         .then((res) => res.items),
     {
       onMutate: () => {
-        queryClient.invalidateQueries([ROOM_QUERY_KEY])
+        queryClient.invalidateQueries([ROOMS_QUERY_KEY])
       },
       onSuccess: async () => {
         router.push('/upload?isManagePage=true')
       },
     }
   )
-  //todo update 로 변경
   const validate = (type: 'update') => {
     if (type === 'update') {
       addrRef.current?.value == ''

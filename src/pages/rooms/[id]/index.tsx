@@ -10,7 +10,7 @@ import {
   IconHeartBroken,
   IconX,
 } from '@tabler/icons'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   B,
   Bb,
@@ -21,14 +21,14 @@ import {
   CenteringDiv,
   StyledImage,
 } from 'components/styledComponent'
-import { ROOM_QUERY_KEY } from 'constants/querykey'
+import { ROOMS_QUERY_KEY } from 'constants/querykey'
 import { ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/upload'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import Carousel from 'nuka-carousel'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
@@ -52,8 +52,32 @@ export default function RoomIndex(props: Room) {
   const [isWished, setIsWished] = useState(false)
   const queryClient = useQueryClient()
   const router = useRouter()
-  //todo 조회수 증가하게 하고(useEffect) / DB에 업데이트 되게끔 만들기
-  //todo 수정하기 구현 -> 이미지 파일도 수정 가능하게끔
+
+  //조회수 증가
+  const { mutate: increaseViews } = useMutation<
+    unknown,
+    unknown,
+    Pick<Room, 'id' | 'views'>,
+    any
+  >(
+    (items) =>
+      fetch('/api/room/update-Room-views', {
+        method: 'POST',
+        body: JSON.stringify(items),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onSuccess: async () => {
+        queryClient.invalidateQueries([ROOMS_QUERY_KEY])
+      },
+    }
+  )
+  //이 페이지 들어오면 조회수 증가
+  useEffect(() => {
+    increaseViews({ id: props.id, views: props.views + 1 })
+  }, [])
+
   //todo 방에 하트 버튼 -> wishlist에 추가 (로그인 필요)
 
   //todo userId == session.user.id 일때 보여지는 layout이 따로 존재
@@ -69,7 +93,7 @@ export default function RoomIndex(props: Room) {
         .then((res) => res.items),
     {
       onMutate: () => {
-        queryClient.invalidateQueries([ROOM_QUERY_KEY])
+        queryClient.invalidateQueries([ROOMS_QUERY_KEY])
       },
       onSuccess: async () => {
         router.push('/upload?isManagePage=true')
@@ -89,13 +113,18 @@ export default function RoomIndex(props: Room) {
         <div className="ml-auto flex">
           {props.userId === session?.user.id ? (
             <>
-              <CenteringDiv className="p-2" style={{ width: '80px' }}>
+              <CenteringDiv
+                onClick={() =>
+                  increaseViews({ id: props.id, views: props.views + 1 })
+                }
+                className="p-2"
+                style={{ width: '80px' }}
+              >
                 <IconEyeCheck size={18} stroke={1} />
-                {props.views}
+                {props.views + 1}
               </CenteringDiv>
               <CenteringDiv className="p-2" style={{ width: '80px' }}>
-                <IconHeart color="red" size={18} stroke={1} />
-                {props.views}
+                <IconHeart color="red" size={18} stroke={1} />0
               </CenteringDiv>
               <CHoverDiv
                 onClick={() => router.push(`/rooms/${props.id}/edit`)}
@@ -118,7 +147,7 @@ export default function RoomIndex(props: Room) {
             <>
               <CenteringDiv style={{ width: '60px' }}>
                 <IconEyeCheck size={18} stroke={1} />
-                {props.views}
+                {props.views + 1}
               </CenteringDiv>
               <CenteringDiv style={{ width: '160px' }}>
                 {isWished ? (
