@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -39,6 +39,7 @@ import {
   ROOM_YM_MAP,
 } from 'constants/upload'
 import { useRouter } from 'next/router'
+import format from 'date-fns/format'
 
 //todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게(db update)
 //todo date-fns 설치, 남은 기한 표시, 30일 기한 지날 시 status = 2 ('기한만료')
@@ -47,6 +48,7 @@ export default function upload() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
+
   //방 내놓기인지 내 방관리인지 확인하는 state
   const [isUploadPage, setIsUploadPage] = useState(true)
   //내 방 관리로 바로 이동하게끔 함
@@ -128,7 +130,6 @@ export default function upload() {
       }
     }
   }, [files])
-
   // 업로드된 image delete
   const handleImgDel = (delImage: string) => {
     setImages(images.filter((image) => image != delImage))
@@ -567,6 +568,7 @@ export default function upload() {
             <br />∙ 등록한 매물은 30일 간 노출됩니다.
             <br />∙ 공개중 : 내가 등록한 매물이 공개중인 상태
             <br />∙ 거래완료 : 등록한 매물이 거래완료된 상태
+            <br />∙ 기한만료 : 등록한 매물의 30일 기한이 만료된 상태
           </div>
           {rooms ? (
             rooms.map((room, idx) => (
@@ -585,7 +587,13 @@ export default function upload() {
                     <div className="w-full p-2 text-sm font-">
                       <Badge
                         className="mr-3"
-                        color={room.status === 0 ? 'blue' : 'red'}
+                        color={
+                          room.status === 0
+                            ? 'blue'
+                            : room.status === 1
+                            ? 'green'
+                            : 'red'
+                        }
                       >
                         {ROOM_STATUS_MAP[room.status]}
                       </Badge>
@@ -616,7 +624,10 @@ export default function upload() {
                       매물삭제
                     </CHoverDiv>
                   </CenteringDiv>
-                  <div className="flex">
+                  <div className="flex relative">
+                    <div className="absolute right-3 top-2">
+                      게시일: {format(new Date(room.updatedAt), 'yyyy/MM/dd')}
+                    </div>
                     <StyledImage
                       onClick={() => router.push(`/rooms/${room.id}`)}
                       style={{
@@ -735,14 +746,16 @@ export default function upload() {
               </>
             ))
           ) : (
-            <CenteringDiv className="mt-40 mb-40">
-              <div>등록된 매물이 없습니다.</div>
+            <CenteringDiv className="m-40">
+              <Loader />
             </CenteringDiv>
           )}
         </>
       )}
     </div>
   ) : (
-    <CenteringDiv className="m-40">로그인이 필요합니다.</CenteringDiv>
+    <CenteringDiv className="m-40">
+      <Loader></Loader>
+    </CenteringDiv>
   )
 }

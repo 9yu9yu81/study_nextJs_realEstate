@@ -10,7 +10,7 @@ import {
   IconHeartBroken,
   IconX,
 } from '@tabler/icons'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   B,
   Bb,
@@ -23,6 +23,7 @@ import {
 } from 'components/styledComponent'
 import { ROOMS_QUERY_KEY } from 'constants/querykey'
 import { ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/upload'
+import { format } from 'date-fns'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
@@ -77,6 +78,7 @@ export default function RoomIndex(props: Room) {
   useEffect(() => {
     increaseViews({ id: props.id, views: props.views + 1 })
   }, [])
+  //todo status가 0일 때만 페이지를 그리도록 해야함 -> 나머지는 rooms/[id] 페이지 자체가 존재하면 안 됨
 
   //todo 방에 하트 버튼 -> wishlist에 추가 (로그인 필요)
 
@@ -109,7 +111,12 @@ export default function RoomIndex(props: Room) {
   return (
     <>
       <Cbb className="m-5 pb-3 text-xs font-light text-zinc-600">
-        <div className="text-xl">{props.title}</div>
+        <div className="text-lg relative">
+          {props.title}
+          <div className="absolute left-0 top-12 text-xs">
+            게시일: {format(new Date(props.updatedAt), 'yyyy/MM/dd')}
+          </div>
+        </div>
         <div className="ml-auto flex">
           {props.userId === session?.user.id ? (
             <>
@@ -118,18 +125,18 @@ export default function RoomIndex(props: Room) {
                   increaseViews({ id: props.id, views: props.views + 1 })
                 }
                 className="p-2"
-                style={{ width: '80px' }}
+                style={{ width: '50px' }}
               >
                 <IconEyeCheck size={18} stroke={1} />
                 {props.views + 1}
               </CenteringDiv>
-              <CenteringDiv className="p-2" style={{ width: '80px' }}>
-                <IconHeart color="red" size={18} stroke={1} />0
+              <CenteringDiv className="p-2 mr-1" style={{ width: '50px' }}>
+                <IconHeart color="red" fill="red" size={18} stroke={1} />0
               </CenteringDiv>
               <CHoverDiv
                 onClick={() => router.push(`/rooms/${props.id}/edit`)}
                 className="p-2 bg-blue-400 text-white font-normal"
-                style={{ width: '140px' }}
+                style={{ width: '120px' }}
               >
                 <IconEdit size={18} stroke={1} />
                 수정하기
@@ -137,7 +144,7 @@ export default function RoomIndex(props: Room) {
               <CHoverDiv
                 onClick={() => validate('delete')}
                 className="p-2 bg-red-500 text-white font-normal"
-                style={{ width: '140px' }}
+                style={{ width: '120px' }}
               >
                 <IconX size={18} stroke={1} />
                 매물삭제
@@ -152,12 +159,23 @@ export default function RoomIndex(props: Room) {
               <CenteringDiv style={{ width: '160px' }}>
                 {isWished ? (
                   <CHoverDiv onClick={() => setIsWished(false)}>
-                    <IconHeart color="red" fill="red" size={18} stroke={1.25} />
+                    <IconHeart
+                      color="red"
+                      fill="red"
+                      size={18}
+                      stroke={1.25}
+                      className="mr-1"
+                    />
                     관심목록에 추가 됨
                   </CHoverDiv>
                 ) : (
                   <CHoverDiv onClick={() => setIsWished(true)}>
-                    <IconHeartBroken color="red" size={18} stroke={1.25} />
+                    <IconHeartBroken
+                      color="gray"
+                      size={18}
+                      stroke={1.25}
+                      className="mr-1"
+                    />
                     관심목록에 추가
                   </CHoverDiv>
                 )}
