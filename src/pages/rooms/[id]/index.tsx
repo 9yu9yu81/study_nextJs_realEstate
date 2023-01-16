@@ -48,7 +48,7 @@ export const getServerSideProps: GetServerSideProps = async (
 
 export default function RoomIndex(props: Room & { session: string }) {
   const [carousel, setCarousel] = useState(false)
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const [isWished, setIsWished] = useState(false)
   const queryClient = useQueryClient()
   const router = useRouter()

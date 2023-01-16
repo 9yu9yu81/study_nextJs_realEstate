@@ -41,7 +41,6 @@ import {
 } from 'constants/upload'
 import { useRouter } from 'next/router'
 import format from 'date-fns/format'
-import { SelectItems } from '@mantine/core/lib/Select/SelectItems/SelectItems'
 
 //todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게(db update)
 //todo date-fns 설치, 남은 기한 표시, 30일 기한 지날 시 status = 2 ('기한만료')
@@ -257,12 +256,14 @@ export default function upload() {
     }
   }
   // get Rooms data
-  const { data: rooms } = useQuery<{ rooms: Room[] }, unknown, Room[]>(
-    [ROOMS_QUERY_KEY],
-    () =>
-      fetch(ROOMS_QUERY_KEY)
-        .then((res) => res.json())
-        .then((data) => data.items)
+  const { data: rooms, isLoading } = useQuery<
+    { rooms: Room[] },
+    unknown,
+    Room[]
+  >([ROOMS_QUERY_KEY], () =>
+    fetch(ROOMS_QUERY_KEY)
+      .then((res) => res.json())
+      .then((data) => data.items)
   )
 
   return session ? (
@@ -361,13 +362,6 @@ export default function upload() {
                     type={'text'}
                     placeholder="예) 번동 10-1, 강북구 번동"
                     ref={addrRef}
-                    // value={addr}
-                    // onChange={
-                    //   () =>
-                    //     addrRef.current
-                    //       ? setAddr(addrRef.current.value)
-                    //       : setAddr('') //글자 지울때 마지막 하나 글자 지울 수 있게 함
-                    // }
                     onKeyUp={handleEnterKeypress}
                   />
                   <Button
@@ -385,13 +379,6 @@ export default function upload() {
                   minRows={4}
                   placeholder={DETAILADDR_PLACEHOLDER}
                   ref={detailAddrRef}
-                  // value={detailAddr}
-                  // onChange={
-                  //   () =>
-                  //     detailAddrRef.current
-                  //       ? setDetailAddr(detailAddrRef.current.value)
-                  //       : setDetailAddr('') //글자 지울때 마지막 하나 글자 지울 수 있게 함
-                  // }
                 />
               </div>
               <div className="ml-12 p-3">
@@ -617,7 +604,11 @@ export default function upload() {
             <br />∙ 거래완료 : 등록한 매물이 거래완료된 상태
             <br />∙ 기한만료 : 등록한 매물의 30일 기한이 만료된 상태
           </div>
-          {rooms ? (
+          {isLoading ? (
+            <CenteringDiv className="m-72">
+              <Loader />
+            </CenteringDiv>
+          ) : rooms ? (
             rooms.map((room, idx) => (
               <>
                 <div
