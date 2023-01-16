@@ -10,7 +10,7 @@ import {
   IconHeartBroken,
   IconX,
 } from '@tabler/icons'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   B,
   Bb,
@@ -21,7 +21,7 @@ import {
   CenteringDiv,
   StyledImage,
 } from 'components/styledComponent'
-import { ROOMS_QUERY_KEY, WISHLIST_QUERY_KEY } from 'constants/querykey'
+import { ROOMS_QUERY_KEY, WISHLISTS_QUERY_KEY } from 'constants/querykey'
 import { ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/upload'
 import { format } from 'date-fns'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
@@ -46,10 +46,9 @@ export const getServerSideProps: GetServerSideProps = async (
   }
 }
 
-export default function RoomIndex(props: Room & { session: string }) {
+export default function RoomIndex(props: Room) {
   const [carousel, setCarousel] = useState(false)
   const { data: session } = useSession()
-  const [isWished, setIsWished] = useState(false)
   const queryClient = useQueryClient()
   const router = useRouter()
 
@@ -81,6 +80,15 @@ export default function RoomIndex(props: Room & { session: string }) {
   //todo status가 0일 때만 페이지를 그리도록 해야함 -> 나머지는 rooms/[id] 페이지 자체가 존재하면 안 됨
 
   //todo 방에 하트 버튼 -> wishlist에 추가 (로그인 필요)
+  //get isWished data
+  const { data: isWished } = useQuery<{ rooms: Room[] }, unknown, Room[]>(
+    [`/api/wishlist/get-isWished?roomId=${props.id}`],
+    () =>
+      fetch(`/api/wishlist/get-isWished?roomId=${props.id}`)
+        .then((res) => res.json())
+        .then((data) => data.items)
+  )
+
   //add or delete wishlist
   const { mutate: updateWishlist } = useMutation<unknown, unknown, number, any>(
     (roomId) =>
@@ -92,13 +100,10 @@ export default function RoomIndex(props: Room & { session: string }) {
         .then((res) => res.items),
     {
       onSuccess: async () => {
-        queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
+        queryClient.invalidateQueries([WISHLISTS_QUERY_KEY])
       },
     }
   )
-
-  //todo userId == session.user.id 일때 보여지는 layout이 따로 존재
-  //todo 그 게시물을 올린 작성자가 아니라면 수정하기, 매물삭제 등의 ui가 조금 다르게 만들어보기
 
   //delete Room
   const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
@@ -200,7 +205,7 @@ export default function RoomIndex(props: Room & { session: string }) {
               </CenteringDiv>
               <CenteringDiv style={{ width: '160px' }}>
                 {isWished ? (
-                  <CHoverDiv onClick={() => setIsWished(false)}>
+                  <CHoverDiv onClick={() => {}}>
                     <IconHeart
                       color="red"
                       fill="red"
@@ -211,7 +216,7 @@ export default function RoomIndex(props: Room & { session: string }) {
                     관심목록에 추가 됨
                   </CHoverDiv>
                 ) : (
-                  <CHoverDiv onClick={() => setIsWished(true)}>
+                  <CHoverDiv onClick={() => {}}>
                     <IconHeartBroken
                       color="gray"
                       size={18}

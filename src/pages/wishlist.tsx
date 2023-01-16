@@ -7,9 +7,7 @@
 
 import { Room } from '@prisma/client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { WISHLIST_QUERY_KEY } from 'constants/querykey'
-
-
+import { WISHLISTS_QUERY_KEY } from 'constants/querykey'
 
 export default function wishlist() {
   // get Wishlist data
@@ -18,8 +16,8 @@ export default function wishlist() {
     { wishlists: Room[] },
     unknown,
     Room[]
-  >([WISHLIST_QUERY_KEY], () =>
-    fetch(WISHLIST_QUERY_KEY)
+  >([WISHLISTS_QUERY_KEY], () =>
+    fetch(WISHLISTS_QUERY_KEY)
       .then((res) => res.json())
       .then((data) => data.items)
   )
