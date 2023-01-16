@@ -11,6 +11,7 @@ import {
   Textarea,
 } from '@mantine/core'
 import {
+  IconCheck,
   IconEdit,
   IconExclamationCircle,
   IconEyeCheck,
@@ -40,6 +41,7 @@ import {
 } from 'constants/upload'
 import { useRouter } from 'next/router'
 import format from 'date-fns/format'
+import { SelectItems } from '@mantine/core/lib/Select/SelectItems/SelectItems'
 
 //todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게(db update)
 //todo date-fns 설치, 남은 기한 표시, 30일 기한 지날 시 status = 2 ('기한만료')
@@ -171,6 +173,51 @@ export default function upload() {
         .then((data) => data.json())
         .then((res) => res.items),
     {
+      onSuccess: async () => {
+        queryClient.invalidateQueries([ROOMS_QUERY_KEY])
+      },
+    }
+  )
+
+  //매물 상태 변경(-> 거래 완료)
+  const { mutate: updateStatus } = useMutation<
+    unknown,
+    unknown,
+    Pick<Room, 'id' | 'status'>,
+    any
+  >(
+    (items) =>
+      fetch('/api/room/update-Room-status', {
+        method: 'POST',
+        body: JSON.stringify(items),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: async (items) => {
+        await queryClient.cancelQueries([ROOMS_QUERY_KEY])
+
+        const previous = queryClient.getQueryData([ROOMS_QUERY_KEY])
+
+        if (previous) {
+          queryClient.setQueryData<Room[]>(
+            [ROOMS_QUERY_KEY],
+            (olds) =>
+              olds &&
+              olds.map((old) =>
+                old.id === items.id
+                  ? { ...old, status: items.status }
+                  : { ...old }
+              )
+          )
+        }
+
+        // 이전 값 리턴
+        return { previous }
+      },
+      onError: (__, _, context) => {
+        queryClient.setQueryData([ROOMS_QUERY_KEY], context.previous)
+      },
       onSuccess: async () => {
         queryClient.invalidateQueries([ROOMS_QUERY_KEY])
       },
@@ -600,19 +647,26 @@ export default function upload() {
                       {room.title}
                     </div>
                     <Cbl className="p-2" style={{ width: '80px' }}>
-                      <IconHeart color="red" size={18} stroke={1} />
-                      {room.views}
-                    </Cbl>
-                    <Cbl className="p-2" style={{ width: '80px' }}>
                       <IconEyeCheck size={18} stroke={1} />
                       {room.views}
                     </Cbl>
+                    <Cbl className="p-2" style={{ width: '80px' }}>
+                      <IconHeart color="red" fill="red" size={18} stroke={1} />0
+                    </Cbl>
+                    <CHoverDiv
+                      onClick={() => updateStatus({ id: room.id, status: 1 })}
+                      className="p-2 bg-green-500 text-white font-normal"
+                      style={{ width: '140px' }}
+                    >
+                      <IconEdit size={18} stroke={1} />
+                      거래완료
+                    </CHoverDiv>
                     <CHoverDiv
                       onClick={() => router.push(`/rooms/${room.id}/edit`)}
                       className="p-2 bg-blue-400 text-white font-normal"
                       style={{ width: '140px' }}
                     >
-                      <IconEdit size={18} stroke={1} />
+                      <IconCheck size={18} stroke={1} />
                       수정하기
                     </CHoverDiv>
                     <CHoverDiv

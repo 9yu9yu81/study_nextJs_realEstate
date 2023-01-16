@@ -1,59 +1,9 @@
 import { Button, Card, Input } from '@mantine/core'
 import { Room } from '@prisma/client'
 import { IconSearch } from '@tabler/icons'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ROOMS_QUERY_KEY } from 'constants/querykey'
-import { add, compareAsc, parseISO } from 'date-fns'
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 
 export default function home() {
-  // const queryClient = useQueryClient()
-
-  // const { data: rooms } = useQuery<{ rooms: Room[] }, unknown, Room[]>(
-  //   [ROOMS_QUERY_KEY],
-  //   () =>
-  //     fetch(ROOMS_QUERY_KEY)
-  //       .then((res) => res.json())
-  //       .then((data) => data.items),
-  //   {
-  //     onSuccess: async (rooms) => {
-  //       rooms.map(
-  //         (room) =>
-  //           room.status === 1 &&
-  //           compareAsc(
-  //             add(new Date(room.updatedAt), { days: 30 }),
-  //             new Date()
-  //           ) === -1 &&
-  //           updateStatus({ id: room.id, status: 2 })
-  //       )
-  //       queryClient.invalidateQueries([ROOMS_QUERY_KEY])
-  //     },
-  //   }
-  // )
-
-  //기한에 따라 매물 상태 변경
-  // const { mutate: updateStatus } = useMutation<
-  //   unknown,
-  //   unknown,
-  //   Pick<Room, 'id' | 'status'>,
-  //   any
-  // >(
-  //   (items) =>
-  //     fetch('/api/room/update-Room-status', {
-  //       method: 'POST',
-  //       body: JSON.stringify(items),
-  //     })
-  //       .then((data) => data.json())
-  //       .then((res) => res.items),
-  //   {
-  //     onSuccess: async () => {
-  //       queryClient.invalidateQueries([ROOMS_QUERY_KEY])
-  //     },
-  //   }
-  // )
-  // useEffect(() => {
-  //   fetch('/api/room/update-Room-status')
-  // },[])
   useEffect(() => {
     fetch('/api/room/update-Rooms-status')
       .then((res) => res.json())
