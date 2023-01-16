@@ -649,7 +649,7 @@ export default function upload() {
                       className="p-2 bg-green-500 text-white font-normal"
                       style={{ width: '140px' }}
                     >
-                      <IconEdit size={18} stroke={1} />
+                      <IconCheck size={18} stroke={1} />
                       거래완료
                     </CHoverDiv>
                     <CHoverDiv
@@ -657,7 +657,7 @@ export default function upload() {
                       className="p-2 bg-blue-400 text-white font-normal"
                       style={{ width: '140px' }}
                     >
-                      <IconCheck size={18} stroke={1} />
+                      <IconEdit size={18} stroke={1} />
                       수정하기
                     </CHoverDiv>
                     <CHoverDiv

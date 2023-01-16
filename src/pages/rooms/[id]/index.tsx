@@ -21,7 +21,7 @@ import {
   CenteringDiv,
   StyledImage,
 } from 'components/styledComponent'
-import { ROOMS_QUERY_KEY } from 'constants/querykey'
+import { ROOMS_QUERY_KEY, WISHLIST_QUERY_KEY } from 'constants/querykey'
 import { ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/upload'
 import { format } from 'date-fns'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
@@ -73,17 +73,34 @@ export default function RoomIndex(props: Room & { session: string }) {
       },
     }
   )
-  //이 페이지 들어오면 조회수 증가
+  //increase views
   useEffect(() => {
     increaseViews({ id: props.id, views: props.views + 1 })
   }, [])
+
   //todo status가 0일 때만 페이지를 그리도록 해야함 -> 나머지는 rooms/[id] 페이지 자체가 존재하면 안 됨
 
   //todo 방에 하트 버튼 -> wishlist에 추가 (로그인 필요)
+  //add or delete wishlist
+  const { mutate: updateWishlist } = useMutation<unknown, unknown, number, any>(
+    (roomId) =>
+      fetch('/api/wishlist/update-Wishlist', {
+        method: 'POST',
+        body: JSON.stringify(roomId),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onSuccess: async () => {
+        queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
+      },
+    }
+  )
 
   //todo userId == session.user.id 일때 보여지는 layout이 따로 존재
   //todo 그 게시물을 올린 작성자가 아니라면 수정하기, 매물삭제 등의 ui가 조금 다르게 만들어보기
 
+  //delete Room
   const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
     (id) =>
       fetch('/api/room/delete-Room', {
@@ -93,9 +110,6 @@ export default function RoomIndex(props: Room & { session: string }) {
         .then((data) => data.json())
         .then((res) => res.items),
     {
-      onMutate: () => {
-        queryClient.invalidateQueries([ROOMS_QUERY_KEY])
-      },
       onSuccess: async () => {
         router.push('/upload?isManagePage=true')
       },
@@ -118,7 +132,36 @@ export default function RoomIndex(props: Room & { session: string }) {
         </div>
         <div className="ml-auto flex">
           {props.userId === session?.user.id ? (
-            <>
+            <div className="flex relative">
+              <CenteringDiv
+                style={{ width: '160px' }}
+                className="absolute bottom-10 left-44"
+              >
+                <CHoverDiv onClick={() => updateWishlist(props.id)}>
+                  {isWished ? (
+                    <>
+                      <IconHeart
+                        color="red"
+                        fill="red"
+                        size={18}
+                        stroke={1.25}
+                        className="mr-1"
+                      />
+                      관심목록에 추가 됨
+                    </>
+                  ) : (
+                    <>
+                      <IconHeartBroken
+                        color="gray"
+                        size={18}
+                        stroke={1.25}
+                        className="mr-1"
+                      />
+                      관심목록에 추가
+                    </>
+                  )}
+                </CHoverDiv>
+              </CenteringDiv>
               <CenteringDiv
                 onClick={() =>
                   increaseViews({ id: props.id, views: props.views + 1 })
@@ -148,7 +191,7 @@ export default function RoomIndex(props: Room & { session: string }) {
                 <IconX size={18} stroke={1} />
                 매물삭제
               </CHoverDiv>
-            </>
+            </div>
           ) : (
             <>
               <CenteringDiv style={{ width: '60px' }}>

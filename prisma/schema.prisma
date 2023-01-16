@@ -88,3 +88,10 @@ model Comment {
   communityId Int
   comment     String
 }
+
+
+model Wishlist {
+  id          Int      @id @default(autoincrement())
+  userId      String   @unique
+  roomIds     String   
+}

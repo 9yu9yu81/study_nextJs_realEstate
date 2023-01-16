@@ -1,2 +1,2 @@
 export const ROOMS_QUERY_KEY = '/api/room/get-Rooms'
-export const ROOM_QUERY_KEY = '/api/room/get-Room'
+export const WISHLIST_QUERY_KEY = '/api/wishlist/get-Wishlist'
