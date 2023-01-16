@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -800,16 +800,12 @@ export default function upload() {
               </>
             ))
           ) : (
-            <CenteringDiv className="m-40">
-              <Loader />
-            </CenteringDiv>
+            <CenteringDiv className="m-40">등록된 매물이 없습니다</CenteringDiv>
           )}
         </>
       )}
     </div>
   ) : (
-    <CenteringDiv className="m-40">
-      <Loader></Loader>
-    </CenteringDiv>
+    <CenteringDiv className="m-40">로그인 해주시기 바랍니다.</CenteringDiv>
   )
 }

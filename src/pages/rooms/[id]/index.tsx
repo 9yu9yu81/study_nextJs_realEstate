@@ -1,4 +1,4 @@
-import { Button, Modal } from '@mantine/core'
+import { Button, Loader, Modal } from '@mantine/core'
 import { Room } from '@prisma/client'
 import {
   IconCaretLeft,
@@ -39,7 +39,6 @@ export const getServerSideProps: GetServerSideProps = async (
   )
     .then((res) => res.json())
     .then((data) => data.items)
-
   return {
     props: {
       ...room,
@@ -47,9 +46,9 @@ export const getServerSideProps: GetServerSideProps = async (
   }
 }
 
-export default function RoomIndex(props: Room) {
+export default function RoomIndex(props: Room & { session: string }) {
   const [carousel, setCarousel] = useState(false)
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const [isWished, setIsWished] = useState(false)
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -125,12 +124,12 @@ export default function RoomIndex(props: Room) {
                   increaseViews({ id: props.id, views: props.views + 1 })
                 }
                 className="p-2"
-                style={{ width: '50px' }}
+                style={{ width: '60px' }}
               >
                 <IconEyeCheck size={18} stroke={1} />
                 {props.views + 1}
               </CenteringDiv>
-              <CenteringDiv className="p-2 mr-1" style={{ width: '50px' }}>
+              <CenteringDiv className="p-2 mr-1" style={{ width: '60px' }}>
                 <IconHeart color="red" fill="red" size={18} stroke={1} />0
               </CenteringDiv>
               <CHoverDiv
@@ -238,7 +237,11 @@ export default function RoomIndex(props: Room) {
                     <StyledImage
                       key={idx}
                       className="relative"
-                      style={{ width: '240px', height: '190px', margin: '5px' }}
+                      style={{
+                        width: '240px',
+                        height: '190px',
+                        margin: '5px',
+                      }}
                     >
                       <Image
                         onClick={() => setCarousel(true)}
