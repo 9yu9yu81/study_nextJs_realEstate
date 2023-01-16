@@ -21,7 +21,7 @@ import {
   CenteringDiv,
   StyledImage,
 } from 'components/styledComponent'
-import { ROOMS_QUERY_KEY, WISHLISTS_QUERY_KEY } from 'constants/querykey'
+import { ROOMS_QUERY_KEY, WISHLIST_QUERY_KEY } from 'constants/querykey'
 import { ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/upload'
 import { format } from 'date-fns'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
@@ -78,18 +78,18 @@ export default function RoomIndex(props: Room) {
   }, [])
 
   //todo status가 0일 때만 페이지를 그리도록 해야함 -> 나머지는 rooms/[id] 페이지 자체가 존재하면 안 됨
-
-  //todo 방에 하트 버튼 -> wishlist에 추가 (로그인 필요)
-  //get isWished data
-  const { data: isWished } = useQuery<{ rooms: Room[] }, unknown, Room[]>(
-    [`/api/wishlist/get-isWished?roomId=${props.id}`],
-    () =>
-      fetch(`/api/wishlist/get-isWished?roomId=${props.id}`)
-        .then((res) => res.json())
-        .then((data) => data.items)
+  // get isWished
+  const { data: wishlist, isLoading } = useQuery([WISHLIST_QUERY_KEY], () =>
+    fetch(WISHLIST_QUERY_KEY)
+      .then((res) => res.json())
+      .then((data) => data.items)
   )
+  const isWished =
+    wishlist != null && props.id != null
+      ? wishlist.includes(String(props.id))
+      : false
 
-  //add or delete wishlist
+  // update wishlist
   const { mutate: updateWishlist } = useMutation<unknown, unknown, number, any>(
     (roomId) =>
       fetch('/api/wishlist/update-Wishlist', {
@@ -99,8 +99,24 @@ export default function RoomIndex(props: Room) {
         .then((data) => data.json())
         .then((res) => res.items),
     {
+      onMutate: async (roomId) => {
+        await queryClient.cancelQueries({ queryKey: [WISHLIST_QUERY_KEY] })
+        const previous = queryClient.getQueryData([WISHLIST_QUERY_KEY])
+
+        queryClient.setQueryData<string[]>([WISHLIST_QUERY_KEY], (old) =>
+          old
+            ? old.includes(String(roomId))
+              ? old.filter((id) => id !== String(roomId))
+              : old.concat(String(roomId))
+            : []
+        )
+        return previous
+      },
+      onError: (__, _, context) => {
+        queryClient.setQueryData([WISHLIST_QUERY_KEY], context.previous)
+      },
       onSuccess: async () => {
-        queryClient.invalidateQueries([WISHLISTS_QUERY_KEY])
+        queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
       },
     }
   )
@@ -120,12 +136,12 @@ export default function RoomIndex(props: Room) {
       },
     }
   )
-
   const validate = (type: 'delete') => {
     if (type === 'delete') {
       deleteRoom(props.id)
     }
   }
+
   return (
     <>
       <Cbb className="m-5 pb-3 text-xs font-light text-zinc-600">
@@ -143,7 +159,18 @@ export default function RoomIndex(props: Room) {
                 className="absolute bottom-10 left-44"
               >
                 <CHoverDiv onClick={() => updateWishlist(props.id)}>
-                  {isWished ? (
+                  {isLoading ? (
+                    <>
+                      <IconHeart
+                        color="red"
+                        fill="red"
+                        size={18}
+                        stroke={1.25}
+                        className="mr-1"
+                      />
+                      <Loader size={15} />
+                    </>
+                  ) : isWished ? (
                     <>
                       <IconHeart
                         color="red"
@@ -203,30 +230,34 @@ export default function RoomIndex(props: Room) {
                 <IconEyeCheck size={18} stroke={1} />
                 {props.views + 1}
               </CenteringDiv>
-              <CenteringDiv style={{ width: '160px' }}>
-                {isWished ? (
-                  <CHoverDiv onClick={() => {}}>
-                    <IconHeart
-                      color="red"
-                      fill="red"
-                      size={18}
-                      stroke={1.25}
-                      className="mr-1"
-                    />
-                    관심목록에 추가 됨
+              {session && (
+                <CenteringDiv style={{ width: '160px' }}>
+                  <CHoverDiv onClick={() => updateWishlist(props.id)}>
+                    {isWished ? (
+                      <>
+                        <IconHeart
+                          color="red"
+                          fill="red"
+                          size={18}
+                          stroke={1.25}
+                          className="mr-1"
+                        />
+                        관심목록에 추가 됨
+                      </>
+                    ) : (
+                      <>
+                        <IconHeartBroken
+                          color="gray"
+                          size={18}
+                          stroke={1.25}
+                          className="mr-1"
+                        />
+                        관심목록에 추가
+                      </>
+                    )}
                   </CHoverDiv>
-                ) : (
-                  <CHoverDiv onClick={() => {}}>
-                    <IconHeartBroken
-                      color="gray"
-                      size={18}
-                      stroke={1.25}
-                      className="mr-1"
-                    />
-                    관심목록에 추가
-                  </CHoverDiv>
-                )}
-              </CenteringDiv>
+                </CenteringDiv>
+              )}
             </>
           )}
         </div>

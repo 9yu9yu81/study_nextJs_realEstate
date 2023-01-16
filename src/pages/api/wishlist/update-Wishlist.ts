@@ -37,8 +37,8 @@ async function updateWishlist(userId: string, roomId: string) {
       },
     })
 
-    console.log(response)
-    return response?.roomIds.split(',')
+    // console.log(response)
+    // return response?.roomIds.split(',')
   } catch (error) {
     console.error(error)
   }

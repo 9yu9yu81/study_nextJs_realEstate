@@ -24,7 +24,7 @@ async function getWishlist(userId: string) {
           },
         },
       })
-      console.log(response)
+      // console.log(response)
       return response
     }
   } catch (error) {
