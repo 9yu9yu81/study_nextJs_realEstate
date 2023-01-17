@@ -52,7 +52,7 @@ export default function RoomIndex(props: Room) {
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  //조회수 증가
+  //increase views
   const { mutate: increaseViews } = useMutation<
     unknown,
     unknown,
@@ -79,7 +79,7 @@ export default function RoomIndex(props: Room) {
 
   //todo status가 0일 때만 페이지를 그리도록 해야함 -> 나머지는 rooms/[id] 페이지 자체가 존재하면 안 됨
 
-  //get wished
+  // get Wished
   const { data: wished } = useQuery(
     [`/api/room/get-Room-wished?id=${props.id}`],
     () =>
@@ -94,6 +94,7 @@ export default function RoomIndex(props: Room) {
       .then((res) => res.json())
       .then((data) => data.items)
   )
+
   const isWished =
     wishlist != null && props.id != null
       ? wishlist.includes(String(props.id))
@@ -126,9 +127,9 @@ export default function RoomIndex(props: Room) {
         await queryClient.cancelQueries({
           queryKey: [`/api/room/get-Room-wished?id=${props.id}`],
         })
-        queryClient.setQueryData<number | undefined>(
+        queryClient.setQueryData<number>(
           [`/api/room/get-Room-wished?id=${props.id}`],
-          (old) => (old ? (isWished ? old - 1 : old + 1) : undefined)
+          (old) => (old ? (wished ? old - 1 : old + 1) : 1)
         )
 
         return previous

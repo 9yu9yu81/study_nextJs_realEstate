@@ -1,17 +1,27 @@
+import { useState } from 'react'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Wishlist } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function getRoom(id: number) {
+async function getRoomWished(roomId: string) {
   try {
-    const response = await prisma.room.findUnique({
+    const wishlists: Wishlist[] = await prisma.wishlist.findMany({})
+    let wished: number = 0
+    wishlists.forEach(
+      (wishlist) => wishlist.roomIds.split(',').includes(roomId) && wished++
+    )
+
+    const room = await prisma.room.update({
       where: {
-        id: id,
+        id: Number(roomId),
+      },
+      data: {
+        wished: wished,
       },
     })
-    console.log(response?.wished)
-    return response?.wished
+
+    return wished
   } catch (error) {
     console.error(error)
   }
@@ -33,7 +43,7 @@ export default async function handler(
     return
   }
   try {
-    const products = await getRoom(Number(id))
+    const products = await getRoomWished(String(id))
     res.status(200).json({ items: products, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'Failed' })
