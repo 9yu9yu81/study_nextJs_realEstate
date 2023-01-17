@@ -4,11 +4,17 @@ import { getSession } from 'next-auth/react'
 
 const prisma = new PrismaClient()
 
+//todos Room - wished 증,감 할 수 있도록
 async function updateWishlist(userId: string, roomId: string) {
   try {
     const wishlist = await prisma.wishlist.findUnique({
       where: {
         userId: userId,
+      },
+    })
+    const room = await prisma.room.findUnique({
+      where: {
+        id: Number(roomId),
       },
     })
 
@@ -24,6 +30,27 @@ async function updateWishlist(userId: string, roomId: string) {
       ? oldWishlist.filter((id) => id !== roomId)
       : [...oldWishlist, roomId]
 
+    // Room wished update
+    const wished = room
+      ? isWished
+        ? await prisma.room.update({
+            where: {
+              id: room?.id,
+            },
+            data: {
+              wished: room?.wished - 1,
+            },
+          })
+        : await prisma.room.update({
+            where: {
+              id: room?.id,
+            },
+            data: {
+              wished: room.wished + 1,
+            },
+          })
+      : undefined
+
     const response = await prisma.wishlist.upsert({
       where: {
         userId,
@@ -36,9 +63,9 @@ async function updateWishlist(userId: string, roomId: string) {
         roomIds: newWishlist.join(','),
       },
     })
-
+    console.log(wished)
     // console.log(response)
-    // return response?.roomIds.split(',')
+    return response?.roomIds.split(',')
   } catch (error) {
     console.error(error)
   }

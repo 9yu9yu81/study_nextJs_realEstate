@@ -53,9 +53,14 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model RoomCategory {
+  id            Int      @id @default(autoincrement())
+  name          String
+}
+
 model Room {
   id            Int      @id @default(autoincrement())
-  category      String
+  categoryId    String
   deposit       Int?
   area          Int
   address       String
@@ -69,16 +74,22 @@ model Room {
   price         Int
   status        Int      @default(0)
   views         Int      @default(0)
+  wished        Int      @default(0)
+}
+
+model CommunityCategory {
+  id            Int      @id @default(autoincrement())
+  name          String
 }
 
 model Community {
-  id          Int      @id @default(autoincrement())
-  category    Int
-  images      String
-  updatedAt   DateTime @default(now())
-  commentid   Int
-  userId      String
-  description String
+  id            Int      @id @default(autoincrement())
+  categoryId    Int
+  images        String
+  updatedAt     DateTime @default(now())
+  commentid     Int
+  userId        String
+  description   String
 }
 
 model Comment {

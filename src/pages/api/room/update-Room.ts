@@ -5,7 +5,7 @@ import { PrismaClient, Room } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function updateRoom(
-  room: Omit<Room, 'userId' | 'updatedAt' | 'status' | 'views'>
+  room: Omit<Room, 'userId' | 'updatedAt' | 'status' | 'views' | 'wished'>
 ) {
   try {
     const response = await prisma.room.update({

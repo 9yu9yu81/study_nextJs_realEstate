@@ -45,7 +45,7 @@ export const getServerSideProps: GetServerSideProps = async (
 export default function roomEdit(props: Room) {
   const queryClient = useQueryClient()
   const router = useRouter()
-  const [category, setCategory] = useState<string>(props.category)
+  const [category, setCategory] = useState<string>(props.categoryId)
   const [ym, setYm] = useState<string>(props.ym)
   const depositRef = useRef<HTMLInputElement | null>(null)
   const priceRef = useRef<HTMLInputElement | null>(null)
@@ -139,7 +139,7 @@ export default function roomEdit(props: Room) {
   const { mutate: updateRoom } = useMutation<
     unknown,
     unknown,
-    Omit<Room, 'userId' | 'updatedAt' | 'status' | 'views'>,
+    Omit<Room, 'userId' | 'updatedAt' | 'status' | 'views' | 'wished'>,
     any
   >(
     (room) =>
@@ -178,7 +178,7 @@ export default function roomEdit(props: Room) {
         ? alert('최소 5장, 최대 10장 이미지를 첨부해주세요')
         : updateRoom({
             id: props.id,
-            category: category,
+            categoryId: category,
             ym: ym,
             address: String(addrRef.current?.value),
             detailAddress: String(detailAddrRef.current?.value),

@@ -78,6 +78,16 @@ export default function RoomIndex(props: Room) {
   }, [])
 
   //todo status가 0일 때만 페이지를 그리도록 해야함 -> 나머지는 rooms/[id] 페이지 자체가 존재하면 안 됨
+
+  //get wished
+  const { data: wished } = useQuery(
+    [`/api/room/get-Room-wished?id=${props.id}`],
+    () =>
+      fetch(`/api/room/get-Room-wished?id=${props.id}`)
+        .then((res) => res.json())
+        .then((data) => data.items)
+  )
+
   // get isWished
   const { data: wishlist, isLoading } = useQuery([WISHLIST_QUERY_KEY], () =>
     fetch(WISHLIST_QUERY_KEY)
@@ -103,6 +113,7 @@ export default function RoomIndex(props: Room) {
         await queryClient.cancelQueries({ queryKey: [WISHLIST_QUERY_KEY] })
         const previous = queryClient.getQueryData([WISHLIST_QUERY_KEY])
 
+        //wishlist
         queryClient.setQueryData<string[]>([WISHLIST_QUERY_KEY], (old) =>
           old
             ? old.includes(String(roomId))
@@ -110,12 +121,24 @@ export default function RoomIndex(props: Room) {
               : old.concat(String(roomId))
             : []
         )
+        //wished
+        await queryClient.cancelQueries({
+          queryKey: [`/api/room/get-Room-wished?id=${props.id}`],
+        })
+        queryClient.setQueryData<number | undefined>(
+          [`/api/room/get-Room-wished?id=${props.id}`],
+          (old) => (old ? (isWished ? old - 1 : old + 1) : undefined)
+        )
+
         return previous
       },
       onError: (__, _, context) => {
         queryClient.setQueryData([WISHLIST_QUERY_KEY], context.previous)
       },
       onSuccess: async () => {
+        queryClient.invalidateQueries([
+          `/api/room/get-Room-wished?id=${props.id}`,
+        ])
         queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
       },
     }
@@ -205,7 +228,8 @@ export default function RoomIndex(props: Room) {
                 {props.views + 1}
               </CenteringDiv>
               <CenteringDiv className="p-2 mr-1" style={{ width: '60px' }}>
-                <IconHeart color="red" fill="red" size={18} stroke={1} />0
+                <IconHeart color="red" fill="red" size={18} stroke={1} />
+                {wished}
               </CenteringDiv>
               <CHoverDiv
                 onClick={() => router.push(`/rooms/${props.id}/edit`)}
@@ -357,7 +381,7 @@ export default function RoomIndex(props: Room) {
                 <div className="flex w-full items-center">
                   <span className="w-32 flex justify-center">매물 종류</span>
                   <Bl className="p-3">
-                    {ROOM_CATEGORY_MAP[Number(props.category)]}
+                    {ROOM_CATEGORY_MAP[Number(props.categoryId)]}
                   </Bl>
                 </div>
               </Bt>

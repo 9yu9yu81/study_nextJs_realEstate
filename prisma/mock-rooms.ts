@@ -35,11 +35,11 @@ const addrMockData = [
   '전북 전주시 덕진구 신기1길 6',
 ]
 
-const roomMockData: Omit<Room, 'id' | 'status' | 'updatedAt'>[] = []
+const roomMockData: Omit<Room, 'id' | 'status' | 'updatedAt' | 'wished'>[] = []
 
 addrMockData.map((addr, idx) => {
   roomMockData.push({
-    category: `${getRandom(0, 3)}`,
+    categoryId: `${getRandom(0, 3)}`,
     ym: '1',
     deposit: getRandom(200, 500),
     address: `${addr}`,
@@ -51,9 +51,10 @@ addrMockData.map((addr, idx) => {
       `${addr} 에 위치한 ROOM${idx + 1}입니다.\n` +
       '상세 설명 입니다.\n' +
       '상세 설명 입니다.\n' +
-      '상세 설명 입니다.\n',
+      '상세 설명 입니다.\n' +
+      '상세 설명 입니다.',
     images:
-      'https://cdn.pixabay.com/photo/2019/05/06/17/46/bed-4183710_1280.png,https://cdn.pixabay.com/photo/2017/03/28/12/11/chairs-2181960__480.jpg,https://cdn.pixabay.com/photo/2017/03/28/12/17/chairs-2181994__480.jpg,https://cdn.pixabay.com/photo/2017/03/28/12/16/chairs-2181980__480.jpg,https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389__480.jpg',
+      'https://cdn.pixabay.com/photo/2019/05/06/17/46/bed-4183710_1280.png,https://cdn.pixabay.com/photo/2017/03/28/12/11/chairs-2181960__480.jpg,https://cdn.pixabay.com/photo/2017/03/28/12/17/chairs-2181994__480.jpg,https://cdn.pixabay.com/photo/2017/03/28/12/16/chairs-2181980__480.jpg,https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389__480.jpg,https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389__480.jpg',
     views: getRandom(0, 100),
     userId: 'clchojlw50000qjoixw2b0pen',
   })
@@ -65,6 +66,7 @@ const prisma = new PrismaClient()
 
 async function main() {
   await prisma.room.deleteMany({})
+  await prisma.wishlist.deleteMany({})
 
   for (const r of prismaRoomMockData) {
     const room = await prisma.room.create({

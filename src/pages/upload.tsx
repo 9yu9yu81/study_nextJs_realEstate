@@ -140,7 +140,7 @@ export default function upload() {
   const { mutate: addRoom } = useMutation<
     unknown,
     unknown,
-    Omit<Room, 'userId' | 'id' | 'updatedAt' | 'status' | 'views'>,
+    Omit<Room, 'userId' | 'id' | 'updatedAt' | 'status' | 'views' | 'wished'>,
     any
   >(
     (room) =>
@@ -242,7 +242,7 @@ export default function upload() {
         : images.length < 6 || images.length > 10
         ? alert('최소 5장, 최대 10장 이미지를 첨부해주세요')
         : addRoom({
-            category: category,
+            categoryId: category,
             ym: ym,
             address: String(addrRef.current?.value),
             detailAddress: String(detailAddrRef.current?.value),
@@ -642,7 +642,8 @@ export default function upload() {
                       {room.views}
                     </Cbl>
                     <Cbl className="p-2" style={{ width: '80px' }}>
-                      <IconHeart color="red" fill="red" size={18} stroke={1} />0
+                      <IconHeart color="red" fill="red" size={18} stroke={1} />
+                      {room.wished}
                     </Cbl>
                     <CHoverDiv
                       onClick={() => updateStatus({ id: room.id, status: 1 })}
@@ -702,7 +703,7 @@ export default function upload() {
                               매물종류
                             </CenteringDiv>
                             <div className="p-1">
-                              {ROOM_CATEGORY_MAP[Number(room.category)]}
+                              {ROOM_CATEGORY_MAP[Number(room.categoryId)]}
                             </div>
                           </CenteringDiv>
                         </div>

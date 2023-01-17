@@ -10,8 +10,8 @@ async function getRoom(id: number) {
         id: id,
       },
     })
-    console.log(response)
-    return response
+    console.log(response?.wished)
+    return response?.wished
   } catch (error) {
     console.error(error)
   }
