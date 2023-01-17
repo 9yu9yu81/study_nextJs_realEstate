@@ -327,12 +327,10 @@ export default function upload() {
                     control: { borderWidth: '0px !important' },
                   })}
                   transitionDuration={0}
-                  data={[
-                    { label: '원룸', value: '0' },
-                    { label: '투룸', value: '1' },
-                    { label: '쓰리룸', value: '2' },
-                    { label: '그 외', value: '3' },
-                  ]}
+                  data={ROOM_CATEGORY_MAP.map((label, id) => ({
+                    label: label,
+                    value: String(id),
+                  }))}
                 />
               </CenteringDiv>
             </div>
@@ -426,10 +424,10 @@ export default function upload() {
                     control: { borderWidth: '0px !important' },
                   })}
                   transitionDuration={0}
-                  data={[
-                    { label: '전세', value: '0' },
-                    { label: '월세', value: '1' },
-                  ]}
+                  data={ROOM_YM_MAP.map((label, id) => ({
+                    label: label,
+                    value: String(id),
+                  }))}
                 />
                 {ym === '0' ? (
                   <>

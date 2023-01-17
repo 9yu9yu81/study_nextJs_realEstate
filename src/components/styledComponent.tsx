@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 
-const colorZinc400 = '#a1a1a9'
-const mainColor = colorZinc400
+export const colorZinc400 = '#a1a1a9'
+export const mainColor = colorZinc400
 
 export const CenteringDiv = styled.div`
   display: flex;
@@ -79,4 +79,15 @@ export const CHoverDiv = styled.div`
   :hover {
     cursor: pointer;
   }
+`
+
+export const CBstyled = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid ${mainColor};
+  padding: 5px;
+  font-size: 14px;
+  font-weight: 400;
+  color: dimgray;
 `
