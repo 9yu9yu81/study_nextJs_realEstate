@@ -121,6 +121,7 @@ export default function RoomIndex(props: Room) {
               : old.concat(String(roomId))
             : []
         )
+
         //wished
         await queryClient.cancelQueries({
           queryKey: [`/api/room/get-Room-wished?id=${props.id}`],
