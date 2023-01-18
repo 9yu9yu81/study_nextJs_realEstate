@@ -23,7 +23,7 @@ import {
   DESCRIPTION_PLACEHOLDER,
   DETAILADDR_PLACEHOLDER,
   ROOM_CATEGORY_MAP,
-} from 'constants/upload'
+} from 'constants/const'
 import { Router, useRouter } from 'next/router'
 
 export const getServerSideProps: GetServerSideProps = async (

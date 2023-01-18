@@ -22,7 +22,7 @@ import {
   StyledImage,
 } from 'components/styledComponent'
 import { ROOMS_QUERY_KEY, WISHLIST_QUERY_KEY } from 'constants/querykey'
-import { ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/upload'
+import { ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/const'
 import { format } from 'date-fns'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { useSession } from 'next-auth/react'

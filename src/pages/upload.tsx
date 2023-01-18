@@ -38,7 +38,7 @@ import {
   ROOM_CATEGORY_MAP,
   ROOM_STATUS_MAP,
   ROOM_YM_MAP,
-} from 'constants/upload'
+} from 'constants/const'
 import { useRouter } from 'next/router'
 import format from 'date-fns/format'
 
