@@ -22,25 +22,31 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import {
-  ROOMS_QUERY_KEY,
-  WISHLISTS_QUERY_KEY,
-  WISHLIST_QUERY_KEY,
-} from 'constants/querykey'
+import { WISHLIST_QUERY_KEY } from 'constants/querykey'
+import useDebounce from 'hooks/useDebounce'
+
+//todo myspot analytics 에 어떤 내용 들어갈지도 생각 해봐야함
 
 export default function home() {
-  const queryClient = useQueryClient()
-  const { data: session } = useSession()
-  const router = useRouter()
-  const [category, setCategory] = useState('-1')
-  const [ym, setYm] = useState('-1')
-
   //change expired room status
   useEffect(() => {
     fetch('/api/room/update-Rooms-status')
       .then((res) => res.json())
       .then((data) => data.items)
   }, [])
+
+  const queryClient = useQueryClient()
+  const { data: session } = useSession()
+  const router = useRouter()
+  const [category, setCategory] = useState<string>('-1')
+  const [ym, setYm] = useState<string>('-1')
+  //검색어 값을 받는 state
+  const [keyword, setKeyword] = useState<string>('')
+  //검색어가 변경되었을 때 작동
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setKeyword(e.target.value)
+  }
+  const debouncedKeyword = useDebounce<string>(keyword)
 
   //get HOME_TAKE recomended Room
   const { data: rooms, isLoading } = useQuery<
@@ -49,11 +55,11 @@ export default function home() {
     Room[]
   >(
     [
-      `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed`,
+      `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
     ],
     () =>
       fetch(
-        `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed`
+        `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`
       )
         .then((res) => res.json())
         .then((data) => data.items)
@@ -97,7 +103,7 @@ export default function home() {
         //wished
         queryClient.setQueryData<Room[]>(
           [
-            `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed`,
+            `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
           ],
           (olds) =>
             olds
@@ -118,7 +124,7 @@ export default function home() {
       onSuccess: async () => {
         queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
         queryClient.invalidateQueries([
-          `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed`,
+          `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
         ])
       },
     }
@@ -138,6 +144,8 @@ export default function home() {
           <Input
             icon={<IconSearch size={16} />}
             placeholder="지역을 입력하세요"
+            value={keyword}
+            onChange={handleChange}
           />
           <div className="ml-12">
             <CustomSegmentedControl
@@ -184,7 +192,7 @@ export default function home() {
                   <div className="flex">
                     <CenteringDiv className="relative">
                       <StyledImage
-                        onClick={() => {}}
+                        onClick={() => router.push(`/rooms/${room.id}`)}
                         style={{
                           width: '280px',
                           height: '210px',
@@ -199,9 +207,9 @@ export default function home() {
                         />
                       </StyledImage>
                       {session ? (
-                        <CHoverDiv>
+                        <CHoverDiv className="absolute left-4 top-4">
                           {wishLoading ? (
-                            <Loader />
+                            <Loader size={15} />
                           ) : isWished(room.id) ? (
                             <IconHeart
                               onClick={() => {
@@ -210,7 +218,6 @@ export default function home() {
                               size={25}
                               color={'red'}
                               fill={'red'}
-                              className="absolute left-4 top-4"
                             />
                           ) : (
                             <IconHeartBroken
@@ -219,7 +226,6 @@ export default function home() {
                               }}
                               size={25}
                               stroke={1.5}
-                              className="absolute left-4 top-4"
                             />
                           )}
                         </CHoverDiv>

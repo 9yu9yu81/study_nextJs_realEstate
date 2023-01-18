@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { PrismaClient } from '@prisma/client'
-import { getSession } from 'next-auth/react'
 import { getOrderBy } from 'constants/const'
 
 const prisma = new PrismaClient()
@@ -10,10 +9,16 @@ async function getRoomsPage(
   take: number,
   category: string,
   ym: string,
-  orderBy: string
+  orderBy: string,
+  contains: string
 ) {
   const orderByCondition = getOrderBy(orderBy)
-
+  const containsCondition =
+    contains && contains !== ''
+      ? {
+          address: { contains: contains },
+        }
+      : undefined
   try {
     const validCategory = category && category !== '-1' ? category : undefined
     const validYm = ym && ym !== '-1' ? ym : undefined
@@ -24,6 +29,7 @@ async function getRoomsPage(
       where: {
         categoryId: validCategory,
         ym: validYm,
+        ...containsCondition,
       },
       ...orderByCondition,
     })
@@ -43,7 +49,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const { skip, take, category, ym, orderBy } = req.query
+  const { skip, take, category, ym, orderBy, contains } = req.query
 
   try {
     const rooms = await getRoomsPage(
@@ -51,7 +57,8 @@ export default async function handler(
       Number(take),
       String(category),
       String(ym),
-      String(orderBy)
+      String(orderBy),
+      String(contains ? contains : '')
     )
     res.status(200).json({ items: rooms, message: 'Success' })
   } catch (error) {

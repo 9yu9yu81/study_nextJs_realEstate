@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+//todos wishlist 에만 동작하도록 수정해야함! 잘 못 짰음
+
 async function getWishlistsCount(category: string, ym: string) {
   const validCategory = category && category !== '-1' ? category : undefined
   const validYm = ym && ym !== '-1' ? ym : undefined

@@ -4,6 +4,8 @@ import { PrismaClient, Wishlist } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+//roomId 의 방을 몇명이 관심 목록에 등록 했는지를 업데이트하며 리턴한다
+//todo 지금은 불필요한 api같음.. 후에 이를 사용하는 부분은 대체 후 삭제 요망
 async function getRoomWished(roomId: string) {
   try {
     const wishlists: Wishlist[] = await prisma.wishlist.findMany({})
