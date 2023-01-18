@@ -125,10 +125,10 @@ export default function RoomIndex(props: Room) {
 
         //wished
         await queryClient.cancelQueries({
-          queryKey: [`/api/room/get-Room-wished?id=${props.id}`],
+          queryKey: [`/api/room/get-Room-wished?id=${roomId}`],
         })
         queryClient.setQueryData<number>(
-          [`/api/room/get-Room-wished?id=${props.id}`],
+          [`/api/room/get-Room-wished?id=${roomId}`],
           (old) => (old ? (wished ? old - 1 : old + 1) : 1)
         )
 

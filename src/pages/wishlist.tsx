@@ -79,8 +79,13 @@ export default function wishlist() {
         await queryClient.cancelQueries({ queryKey: [WISHLISTS_QUERY_KEY] })
         const previous = queryClient.getQueryData([WISHLISTS_QUERY_KEY])
 
-        queryClient.setQueryData<Room[]>([WISHLISTS_QUERY_KEY], (olds) =>
-          olds?.filter((f) => f.id !== roomId)
+        queryClient.setQueryData<Room[]>(
+          [
+            `api/wishlist/get-Wishlists-page?skip=${
+              (activePage - 1) * WISHLIST_TAKE
+            }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`,
+          ],
+          (olds) => olds?.filter((f) => f.id !== roomId)
         )
 
         return previous
@@ -89,7 +94,14 @@ export default function wishlist() {
         queryClient.setQueryData([WISHLISTS_QUERY_KEY], context.previous)
       },
       onSuccess: async () => {
-        queryClient.invalidateQueries([WISHLISTS_QUERY_KEY])
+        queryClient.invalidateQueries([
+          `api/wishlist/get-Wishlists-page?skip=${
+            (activePage - 1) * WISHLIST_TAKE
+          }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`,
+        ])
+        queryClient.invalidateQueries([
+          `api/wishlist/get-Wishlists-count?category=${category}&ym=${ym}`,
+        ])
       },
     }
   )

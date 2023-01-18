@@ -7,11 +7,12 @@ import {
   IconHeartbeat,
   IconSearch,
 } from '@tabler/icons'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import CustomSegmentedControl from 'components/CustomSegmentedControl'
 import {
   Bb,
   CBbstyled,
+  CHoverDiv,
   CenteringDiv,
   Cstyled,
   StyledImage,
@@ -19,12 +20,29 @@ import {
 import { HOME_TAKE, ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/const'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/router'
+import {
+  ROOMS_QUERY_KEY,
+  WISHLISTS_QUERY_KEY,
+  WISHLIST_QUERY_KEY,
+} from 'constants/querykey'
 
 export default function home() {
+  const queryClient = useQueryClient()
+  const { data: session } = useSession()
+  const router = useRouter()
   const [category, setCategory] = useState('-1')
   const [ym, setYm] = useState('-1')
 
-  //get six recomended Room
+  //change expired room status
+  useEffect(() => {
+    fetch('/api/room/update-Rooms-status')
+      .then((res) => res.json())
+      .then((data) => data.items)
+  }, [])
+
+  //get HOME_TAKE recomended Room
   const { data: rooms, isLoading } = useQuery<
     { rooms: Room[] },
     unknown,
@@ -40,11 +58,72 @@ export default function home() {
         .then((res) => res.json())
         .then((data) => data.items)
   )
-  useEffect(() => {
-    fetch('/api/room/update-Rooms-status')
-      .then((res) => res.json())
-      .then((data) => data.items)
-  }, [])
+
+  // get Wishlist (해당 유저의 관심 매물들)
+  const { data: wishlist, isLoading: wishLoading } = useQuery(
+    [WISHLIST_QUERY_KEY],
+    () =>
+      fetch(WISHLIST_QUERY_KEY)
+        .then((res) => res.json())
+        .then((data) => data.items)
+  )
+  // 매물들이 해당 유저의 관심 매물인지 확인
+  const isWished = (id: number) =>
+    wishlist != null && id != null ? wishlist.includes(String(id)) : false
+
+  // update wishlist
+  const { mutate: updateWishlist } = useMutation<unknown, unknown, number, any>(
+    (roomId) =>
+      fetch('/api/wishlist/update-Wishlist', {
+        method: 'POST',
+        body: JSON.stringify(roomId),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: async (roomId) => {
+        await queryClient.cancelQueries({ queryKey: [WISHLIST_QUERY_KEY] })
+        const previous = queryClient.getQueryData([WISHLIST_QUERY_KEY])
+
+        //wishlist
+        queryClient.setQueryData<string[]>([WISHLIST_QUERY_KEY], (old) =>
+          old
+            ? old.includes(String(roomId))
+              ? old.filter((id) => id !== String(roomId))
+              : old.concat(String(roomId))
+            : []
+        )
+
+        //wished
+        queryClient.setQueryData<Room[]>(
+          [
+            `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed`,
+          ],
+          (olds) =>
+            olds
+              ? olds.map((old) =>
+                  old.id === roomId
+                    ? isWished(roomId)
+                      ? { ...old, wished: old.wished - 1 }
+                      : { ...old, wished: old.wished + 1 }
+                    : { ...old }
+                )
+              : undefined
+        )
+        return previous
+      },
+      onError: (__, _, context) => {
+        queryClient.setQueryData([WISHLIST_QUERY_KEY], context.previous)
+      },
+      onSuccess: async () => {
+        queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
+        queryClient.invalidateQueries([
+          `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed`,
+        ])
+      },
+    }
+  )
+
   return (
     <div className="text-zinc-600 mt-20">
       <Bb className="h-72 flex mb-10">
@@ -103,7 +182,7 @@ export default function home() {
               rooms.map((room, idx) => (
                 <div className="border-b p-3" key={idx}>
                   <div className="flex">
-                    <CenteringDiv>
+                    <CenteringDiv className="relative">
                       <StyledImage
                         onClick={() => {}}
                         style={{
@@ -119,9 +198,48 @@ export default function home() {
                           fill
                         />
                       </StyledImage>
+                      {session ? (
+                        <CHoverDiv>
+                          {wishLoading ? (
+                            <Loader />
+                          ) : isWished(room.id) ? (
+                            <IconHeart
+                              onClick={() => {
+                                updateWishlist(room.id)
+                              }}
+                              size={25}
+                              color={'red'}
+                              fill={'red'}
+                              className="absolute left-4 top-4"
+                            />
+                          ) : (
+                            <IconHeartBroken
+                              onClick={() => {
+                                updateWishlist(room.id)
+                              }}
+                              size={25}
+                              stroke={1.5}
+                              className="absolute left-4 top-4"
+                            />
+                          )}
+                        </CHoverDiv>
+                      ) : (
+                        <>
+                          <CHoverDiv>
+                            <IconHeartbeat
+                              onClick={() => {
+                                router.push('/auth/login')
+                              }}
+                              size={25}
+                              stroke={1.5}
+                              className="absolute left-4 top-4"
+                            />
+                          </CHoverDiv>
+                        </>
+                      )}
                     </CenteringDiv>
                     <div className="p-3 w-full">
-                      <div className="flex">
+                      <div className="flex mb-1">
                         {room.title}
                         <CenteringDiv className="ml-auto text-xs">
                           <IconEye size={15} />
