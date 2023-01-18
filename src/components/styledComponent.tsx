@@ -2,6 +2,7 @@ import styled from '@emotion/styled'
 
 export const colorZinc400 = '#a1a1a9'
 export const mainColor = colorZinc400
+export const subColor = '#F6F6F6'
 
 export const CenteringDiv = styled.div`
   display: flex;

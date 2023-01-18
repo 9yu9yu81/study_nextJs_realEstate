@@ -12,7 +12,7 @@ import {
   StyledImage,
 } from 'components/styledComponent'
 import { WISHLISTS_QUERY_KEY } from 'constants/querykey'
-import { ROOM_CATEGORY_MAP, ROOM_YM_MAP, TAKE } from 'constants/const'
+import { ROOM_CATEGORY_MAP, ROOM_YM_MAP, WISHLIST_TAKE } from 'constants/const'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import Image from 'next/image'
@@ -37,14 +37,14 @@ export default function wishlist() {
   >(
     [
       `api/wishlist/get-Wishlists-page?skip=${
-        (activePage - 1) * TAKE
-      }&take=${TAKE}&category=${category}&ym=${ym}`,
+        (activePage - 1) * WISHLIST_TAKE
+      }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`,
     ],
     () =>
       fetch(
         `api/wishlist/get-Wishlists-page?skip=${
-          (activePage - 1) * TAKE
-        }&take=${TAKE}&category=${category}&ym=${ym}`
+          (activePage - 1) * WISHLIST_TAKE
+        }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`
       )
         .then((res) => res.json())
         .then((data) => data.items)
@@ -55,7 +55,9 @@ export default function wishlist() {
     () =>
       fetch(`api/wishlist/get-Wishlists-count?category=${category}&ym=${ym}`)
         .then((res) => res.json())
-        .then((data) => (data.items === 0 ? 1 : Math.ceil(data.items / TAKE))),
+        .then((data) =>
+          data.items === 0 ? 1 : Math.ceil(data.items / WISHLIST_TAKE)
+        ),
     {
       onSuccess: async () => {
         setActivePage(1)
@@ -174,8 +176,8 @@ export default function wishlist() {
           />
         </div>
         <div className="grid grid-cols-3 mt-5">
-          {wishlists.map((wishlist) => (
-            <B className="m-2 p-1 rounded-md">
+          {wishlists.map((wishlist, idx) => (
+            <B key={idx} className="m-2 p-1 rounded-md">
               <CBstyled className="m-2">{wishlist.title}</CBstyled>
               <CenteringDiv className="relative">
                 <StyledImage
