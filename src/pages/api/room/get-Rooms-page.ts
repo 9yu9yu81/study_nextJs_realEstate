@@ -27,7 +27,7 @@ async function getRoomsPage(
       },
       ...orderByCondition,
     })
-    console.log(response.map((res) => res.views))
+    // console.log(response.map((res) => res.views))
     return response
   } catch (error) {
     console.error(error)

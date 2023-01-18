@@ -92,3 +92,23 @@ export const CBstyled = styled.div`
   font-weight: 400;
   color: dimgray;
 `
+
+export const CBbstyled = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid ${mainColor};
+  padding: 5px;
+  font-size: 14px;
+  font-weight: 400;
+  color: dimgray;
+`
+export const Cstyled = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  font-size: 14px;
+  font-weight: 400
+  color: dimgray;
+`

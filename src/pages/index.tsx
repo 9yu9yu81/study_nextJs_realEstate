@@ -1,23 +1,26 @@
 import { Card, Input, Loader } from '@mantine/core'
 import { Room } from '@prisma/client'
-import { IconEye, IconHeart, IconSearch } from '@tabler/icons'
+import {
+  IconEye,
+  IconHeart,
+  IconHeartBroken,
+  IconHeartbeat,
+  IconSearch,
+} from '@tabler/icons'
 import { useQuery } from '@tanstack/react-query'
 import CustomSegmentedControl from 'components/CustomSegmentedControl'
 import {
-  B,
   Bb,
-  CBstyled,
-  CHoverDiv,
+  CBbstyled,
   CenteringDiv,
+  Cstyled,
   StyledImage,
 } from 'components/styledComponent'
 import { HOME_TAKE, ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/const'
-import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 
 export default function home() {
-  const router = useRouter()
   const [category, setCategory] = useState('-1')
   const [ym, setYm] = useState('-1')
 
@@ -95,60 +98,74 @@ export default function home() {
             <Loader />
           </CenteringDiv>
         ) : (
-          <div className="grid grid-cols-3 mt-5">
+          <div className="flex flex-col space-y-3 mt-3 text-sm font-light text-zinc-500">
             {rooms &&
               rooms.map((room, idx) => (
-                <B key={idx} className="m-2 p-1 rounded-md">
-                  <CBstyled className="m-2">{room.title}</CBstyled>
-                  <CenteringDiv className="relative">
-                    <StyledImage
-                      onClick={() => {}}
-                      style={{
-                        width: '280px',
-                        height: '210px',
-                        margin: '10px',
-                      }}
-                    >
-                      <Image
-                        className="styled"
-                        src={room.images.split(',')[0]}
-                        alt={'thumbnail'}
-                        fill
-                      />
-                    </StyledImage>
-                    <CHoverDiv className="absolute right-5 top-5">
-                      <IconHeart
+                <div className="border-b p-3" key={idx}>
+                  <div className="flex">
+                    <CenteringDiv>
+                      <StyledImage
                         onClick={() => {}}
-                        size={24}
-                        color={'red'}
-                        fill={'red'}
-                      />
-                      <IconEye onClick={() => {}} size={24} />
-                      {room.views}
-                    </CHoverDiv>
-                  </CenteringDiv>
-                  <CenteringDiv
-                    className="font-light text-zinc-600 text-xs
-              "
-                  ></CenteringDiv>
-                  <div className="p-2 flex flex-col space-y-1">
-                    <CBstyled>{room.address}</CBstyled>
-                    <div className="grid grid-cols-2 space-x-2">
-                      <CBstyled>{ROOM_YM_MAP[Number(room.ym)]}</CBstyled>
-                      <CBstyled>
-                        {ROOM_CATEGORY_MAP[Number(room.categoryId)]}
-                      </CBstyled>
-                    </div>
-                    <div className="grid grid-cols-2 space-x-2">
-                      <CBstyled>
-                        {room.ym === '0'
-                          ? `${room.price}만원`
-                          : `${room.deposit} / ${room.price}만원`}
-                      </CBstyled>
-                      <CBstyled>{room.area}평</CBstyled>
+                        style={{
+                          width: '280px',
+                          height: '210px',
+                          margin: '10px',
+                        }}
+                      >
+                        <Image
+                          className="styled"
+                          src={room.images.split(',')[0]}
+                          alt={'thumbnail'}
+                          fill
+                        />
+                      </StyledImage>
+                    </CenteringDiv>
+                    <div className="p-3 w-full">
+                      <div className="flex">
+                        {room.title}
+                        <CenteringDiv className="ml-auto text-xs">
+                          <IconEye size={15} />
+                          {room.views}
+                          <IconHeart size={15} className="ml-1" />
+                          {room.wished}
+                        </CenteringDiv>
+                      </div>
+                      <div className="flex space-x-3">
+                        <CBbstyled>매물 정보</CBbstyled>
+                        <Cstyled>-</Cstyled>
+                        <CBbstyled>
+                          매물 종류 :{' '}
+                          {ROOM_CATEGORY_MAP[Number(room.categoryId)]}
+                        </CBbstyled>
+                      </div>
+                      <div className="flex space-x-3">
+                        <CBbstyled>위치 정보</CBbstyled>
+                        <Cstyled>-</Cstyled>
+                        <CBbstyled>주소 : {room.address} </CBbstyled>
+                        <CBbstyled>상세 : {room.detailAddress} </CBbstyled>
+                      </div>
+                      <div className="flex space-x-3">
+                        <CBbstyled>거래 정보</CBbstyled>
+                        <Cstyled>-</Cstyled>
+                        {room.ym === '0' ? (
+                          <>
+                            <CBbstyled>전세 : {room.price} 만원</CBbstyled>
+                          </>
+                        ) : (
+                          <>
+                            <CBbstyled>보증금 : {room.deposit} 만원</CBbstyled>
+                            <CBbstyled>월세 : {room.price} 만원</CBbstyled>
+                          </>
+                        )}
+                      </div>
+                      <div className="flex space-x-3">
+                        <CBbstyled>기본 정보</CBbstyled>
+                        <Cstyled>-</Cstyled>
+                        <CBbstyled>크기 : {room.area} 평 </CBbstyled>
+                      </div>
                     </div>
                   </div>
-                </B>
+                </div>
               ))}
           </div>
         )}
