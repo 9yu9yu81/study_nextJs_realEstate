@@ -18,7 +18,7 @@ import {
   StyledImage,
 } from 'components/styledComponent'
 import { HOME_TAKE, ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/const'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
@@ -54,6 +54,12 @@ export default function home() {
   const handleMainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMainKeyword(e.target.value)
   }
+  //메인 검색어 쓰고 엔터 누르면 해당 목록을 보여주는 곳으로
+  const handleEnterKeypress = (e: React.KeyboardEvent) => {
+    if (e.key == 'Enter') {
+      router.push(`/rooms?mainKeyword=${mainKeyword}`)
+    }
+  }
 
   //get HOME_TAKE recomended Room (HOME_TAKE 수 만큼 방을 받아온다)
   const { data: rooms, isLoading } = useQuery<
@@ -62,11 +68,11 @@ export default function home() {
     Room[]
   >(
     [
-      `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
+      `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
     ],
     () =>
       fetch(
-        `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`
+        `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`
       )
         .then((res) => res.json())
         .then((data) => data.items)
@@ -110,7 +116,7 @@ export default function home() {
         //wished
         queryClient.setQueryData<Room[]>(
           [
-            `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
+            `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
           ],
           (olds) =>
             olds
@@ -131,7 +137,7 @@ export default function home() {
       onSuccess: async () => {
         queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
         queryClient.invalidateQueries([
-          `api/room/get-Rooms-page?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
+          `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
         ])
       },
     }
@@ -147,12 +153,13 @@ export default function home() {
             value={mainKeyword}
             onChange={handleMainChange}
             placeholder="지역을 입력하세요"
+            onKeyUp={handleEnterKeypress}
           />
         </div>
       </Bb>
       <div>
         <div className="font-semibold mr-auto text-xl p-3">추천 스팟</div>
-        <div className="grid grid-cols-3 rounded-md p-2 m-2 items-center border">
+        <div className="grid grid-cols-3 rounded-md p-2 m-2 items-center">
           <Input
             icon={<IconSearch size={16} />}
             placeholder="지역을 입력하세요"

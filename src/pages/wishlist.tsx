@@ -36,13 +36,13 @@ export default function wishlist() {
     Room[]
   >(
     [
-      `api/wishlist/get-Wishlists-page?skip=${
+      `api/wishlist/get-Wishlists-take?skip=${
         (activePage - 1) * WISHLIST_TAKE
       }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`,
     ],
     () =>
       fetch(
-        `api/wishlist/get-Wishlists-page?skip=${
+        `api/wishlist/get-Wishlists-take?skip=${
           (activePage - 1) * WISHLIST_TAKE
         }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`
       )
@@ -81,7 +81,7 @@ export default function wishlist() {
 
         queryClient.setQueryData<Room[]>(
           [
-            `api/wishlist/get-Wishlists-page?skip=${
+            `api/wishlist/get-Wishlists-take?skip=${
               (activePage - 1) * WISHLIST_TAKE
             }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`,
           ],
@@ -95,7 +95,7 @@ export default function wishlist() {
       },
       onSuccess: async () => {
         queryClient.invalidateQueries([
-          `api/wishlist/get-Wishlists-page?skip=${
+          `api/wishlist/get-Wishlists-take?skip=${
             (activePage - 1) * WISHLIST_TAKE
           }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`,
         ])

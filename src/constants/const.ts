@@ -13,6 +13,7 @@ export const ROOM_STATUS_MAP = ['공개중', '거래완료', '기한만료']
 
 export const WISHLIST_TAKE = 9
 export const HOME_TAKE = 3
+export const ROOM_TAKE = 10
 
 export const getOrderBy = (orderBy: string) => {
   return orderBy

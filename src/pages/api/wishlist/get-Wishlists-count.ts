@@ -4,8 +4,6 @@ import { getSession } from 'next-auth/react'
 
 const prisma = new PrismaClient()
 
-//todos wishlist 에만 동작하도록 수정해야함! 잘 못 짰음
-
 async function getWishlistsCount(userId: string, category: string, ym: string) {
   const wishlist = await prisma.wishlist.findUnique({
     where: {
