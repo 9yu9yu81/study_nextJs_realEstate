@@ -77,7 +77,9 @@ export default function Header() {
         <Button
           variant="subtle"
           color="gray"
-          onClick={() => router.push('/wishlist')}
+          onClick={() =>
+            session ? router.push('/wishlist') : router.push('/auth/login')
+          }
         >
           관심목록
         </Button>{' '}

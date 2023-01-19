@@ -27,7 +27,7 @@ import useDebounce from 'hooks/useDebounce'
 
 //todo myspot analytics 에 어떤 내용 들어갈지도 생각 해봐야함
 
-export default function home() {
+export default function Rooms() {
   //change expired room status
   useEffect(() => {
     fetch('/api/room/update-Rooms-status')
