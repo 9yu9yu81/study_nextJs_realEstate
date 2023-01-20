@@ -13,7 +13,15 @@ export const ROOM_STATUS_MAP = ['공개중', '거래완료', '기한만료']
 
 export const WISHLIST_TAKE = 9
 export const HOME_TAKE = 3
-export const ROOM_TAKE = 10
+export const ROOM_TAKE = 8
+
+export const FILTERS = [
+  { label: '최신순', value: 'latest' },
+  { label: '가격 높은 순', value: 'expensive' },
+  { label: '가격 낮은 순', value: 'cheap' },
+  { label: '조회수 순', value: 'mostViewd' },
+  { label: '좋아요 순', value: 'mostWished' },
+]
 
 export const getOrderBy = (orderBy: string) => {
   return orderBy

@@ -1,14 +1,16 @@
-import { Center, Input, Loader, Pagination } from '@mantine/core'
+import { Input, Loader, Menu, Pagination } from '@mantine/core'
 import { Room } from '@prisma/client'
 import {
+  IconArrowDown,
+  IconCheckbox,
   IconEye,
   IconHeart,
   IconHeartBroken,
   IconHeartbeat,
   IconSearch,
+  IconSortDescending,
 } from '@tabler/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import CustomSegmentedControl from 'components/CustomSegmentedControl'
 import {
   CBbstyled,
   CHoverDiv,
@@ -16,13 +18,19 @@ import {
   Cstyled,
   StyledImage,
 } from 'components/styledComponent'
-import { ROOM_CATEGORY_MAP, ROOM_TAKE, ROOM_YM_MAP } from 'constants/const'
+import {
+  FILTERS,
+  ROOM_CATEGORY_MAP,
+  ROOM_TAKE,
+  ROOM_YM_MAP,
+} from 'constants/const'
 import { useState } from 'react'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { WISHLIST_QUERY_KEY } from 'constants/querykey'
-import useDebounce from 'hooks/useDebounce'
+import Map from 'components/Map'
+import { useRef } from 'react'
 
 //todo myspot analytics 에 어떤 내용 들어갈지도 생각 해봐야함
 
@@ -33,23 +41,24 @@ export default function Rooms() {
   const [category, setCategory] = useState<string>('-1')
   const [ym, setYm] = useState<string>('-1')
   const [activePage, setActivePage] = useState<number>(1)
-  const mainKeyword = String(router.query.mainKeyword)
-
+  const mainKeyword = router.query.mainKeyword
+  const searchRef = useRef<HTMLInputElement | null>(null)
   //home으로부터 받은 검색어 값을 받는 state
-  const [keyword, setKeyword] = useState<string>(() =>
-    mainKeyword ? mainKeyword : ''
+  const [keyword, setKeyword] = useState(() =>
+    mainKeyword ? mainKeyword : undefined
   )
-  //검색어가 변경되었을 때 작동
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setKeyword(e.target.value)
+
+  const handleEnterKeypress = (e: React.KeyboardEvent) => {
+    if (e.key == 'Enter') {
+      searchRef && setKeyword(searchRef.current?.value)
+    }
   }
-  const debouncedKeyword = useDebounce<string>(keyword)
 
   const ROOMS_TAKE_QUERY_KEY = `api/room/get-Rooms-take?skip=${
     (activePage - 1) * ROOM_TAKE
-  }&take=${ROOM_TAKE}&category=${category}&ym=${ym}&contains=${debouncedKeyword}`
+  }&take=${ROOM_TAKE}&category=${category}&ym=${ym}&contains=${keyword}`
 
-  const ROOMS_COUNT_QUERY_KEY = `api/room/get-Rooms-count?category=${category}&ym=${ym}&contains=${debouncedKeyword}`
+  const ROOMS_COUNT_QUERY_KEY = `api/room/get-Rooms-count?category=${category}&ym=${ym}&contains=${keyword}`
   //get HOME_TAKE recomended Room (HOME_TAKE 수 만큼 방을 받아온다)
   const { data: rooms, isLoading } = useQuery<
     { rooms: Room[] },
@@ -136,58 +145,111 @@ export default function Rooms() {
   )
 
   return (
-    <div className="text-zinc-600 mt-20">
+    <div className="text-zinc-600">
       <div>
-        <div>
-          <div className="grid grid-cols-3 rounded-md p-2 m-2 items-center">
-            <Input
-              icon={<IconSearch size={16} />}
-              placeholder="지역을 입력하세요"
-              value={keyword}
-              onChange={handleChange}
-            />
-            <div className="ml-12">
-              <CustomSegmentedControl
-                value={category}
-                onChange={setCategory}
-                data={[
-                  {
-                    label: '전체',
-                    value: '-1',
-                  },
-                  ...ROOM_CATEGORY_MAP.map((label, id) => ({
-                    label: label,
-                    value: String(id),
-                  })),
-                ]}
-              />
-            </div>
-            <div className="ml-20">
-              <CustomSegmentedControl
-                value={ym}
-                onChange={setYm}
-                data={[
-                  {
-                    label: '전체',
-                    value: '-1',
-                  },
-                  ...ROOM_YM_MAP.map((label, id) => ({
-                    label: label,
-                    value: String(id),
-                  })),
-                ]}
-              />
-            </div>
-          </div>
-        </div>
         {isLoading ? (
-          <CenteringDiv className="m-40">
+          <CenteringDiv>
             <Loader />
           </CenteringDiv>
         ) : rooms?.length === 0 ? (
           <CenteringDiv className="mt-40 mb-40 text-xl font-bold">
-            '{keyword}' 에 <br />
+            {keyword} 에 <br />
             해당하는 매물이 존재하지 않습니다.
+          </CenteringDiv>
+        ) : (
+          <>
+            <div className="font-semibold text-xl m-3"> {keyword}</div>
+            <Map width="950px" height="500px" address={String(keyword)} />
+          </>
+        )}
+
+        <div className="grid grid-cols-6 items-center m-5 text-xs">
+          <CenteringDiv className="col-span-2">
+            <Input
+              className="w-full"
+              icon={<IconSearch size={16} />}
+              placeholder="지역을 입력하세요"
+              ref={searchRef}
+              onKeyUp={handleEnterKeypress}
+            />
+          </CenteringDiv>
+          <CenteringDiv>
+            <Menu width={130}>
+              <Menu.Target>
+                <CHoverDiv>
+                  매물 종류
+                  <IconArrowDown size={15} />
+                </CHoverDiv>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item value={'-1'} onChange={() => setCategory('-1')}>
+                  <CenteringDiv>전체</CenteringDiv>
+                </Menu.Item>
+                {ROOM_CATEGORY_MAP.map((cat, idx) => (
+                  <Menu.Item
+                    value={idx}
+                    onChange={() => setCategory(String(idx))}
+                  >
+                    <CenteringDiv>{cat}</CenteringDiv>
+                  </Menu.Item>
+                ))}
+              </Menu.Dropdown>
+            </Menu>
+          </CenteringDiv>
+          <CenteringDiv>
+            <Menu width={130}>
+              <Menu.Target>
+                <CHoverDiv>
+                  전세/월세
+                  <IconArrowDown size={15} />
+                </CHoverDiv>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item value={-1} onChange={() => setYm('-1')}>
+                  <CenteringDiv>전체</CenteringDiv>
+                </Menu.Item>
+                {ROOM_YM_MAP.map((cat, idx) => (
+                  <Menu.Item value={idx} onChange={() => setYm(String(idx))}>
+                    <CenteringDiv>{cat}</CenteringDiv>
+                  </Menu.Item>
+                ))}
+              </Menu.Dropdown>
+            </Menu>
+          </CenteringDiv>{' '}
+          <CenteringDiv>
+            <Menu>
+              <Menu.Target>
+                <CHoverDiv>
+                  세부 사항
+                  <IconCheckbox size={15} />
+                </CHoverDiv>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item>checkbox modal</Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </CenteringDiv>
+          <CenteringDiv>
+            <Menu width={130}>
+              <Menu.Target>
+                <CHoverDiv>
+                  정렬 기준
+                  <IconSortDescending size={15} />
+                </CHoverDiv>
+              </Menu.Target>
+              <Menu.Dropdown>
+                {FILTERS.map((filter) => (
+                  <Menu.Item value={filter.value}>
+                    <CenteringDiv>{filter.label}</CenteringDiv>
+                  </Menu.Item>
+                ))}
+              </Menu.Dropdown>
+            </Menu>
+          </CenteringDiv>
+        </div>
+        {isLoading ? (
+          <CenteringDiv className="m-40">
+            <Loader />
           </CenteringDiv>
         ) : (
           <div className="flex flex-col space-y-3 mt-3 text-sm font-light text-zinc-500">

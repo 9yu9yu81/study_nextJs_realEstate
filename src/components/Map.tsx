@@ -1,6 +1,7 @@
 import { KAKAOMAP_KEY } from 'constants/googleAuth'
 import Script from 'next/script'
 import { useEffect } from 'react'
+import { CenteringDiv } from './styledComponent'
 
 export default function Map({
   width,
@@ -51,7 +52,7 @@ export default function Map({
 
   return (
     <>
-      <div className="flex justify-center items-center">
+      <CenteringDiv>
         <div
           id="map"
           className=" border border-zinc-500"
@@ -60,7 +61,7 @@ export default function Map({
             height: height,
           }}
         ></div>
-      </div>
+      </CenteringDiv>
     </>
   )
 }
