@@ -19,14 +19,14 @@ export const FILTERS = [
   { label: '최신순', value: 'latest' },
   { label: '가격 높은 순', value: 'expensive' },
   { label: '가격 낮은 순', value: 'cheap' },
-  { label: '조회수 순', value: 'mostViewd' },
+  { label: '조회수 순', value: 'mostViewed' },
   { label: '좋아요 순', value: 'mostWished' },
 ]
 
 export const getOrderBy = (orderBy: string) => {
   return orderBy
     ? orderBy === 'latest'
-      ? { orderBy: { createdAt: 'desc' } }
+      ? { orderBy: { updatedAt: 'desc' } }
       : orderBy === 'expensive'
       ? {
           orderBy: {

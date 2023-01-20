@@ -1,5 +1,3 @@
-import { KAKAOMAP_KEY } from 'constants/googleAuth'
-import Script from 'next/script'
 import { useEffect } from 'react'
 import { CenteringDiv } from './styledComponent'
 

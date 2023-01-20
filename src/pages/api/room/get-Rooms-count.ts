@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { PrismaClient } from '@prisma/client'
+import { getOrderBy } from 'constants/const'
 const prisma = new PrismaClient()
 
 async function getRoomsCount(category: string, ym: string, contains: string) {

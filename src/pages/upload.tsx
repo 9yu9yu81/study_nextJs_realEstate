@@ -99,8 +99,8 @@ export default function upload() {
   }
   //위치 정보 주소 쓰는 input에서 enter 를 누르면 바로 '주소검색' 버튼이 눌리게 기능 구현
   const postcodeButtonRef = useRef<HTMLButtonElement | null>(null)
-  const handleEnterKeypress = (e: any) => {
-    if (e.keyCode == 13) {
+  const handleEnterKeypress = (e: React.KeyboardEvent) => {
+    if (e.key == 'Enter') {
       if (postcodeButtonRef.current) {
         postcodeButtonRef.current.click()
       }

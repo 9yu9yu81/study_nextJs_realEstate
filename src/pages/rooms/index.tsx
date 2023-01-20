@@ -44,21 +44,23 @@ export default function Rooms() {
   const mainKeyword = router.query.mainKeyword
   const searchRef = useRef<HTMLInputElement | null>(null)
   //home으로부터 받은 검색어 값을 받는 state
-  const [keyword, setKeyword] = useState(() =>
-    mainKeyword ? mainKeyword : undefined
-  )
+  const [keyword, setKeyword] = useState(mainKeyword)
+  //정렬 기준 받는
+  const [filter, setFilter] = useState<string>(FILTERS[0].value)
 
   const handleEnterKeypress = (e: React.KeyboardEvent) => {
     if (e.key == 'Enter') {
       searchRef && setKeyword(searchRef.current?.value)
+      router.push(`/rooms?mainKeyword=${searchRef.current?.value}`)
     }
   }
 
   const ROOMS_TAKE_QUERY_KEY = `api/room/get-Rooms-take?skip=${
     (activePage - 1) * ROOM_TAKE
-  }&take=${ROOM_TAKE}&category=${category}&ym=${ym}&contains=${keyword}`
+  }&take=${ROOM_TAKE}&category=${category}&ym=${ym}&orderBy=${filter}&contains=${keyword}`
 
   const ROOMS_COUNT_QUERY_KEY = `api/room/get-Rooms-count?category=${category}&ym=${ym}&contains=${keyword}`
+
   //get HOME_TAKE recomended Room (HOME_TAKE 수 만큼 방을 받아온다)
   const { data: rooms, isLoading } = useQuery<
     { rooms: Room[] },
@@ -146,231 +148,229 @@ export default function Rooms() {
 
   return (
     <div className="text-zinc-600">
-      <div>
-        {isLoading ? (
-          <CenteringDiv>
-            <Loader />
-          </CenteringDiv>
-        ) : rooms?.length === 0 ? (
-          <CenteringDiv className="mt-40 mb-40 text-xl font-bold">
-            {keyword} 에 <br />
-            해당하는 매물이 존재하지 않습니다.
-          </CenteringDiv>
-        ) : (
-          <>
-            <div className="font-semibold text-xl m-3"> {keyword}</div>
-            <Map width="950px" height="500px" address={String(keyword)} />
-          </>
-        )}
+      <div className="font-semibold text-xl m-3"> {keyword}</div>
+      <Map width="950px" height="500px" address={String(keyword)} />
 
-        <div className="grid grid-cols-6 items-center m-5 text-xs">
-          <CenteringDiv className="col-span-2">
-            <Input
-              className="w-full"
-              icon={<IconSearch size={16} />}
-              placeholder="지역을 입력하세요"
-              ref={searchRef}
-              onKeyUp={handleEnterKeypress}
-            />
-          </CenteringDiv>
-          <CenteringDiv>
-            <Menu width={130}>
-              <Menu.Target>
-                <CHoverDiv>
-                  매물 종류
-                  <IconArrowDown size={15} />
-                </CHoverDiv>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Item value={'-1'} onChange={() => setCategory('-1')}>
-                  <CenteringDiv>전체</CenteringDiv>
+      <div className="grid grid-cols-6 items-center m-5 text-xs">
+        <CenteringDiv className="col-span-2">
+          <Input
+            className="w-full"
+            icon={<IconSearch size={16} />}
+            placeholder="지역을 입력하세요"
+            ref={searchRef}
+            onKeyUp={handleEnterKeypress}
+          />
+        </CenteringDiv>
+        <CenteringDiv>
+          <Menu width={130}>
+            <Menu.Target>
+              <CHoverDiv>
+                매물 종류
+                <IconArrowDown size={15} />
+              </CHoverDiv>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item value={'-1'} onClick={() => setCategory('-1')}>
+                <CenteringDiv>전체</CenteringDiv>
+              </Menu.Item>
+              {ROOM_CATEGORY_MAP.map((cat, idx) => (
+                <Menu.Item value={idx} onClick={() => setCategory(String(idx))}>
+                  <CenteringDiv>{cat}</CenteringDiv>
                 </Menu.Item>
-                {ROOM_CATEGORY_MAP.map((cat, idx) => (
-                  <Menu.Item
-                    value={idx}
-                    onChange={() => setCategory(String(idx))}
-                  >
-                    <CenteringDiv>{cat}</CenteringDiv>
-                  </Menu.Item>
-                ))}
-              </Menu.Dropdown>
-            </Menu>
-          </CenteringDiv>
-          <CenteringDiv>
-            <Menu width={130}>
-              <Menu.Target>
-                <CHoverDiv>
-                  전세/월세
-                  <IconArrowDown size={15} />
-                </CHoverDiv>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Item value={-1} onChange={() => setYm('-1')}>
-                  <CenteringDiv>전체</CenteringDiv>
+              ))}
+            </Menu.Dropdown>
+          </Menu>
+        </CenteringDiv>
+        <CenteringDiv>
+          <Menu width={130}>
+            <Menu.Target>
+              <CHoverDiv>
+                전세/월세
+                <IconArrowDown size={15} />
+              </CHoverDiv>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item value={-1} onClick={() => setYm('-1')}>
+                <CenteringDiv>전체</CenteringDiv>
+              </Menu.Item>
+              {ROOM_YM_MAP.map((cat, idx) => (
+                <Menu.Item value={idx} onClick={() => setYm(String(idx))}>
+                  <CenteringDiv>{cat}</CenteringDiv>
                 </Menu.Item>
-                {ROOM_YM_MAP.map((cat, idx) => (
-                  <Menu.Item value={idx} onChange={() => setYm(String(idx))}>
-                    <CenteringDiv>{cat}</CenteringDiv>
-                  </Menu.Item>
-                ))}
-              </Menu.Dropdown>
-            </Menu>
-          </CenteringDiv>{' '}
-          <CenteringDiv>
-            <Menu>
-              <Menu.Target>
-                <CHoverDiv>
-                  세부 사항
-                  <IconCheckbox size={15} />
-                </CHoverDiv>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Item>checkbox modal</Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-          </CenteringDiv>
-          <CenteringDiv>
-            <Menu width={130}>
-              <Menu.Target>
-                <CHoverDiv>
-                  정렬 기준
-                  <IconSortDescending size={15} />
-                </CHoverDiv>
-              </Menu.Target>
-              <Menu.Dropdown>
-                {FILTERS.map((filter) => (
-                  <Menu.Item value={filter.value}>
-                    <CenteringDiv>{filter.label}</CenteringDiv>
-                  </Menu.Item>
-                ))}
-              </Menu.Dropdown>
-            </Menu>
-          </CenteringDiv>
-        </div>
-        {isLoading ? (
-          <CenteringDiv className="m-40">
-            <Loader />
-          </CenteringDiv>
-        ) : (
-          <div className="flex flex-col space-y-3 mt-3 text-sm font-light text-zinc-500">
-            {rooms &&
-              rooms.map((room, idx) => (
-                <div className="border-b p-3" key={idx}>
-                  <div className="flex">
-                    <CenteringDiv className="relative">
-                      <StyledImage
-                        onClick={() => router.push(`/rooms/${room.id}`)}
-                        style={{
-                          width: '280px',
-                          height: '210px',
-                          margin: '10px',
-                        }}
-                      >
-                        <Image
-                          className="styled"
-                          src={room.images.split(',')[0]}
-                          alt={'thumbnail'}
-                          fill
-                        />
-                      </StyledImage>
-                      {session ? (
-                        <CHoverDiv className="absolute left-4 top-4">
-                          {wishLoading ? (
-                            <Loader size={15} />
-                          ) : isWished(room.id) ? (
-                            <IconHeart
-                              onClick={() => {
-                                updateWishlist(room.id)
-                              }}
-                              size={25}
-                              color={'red'}
-                              fill={'red'}
-                            />
-                          ) : (
-                            <IconHeartBroken
-                              onClick={() => {
-                                updateWishlist(room.id)
-                              }}
-                              size={25}
-                              stroke={1.5}
-                            />
-                          )}
-                        </CHoverDiv>
-                      ) : (
-                        <>
-                          <CHoverDiv>
-                            <IconHeartbeat
-                              onClick={() => {
-                                router.push('/auth/login')
-                              }}
-                              size={25}
-                              stroke={1.5}
-                              className="absolute left-4 top-4"
-                            />
+              ))}
+            </Menu.Dropdown>
+          </Menu>
+        </CenteringDiv>{' '}
+        <CenteringDiv>
+          <Menu>
+            <Menu.Target>
+              <CHoverDiv>
+                세부 사항
+                <IconCheckbox size={15} />
+              </CHoverDiv>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item>checkbox modal</Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </CenteringDiv>
+        <CenteringDiv>
+          <Menu width={130}>
+            <Menu.Target>
+              <CHoverDiv>
+                정렬 기준
+                <IconSortDescending size={15} />
+              </CHoverDiv>
+            </Menu.Target>
+            <Menu.Dropdown>
+              {FILTERS.map((filter) => (
+                <Menu.Item
+                  value={filter.value}
+                  onClick={() => setFilter(filter.value)}
+                >
+                  <CenteringDiv>{filter.label}</CenteringDiv>
+                </Menu.Item>
+              ))}
+            </Menu.Dropdown>
+          </Menu>
+        </CenteringDiv>
+      </div>
+      {isLoading ? (
+        <CenteringDiv className="m-40">
+          <Loader />
+        </CenteringDiv>
+      ) : (
+        <div className="flex flex-col space-y-3 mt-3 text-sm font-light text-zinc-500">
+          {rooms &&
+            (rooms.length === 0 ? (
+              <>
+                <CenteringDiv className="mt-40 mb-40 text-xl font-bold">
+                  {keyword} 에 <br />
+                  해당하는 매물이 존재하지 않습니다.
+                </CenteringDiv>
+              </>
+            ) : (
+              <>
+                {rooms.map((room, idx) => (
+                  <div className="border-b p-3" key={idx}>
+                    <div className="flex">
+                      <CenteringDiv className="relative">
+                        <StyledImage
+                          onClick={() => router.push(`/rooms/${room.id}`)}
+                          style={{
+                            width: '280px',
+                            height: '210px',
+                            margin: '10px',
+                          }}
+                        >
+                          <Image
+                            className="styled"
+                            src={room.images.split(',')[0]}
+                            alt={'thumbnail'}
+                            fill
+                          />
+                        </StyledImage>
+                        {session ? (
+                          <CHoverDiv className="absolute left-4 top-4">
+                            {wishLoading ? (
+                              <Loader size={15} />
+                            ) : isWished(room.id) ? (
+                              <IconHeart
+                                onClick={() => {
+                                  updateWishlist(room.id)
+                                }}
+                                size={25}
+                                color={'red'}
+                                fill={'red'}
+                              />
+                            ) : (
+                              <IconHeartBroken
+                                onClick={() => {
+                                  updateWishlist(room.id)
+                                }}
+                                size={25}
+                                stroke={1.5}
+                              />
+                            )}
                           </CHoverDiv>
-                        </>
-                      )}
-                    </CenteringDiv>
-                    <div className="p-3 w-full">
-                      <div className="flex mb-1">
-                        {room.title}
-                        <CenteringDiv className="ml-auto text-xs">
-                          <IconEye size={15} />
-                          {room.views}
-                          <IconHeart size={15} className="ml-1" />
-                          {room.wished}
-                        </CenteringDiv>
-                      </div>
-                      <div className="flex space-x-3">
-                        <CBbstyled>매물 정보</CBbstyled>
-                        <Cstyled>-</Cstyled>
-                        <CBbstyled>
-                          매물 종류 :{' '}
-                          {ROOM_CATEGORY_MAP[Number(room.categoryId)]}
-                        </CBbstyled>
-                      </div>
-                      <div className="flex space-x-3">
-                        <CBbstyled>위치 정보</CBbstyled>
-                        <Cstyled>-</Cstyled>
-                        <CBbstyled>주소 : {room.address} </CBbstyled>
-                        <CBbstyled>상세 : {room.detailAddress} </CBbstyled>
-                      </div>
-                      <div className="flex space-x-3">
-                        <CBbstyled>거래 정보</CBbstyled>
-                        <Cstyled>-</Cstyled>
-                        {room.ym === '0' ? (
-                          <>
-                            <CBbstyled>전세 : {room.price} 만원</CBbstyled>
-                          </>
                         ) : (
                           <>
-                            <CBbstyled>보증금 : {room.deposit} 만원</CBbstyled>
-                            <CBbstyled>월세 : {room.price} 만원</CBbstyled>
+                            <CHoverDiv>
+                              <IconHeartbeat
+                                onClick={() => {
+                                  router.push('/auth/login')
+                                }}
+                                size={25}
+                                stroke={1.5}
+                                className="absolute left-4 top-4"
+                              />
+                            </CHoverDiv>
                           </>
                         )}
-                      </div>
-                      <div className="flex space-x-3">
-                        <CBbstyled>기본 정보</CBbstyled>
-                        <Cstyled>-</Cstyled>
-                        <CBbstyled>크기 : {room.area} 평 </CBbstyled>
+                      </CenteringDiv>
+                      <div className="p-3 w-full">
+                        <div className="flex mb-1">
+                          {room.title}
+                          <CenteringDiv className="ml-auto text-xs">
+                            <IconEye size={15} />
+                            {room.views}
+                            <IconHeart size={15} className="ml-1" />
+                            {room.wished}
+                          </CenteringDiv>
+                        </div>
+                        <div className="flex space-x-3">
+                          <CBbstyled>매물 정보</CBbstyled>
+                          <Cstyled>-</Cstyled>
+                          <CBbstyled>
+                            매물 종류 :{' '}
+                            {ROOM_CATEGORY_MAP[Number(room.categoryId)]}
+                          </CBbstyled>
+                        </div>
+                        <div className="flex space-x-3">
+                          <CBbstyled>위치 정보</CBbstyled>
+                          <Cstyled>-</Cstyled>
+                          <CBbstyled>주소 : {room.address} </CBbstyled>
+                          <CBbstyled>상세 : {room.detailAddress} </CBbstyled>
+                        </div>
+                        <div className="flex space-x-3">
+                          <CBbstyled>거래 정보</CBbstyled>
+                          <Cstyled>-</Cstyled>
+                          {room.ym === '0' ? (
+                            <>
+                              <CBbstyled>전세 : {room.price} 만원</CBbstyled>
+                            </>
+                          ) : (
+                            <>
+                              <CBbstyled>
+                                보증금 : {room.deposit} 만원
+                              </CBbstyled>
+                              <CBbstyled>월세 : {room.price} 만원</CBbstyled>
+                            </>
+                          )}
+                        </div>
+                        <div className="flex space-x-3">
+                          <CBbstyled>기본 정보</CBbstyled>
+                          <Cstyled>-</Cstyled>
+                          <CBbstyled>크기 : {room.area} 평 </CBbstyled>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}{' '}
-            <CenteringDiv className="mt-10">
-              {total && (
-                <Pagination
-                  color={'gray'}
-                  page={activePage}
-                  onChange={setActivePage}
-                  total={total}
-                />
-              )}
-            </CenteringDiv>
-          </div>
-        )}
-      </div>
+                ))}
+                <CenteringDiv className="mt-10">
+                  {total && (
+                    <Pagination
+                      color={'gray'}
+                      page={activePage}
+                      onChange={setActivePage}
+                      total={total}
+                    />
+                  )}
+                </CenteringDiv>
+              </>
+            ))}
+        </div>
+      )}
     </div>
   )
 }
