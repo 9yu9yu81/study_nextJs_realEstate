@@ -69,7 +69,7 @@ model Room {
   detailAddress String
   title         String
   ym            String
-  description   String
+  description   String   @db.VarChar(1000)
   images        String   @db.VarChar(700)
   price         Int
   status        Int      @default(0)
