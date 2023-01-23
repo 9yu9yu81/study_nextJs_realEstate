@@ -16,7 +16,7 @@ export default function Map({
     window.kakao.maps.load(() => {
       const geocoder = new window.kakao.maps.services.Geocoder() // 주소-좌표 반환 객체를 생성
 
-      const addrMarker = (address?: string) => {
+      const addrMarker = (address: string) => {
         // 주소로 좌표를 검색
         geocoder.addressSearch(address, (result: any, status: any) => {
           console.log(address)

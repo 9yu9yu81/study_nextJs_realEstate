@@ -26,14 +26,6 @@ export default function App({
           <title>Myspot</title>
           <meta name="description" content="My Spot direct transaction" />
         </Head>
-        <Script
-          strategy="beforeInteractive"
-          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAOMAP_KEY}&autoload=false&libraries=services,clusterer,drawing`}
-        />
-        <Script
-          strategy="beforeInteractive"
-          src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
-        />
         <div className="relative">
           <Header />
           <div className="flex justify-center">

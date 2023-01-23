@@ -9,13 +9,6 @@ declare module 'next-auth' {
 }
 
 declare global {
-  interface Window {
-    kakao: any
-    daum: any
-  }
-  const kakao: any
-  const daum: any
-
   namespace NodeJS {
     interface ProcessEnv extends ProcessEnv {
       GOOGLE_CLIENT_SECRET: string
