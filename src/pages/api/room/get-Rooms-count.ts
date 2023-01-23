@@ -20,7 +20,7 @@ async function getRoomsCount(category: string, ym: string, contains: string) {
         ...containsCondition,
       },
     })
-    console.log(response)
+    // console.log(response)
     return response
   } catch (error) {
     console.error(error)

@@ -28,7 +28,7 @@ export default function App({
         </Head>
         <Script
           strategy="beforeInteractive"
-          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAOMAP_KEY}&autoload=false&libraries=services`}
+          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAOMAP_KEY}&autoload=false&libraries=services,clusterer,drawing`}
         />
         <Script
           strategy="beforeInteractive"
@@ -37,7 +37,7 @@ export default function App({
         <div className="relative">
           <Header />
           <div className="flex justify-center">
-            <div className="m-5 w-full" style={{ maxWidth: '1000px' }}>
+            <div className="w-full" style={{ maxWidth: '1000px' }}>
               <Auth>
                 <Component {...pageProps} />
               </Auth>
