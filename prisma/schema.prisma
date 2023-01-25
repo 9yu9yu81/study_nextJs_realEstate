@@ -43,6 +43,8 @@ model User {
   phone         String?
   accounts      Account[]
   sessions      Session[]
+  rooms         Room[]
+  wishlists     Wishlist[]
 }
 
 model VerificationToken {
@@ -53,56 +55,120 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model RoomCategory {
+model Category {
   id            Int      @id @default(autoincrement())
   name          String
+  rooms         Room[]
 }
+
+model Status {
+  id            Int      @id @default(autoincrement())
+  name          String
+  rooms         Room[]
+}
+
+model Type {
+  id            Int      @id @default(autoincrement())
+  name          String
+  rooms         Room[]
+}
+
+model SaleInfoType {
+  id            Int      @id @default(autoincrement())
+  name          String
+  saleInfos     SaleInfo[]
+}
+
+model Heat {
+  id            Int      @id @default(autoincrement())
+  name          String
+  basicInfo     BasicInfo[]
+}
+
+model Structrue {
+  id            Int      @id @default(autoincrement())
+  name          String
+  moreInfo      MoreInfo[]
+}
+
+
 
 model Room {
   id            Int      @id @default(autoincrement())
-  categoryId    String
-  deposit       Int?
-  area          Int
-  address       String
+  category      Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  category_id   Int
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id       String
+  status        Status   @relation(fields: [status_id], references: [id], onDelete: Cascade)
+  status_id     Int      @default(0)
+  type          Type?    @relation(fields: [type_id], references: [id], onDelete: Cascade)    
+  type_id       Int?
   updatedAt     DateTime @default(now())
-  userId        String
-  detailAddress String
   title         String
-  ym            String
   description   String   @db.VarChar(1000)
-  images        String   @db.VarChar(700)
-  price         Int
-  status        Int      @default(0)
   views         Int      @default(0)
   wished        Int      @default(0)
+  images        String   @db.VarChar(700)
+
+  address       AddressInfo[]
+  basicInfo     BasicInfo[]
+  saleInfos     SaleInfo[]
+  moreInfo      MoreInfo[]
+  wishlists     Wishlist[]
 }
 
-model CommunityCategory {
+model AddressInfo {
   id            Int      @id @default(autoincrement())
-  name          String
+  room          Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  room_id       Int
+  doro          String
+  jibun         String
+  detail        String
+  lat           Float
+  lng           Float
 }
 
-model Community {
+model BasicInfo {
   id            Int      @id @default(autoincrement())
-  categoryId    Int
-  images        String
-  updatedAt     DateTime @default(now())
-  commentid     Int
-  userId        String
-  description   String
+  room          Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  room_id       Int
+  supply_area   Int
+  area          Int
+  total_floor   Int        
+  floor         Int
+  move_in       DateTime
+  heat          Heat     @relation(fields: [heat_id], references: [id], onDelete: Cascade)
+  heat_id       Int
 }
 
-model Comment {
-  id          Int      @id @default(autoincrement())
-  updatedAt   DateTime @updatedAt
-  userId      String
-  communityId Int
-  comment     String
+model SaleInfo {
+  id            Int      @id @default(autoincrement())
+  room          Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  room_id       Int
+  type          SaleInfoType @relation(fields: [type_id], references: [id], onDelete: Cascade)
+  type_id       Int
+  deposit       Int?
+  price         Int
 }
 
+
+model MoreInfo {
+  id              Int      @id @default(autoincrement())
+  room            Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  room_id         Int
+  maintenance_fee Int
+  maintenance_ids String
+  elevator        Boolean
+  parking         Boolean
+  structure       Structrue @relation(fields: [sturcture_id],references: [id], onDelete: Cascade)
+  sturcture_id    Int
+  option_ids      String
+}
 
 model Wishlist {
   id          Int      @id @default(autoincrement())
-  userId      String   @unique
-  roomIds     String   
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String   @unique
+  room        Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  room_id     Int
 }
