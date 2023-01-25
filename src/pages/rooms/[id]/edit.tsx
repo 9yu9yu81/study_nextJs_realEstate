@@ -14,7 +14,7 @@ import {
   IconSlash,
   IconX,
 } from '@tabler/icons'
-import Map from 'components/Map'
+import Map from 'components/MapN'
 import { CHoverDiv, CenteringDiv, HoverDiv } from 'components/styledComponent'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Room } from '@prisma/client'
@@ -22,7 +22,7 @@ import { ROOMS_QUERY_KEY } from 'constants/querykey'
 import {
   DESCRIPTION_PLACEHOLDER,
   DETAILADDR_PLACEHOLDER,
-  ROOM_CATEGORY_MAP,
+  CATEGORY_MAP,
 } from 'constants/const'
 import { Router, useRouter } from 'next/router'
 
@@ -222,7 +222,7 @@ export default function roomEdit(props: Room) {
                   control: { borderWidth: '0px !important' },
                 })}
                 transitionDuration={0}
-                data={ROOM_CATEGORY_MAP.map((label, id) => ({
+                data={CATEGORY_MAP.map((label, id) => ({
                   label: label,
                   value: String(id),
                 }))}

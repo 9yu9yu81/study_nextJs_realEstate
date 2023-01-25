@@ -29,12 +29,14 @@ export default function Map({
               center: coords,
               level: level ? level : 3,
             }
-            const map = new window.kakao.maps.Map(container, options)
+            const map =
+              container && new window.kakao.maps.Map(container, options)
             // 결과값으로 받은 위치를 마커로 표시
-            new window.kakao.maps.Marker({
-              map: map,
-              position: coords,
-            })
+            map &&
+              new window.kakao.maps.Marker({
+                map: map,
+                position: coords,
+              })
           } else {
             // 정상적으로 좌표가 검색이 안 될 경우 디폴트 좌표로 검색
             const container = document.getElementById('map')
@@ -43,12 +45,13 @@ export default function Map({
               level: 6,
             }
             // 지도를 생성
-            const map = new window.kakao.maps.Map(container, options)
+            const map =
+              container && new window.kakao.maps.Map(container, options)
           }
         })
       }
 
-      addrMarker(address)
+      address && addrMarker(address)
     })
   }
   useEffect(() => {

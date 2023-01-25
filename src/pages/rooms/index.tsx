@@ -20,16 +20,16 @@ import {
 } from 'components/styledComponent'
 import {
   FILTERS,
-  ROOM_CATEGORY_MAP,
+  CATEGORY_MAP,
   ROOM_TAKE,
-  ROOM_YM_MAP,
+  YEAR_MONTH_MAP,
 } from 'constants/const'
 import { useState } from 'react'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { WISHLIST_QUERY_KEY } from 'constants/querykey'
-import Map from 'components/Map'
+import Map from 'components/MapN'
 import { useRef } from 'react'
 
 //todo myspot analytics 에 어떤 내용 들어갈지도 생각 해봐야함
@@ -173,7 +173,7 @@ export default function Rooms() {
               <Menu.Item value={'-1'} onClick={() => setCategory('-1')}>
                 <CenteringDiv>전체</CenteringDiv>
               </Menu.Item>
-              {ROOM_CATEGORY_MAP.map((cat, idx) => (
+              {CATEGORY_MAP.map((cat, idx) => (
                 <Menu.Item value={idx} onClick={() => setCategory(String(idx))}>
                   <CenteringDiv>{cat}</CenteringDiv>
                 </Menu.Item>
@@ -193,7 +193,7 @@ export default function Rooms() {
               <Menu.Item value={-1} onClick={() => setYm('-1')}>
                 <CenteringDiv>전체</CenteringDiv>
               </Menu.Item>
-              {ROOM_YM_MAP.map((cat, idx) => (
+              {YEAR_MONTH_MAP.map((cat, idx) => (
                 <Menu.Item value={idx} onClick={() => setYm(String(idx))}>
                   <CenteringDiv>{cat}</CenteringDiv>
                 </Menu.Item>
@@ -322,8 +322,7 @@ export default function Rooms() {
                           <CBbstyled>매물 정보</CBbstyled>
                           <Cstyled>-</Cstyled>
                           <CBbstyled>
-                            매물 종류 :{' '}
-                            {ROOM_CATEGORY_MAP[Number(room.categoryId)]}
+                            매물 종류 : {CATEGORY_MAP[Number(room.categoryId)]}
                           </CBbstyled>
                         </div>
                         <div className="flex space-x-3">

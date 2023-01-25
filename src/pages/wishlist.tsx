@@ -12,7 +12,7 @@ import {
   StyledImage,
 } from 'components/styledComponent'
 import { WISHLISTS_QUERY_KEY } from 'constants/querykey'
-import { ROOM_CATEGORY_MAP, ROOM_YM_MAP, WISHLIST_TAKE } from 'constants/const'
+import { CATEGORY_MAP, YEAR_MONTH_MAP, WISHLIST_TAKE } from 'constants/const'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import Image from 'next/image'
@@ -144,7 +144,7 @@ export default function wishlist() {
                 label: '전체',
                 value: '-1',
               },
-              ...ROOM_CATEGORY_MAP.map((label, id) => ({
+              ...CATEGORY_MAP.map((label, id) => ({
                 label: label,
                 value: String(id),
               })),
@@ -180,7 +180,7 @@ export default function wishlist() {
                 label: '전체',
                 value: '-1',
               },
-              ...ROOM_YM_MAP.map((label, id) => ({
+              ...YEAR_MONTH_MAP.map((label, id) => ({
                 label: label,
                 value: String(id),
               })),
@@ -224,9 +224,9 @@ export default function wishlist() {
               <div className="p-2 flex flex-col space-y-1">
                 <CBstyled>{wishlist.address}</CBstyled>
                 <div className="grid grid-cols-2 space-x-2">
-                  <CBstyled>{ROOM_YM_MAP[Number(wishlist.ym)]}</CBstyled>
+                  <CBstyled>{YEAR_MONTH_MAP[Number(wishlist.ym)]}</CBstyled>
                   <CBstyled>
-                    {ROOM_CATEGORY_MAP[Number(wishlist.categoryId)]}
+                    {CATEGORY_MAP[Number(wishlist.categoryId)]}
                   </CBstyled>
                 </div>
                 <div className="grid grid-cols-2 space-x-2">

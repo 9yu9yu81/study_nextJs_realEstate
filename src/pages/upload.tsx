@@ -20,7 +20,7 @@ import {
   IconSlash,
   IconX,
 } from '@tabler/icons'
-import Map from 'components/Map'
+import Map from 'components/MapN'
 import {
   CHoverDiv,
   Cbl,
@@ -35,9 +35,9 @@ import { useSession } from 'next-auth/react'
 import {
   DESCRIPTION_PLACEHOLDER,
   DETAILADDR_PLACEHOLDER,
-  ROOM_CATEGORY_MAP,
-  ROOM_STATUS_MAP,
-  ROOM_YM_MAP,
+  CATEGORY_MAP,
+  STATUS_MAP,
+  YEAR_MONTH_MAP,
 } from 'constants/const'
 import { useRouter } from 'next/router'
 import format from 'date-fns/format'
@@ -327,7 +327,7 @@ export default function upload() {
                     control: { borderWidth: '0px !important' },
                   })}
                   transitionDuration={0}
-                  data={ROOM_CATEGORY_MAP.map((label, id) => ({
+                  data={CATEGORY_MAP.map((label, id) => ({
                     label: label,
                     value: String(id),
                   }))}
@@ -424,7 +424,7 @@ export default function upload() {
                     control: { borderWidth: '0px !important' },
                   })}
                   transitionDuration={0}
-                  data={ROOM_YM_MAP.map((label, id) => ({
+                  data={YEAR_MONTH_MAP.map((label, id) => ({
                     label: label,
                     value: String(id),
                   }))}
@@ -631,7 +631,7 @@ export default function upload() {
                             : 'red'
                         }
                       >
-                        {ROOM_STATUS_MAP[room.status]}
+                        {STATUS_MAP[room.status]}
                       </Badge>
                       {room.title}
                     </div>
@@ -701,7 +701,7 @@ export default function upload() {
                               매물종류
                             </CenteringDiv>
                             <div className="p-1">
-                              {ROOM_CATEGORY_MAP[Number(room.categoryId)]}
+                              {CATEGORY_MAP[Number(room.categoryId)]}
                             </div>
                           </CenteringDiv>
                         </div>
@@ -746,7 +746,7 @@ export default function upload() {
                               거래종류
                             </CenteringDiv>
                             <div className="p-1 mr-auto">
-                              {ROOM_YM_MAP[Number(room.ym)]}
+                              {YEAR_MONTH_MAP[Number(room.ym)]}
                             </div>
                           </CenteringDiv>
                           <CenteringDiv>

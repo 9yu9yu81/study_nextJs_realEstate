@@ -22,7 +22,7 @@ import {
   StyledImage,
 } from 'components/styledComponent'
 import { ROOMS_QUERY_KEY, WISHLIST_QUERY_KEY } from 'constants/querykey'
-import { ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/const'
+import { CATEGORY_MAP, YEAR_MONTH_MAP } from 'constants/const'
 import { format } from 'date-fns'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { useSession } from 'next-auth/react'
@@ -383,7 +383,7 @@ export default function RoomIndex(props: Room) {
                 <div className="flex w-full items-center">
                   <span className="w-32 flex justify-center">매물 종류</span>
                   <Bl className="p-3">
-                    {ROOM_CATEGORY_MAP[Number(props.categoryId)]}
+                    {CATEGORY_MAP[Number(props.categoryId)]}
                   </Bl>
                 </div>
               </Bt>
@@ -406,7 +406,7 @@ export default function RoomIndex(props: Room) {
               <Bt className="flex flex-col w-full text-xs">
                 <Bb className="flex w-full items-center">
                   <span className="w-32 flex justify-center">거래 종류</span>
-                  <Bl className="p-3">{ROOM_YM_MAP[Number(props.ym)]}</Bl>
+                  <Bl className="p-3">{YEAR_MONTH_MAP[Number(props.ym)]}</Bl>
                 </Bb>
                 <div className="flex w-full items-center">
                   <span className="w-32 flex justify-center">가격</span>

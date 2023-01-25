@@ -17,7 +17,7 @@ import {
   Cstyled,
   StyledImage,
 } from 'components/styledComponent'
-import { HOME_TAKE, ROOM_CATEGORY_MAP, ROOM_YM_MAP } from 'constants/const'
+import { HOME_TAKE, CATEGORY_MAP, YEAR_MONTH_MAP } from 'constants/const'
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
@@ -175,7 +175,7 @@ export default function home() {
                   label: '전체',
                   value: '-1',
                 },
-                ...ROOM_CATEGORY_MAP.map((label, id) => ({
+                ...CATEGORY_MAP.map((label, id) => ({
                   label: label,
                   value: String(id),
                 })),
@@ -191,7 +191,7 @@ export default function home() {
                   label: '전체',
                   value: '-1',
                 },
-                ...ROOM_YM_MAP.map((label, id) => ({
+                ...YEAR_MONTH_MAP.map((label, id) => ({
                   label: label,
                   value: String(id),
                 })),
@@ -277,8 +277,7 @@ export default function home() {
                         <CBbstyled>매물 정보</CBbstyled>
                         <Cstyled>-</Cstyled>
                         <CBbstyled>
-                          매물 종류 :{' '}
-                          {ROOM_CATEGORY_MAP[Number(room.categoryId)]}
+                          매물 종류 : {CATEGORY_MAP[Number(room.categoryId)]}
                         </CBbstyled>
                       </div>
                       <div className="flex space-x-3">
