@@ -15,7 +15,7 @@ import {
   IconX,
 } from '@tabler/icons'
 import Map from 'components/MapN'
-import { CHoverDiv, CenteringDiv, HoverDiv } from 'components/styledComponent'
+import { CHoverDiv, Center_Div, HoverDiv } from 'components/styledComponent'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Room } from '@prisma/client'
 import { ROOMS_QUERY_KEY } from 'constants/querykey'
@@ -193,18 +193,18 @@ export default function roomEdit(props: Room) {
   }
   return (
     <div className="text-sm">
-      <CenteringDiv className="text-2xl m-14 text-zinc-600">
+      <Center_Div className="text-2xl m-14 text-zinc-600">
         <IconEdit />
         수정하기
-      </CenteringDiv>
+      </Center_Div>
       <>
-        <CenteringDiv className="relative flex-col border border-zinc-400 mt-6">
+        <Center_Div className="relative flex-col border border-zinc-400 mt-6">
           <div className="flex font-bold m-3">
             <span>매물 정보</span>
           </div>
           <div className="flex w-full border-t border-zinc-400 text-xs items-center">
-            <CenteringDiv className="w-32">매물 종류</CenteringDiv>
-            <CenteringDiv className="p-3  border-l border-zinc-400">
+            <Center_Div className="w-32">매물 종류</Center_Div>
+            <Center_Div className="p-3  border-l border-zinc-400">
               <SegmentedControl
                 value={category}
                 onChange={setCategory}
@@ -227,10 +227,10 @@ export default function roomEdit(props: Room) {
                   value: String(id),
                 }))}
               />
-            </CenteringDiv>
+            </Center_Div>
           </div>
-        </CenteringDiv>
-        <CenteringDiv className="relative flex-col  border border-zinc-400 mt-6 ">
+        </Center_Div>
+        <Center_Div className="relative flex-col  border border-zinc-400 mt-6 ">
           <div className="flex font-bold m-3">
             <span>위치 정보</span>
             <div className="absolute right-5">
@@ -240,7 +240,7 @@ export default function roomEdit(props: Room) {
             </div>
           </div>
           <div className="flex items-center w-full border-t border-zinc-400 text-xs">
-            <CenteringDiv className="w-32">주소</CenteringDiv>
+            <Center_Div className="w-32">주소</Center_Div>
             <div className="h-72 border-l border-zinc-400 pl-10 pt-14">
               <div className="flex items-center text-zinc-400 mb-3">
                 <IconExclamationCircle className="mr-1" />
@@ -276,14 +276,14 @@ export default function roomEdit(props: Room) {
               <Map width="330px" height="300px" address={addr} />
             </div>
           </div>
-        </CenteringDiv>
-        <CenteringDiv className="relative flex-col  border border-zinc-400 mt-6">
+        </Center_Div>
+        <Center_Div className="relative flex-col  border border-zinc-400 mt-6">
           <div className="flex font-bold m-3">
             <span>거래 정보</span>
           </div>
           <div className="flex w-full  border-t border-zinc-400 text-xs items-center">
             <div className="w-32 flex justify-center">거래 종류</div>
-            <CenteringDiv className="p-3  border-l border-zinc-400">
+            <Center_Div className="p-3  border-l border-zinc-400">
               <SegmentedControl
                 className="mr-5"
                 value={ym}
@@ -309,38 +309,38 @@ export default function roomEdit(props: Room) {
               />
               {ym === '0' ? (
                 <>
-                  <CenteringDiv className="space-x-1">
+                  <Center_Div className="space-x-1">
                     <Input type="text" placeholder="전세" ref={priceRef} />
                     <span>만원</span>
-                  </CenteringDiv>
+                  </Center_Div>
                 </>
               ) : (
                 <>
-                  <CenteringDiv className="space-x-1">
+                  <Center_Div className="space-x-1">
                     <Input type="text" placeholder="보증금" ref={depositRef} />
                     <IconSlash />
                     <Input type="text" placeholder="월세" ref={priceRef} />
                     <span>만원</span>
-                  </CenteringDiv>
+                  </Center_Div>
                 </>
               )}
-            </CenteringDiv>
+            </Center_Div>
           </div>
-        </CenteringDiv>
-        <CenteringDiv className="relative flex-col  border border-zinc-400 mt-6">
+        </Center_Div>
+        <Center_Div className="relative flex-col  border border-zinc-400 mt-6">
           <div className="flex font-bold m-3">
             <span>기본 정보</span>
           </div>
           <div className="flex w-full  border-t border-zinc-400 text-xs items-center">
             <div className="w-32 flex justify-center">건물 크기</div>
-            <CenteringDiv className="p-3  border-l border-zinc-400">
+            <Center_Div className="p-3  border-l border-zinc-400">
               <div className="flex ">
                 <Input type="text" placeholder="평" ref={areaRef} />
               </div>
-            </CenteringDiv>
+            </Center_Div>
           </div>
-        </CenteringDiv>
-        <CenteringDiv className="relative flex-col border border-zinc-400 mt-6">
+        </Center_Div>
+        <Center_Div className="relative flex-col border border-zinc-400 mt-6">
           <div className="flex font-bold m-3">
             <span>상세 정보</span>
           </div>
@@ -368,7 +368,7 @@ export default function roomEdit(props: Room) {
               </div>
             </div>
           </div>
-        </CenteringDiv>
+        </Center_Div>
         <div className="relative flex flex-col  border border-zinc-400 mt-6 items-center">
           <div className="flex font-bold m-3">
             <span>사진 등록</span>
@@ -432,7 +432,7 @@ export default function roomEdit(props: Room) {
             </div>
           </div>
         </div>
-        <CenteringDiv className="m-5 space-x-5">
+        <Center_Div className="m-5 space-x-5">
           <CHoverDiv
             className="p-2 bg-red-500 text-white font-normal"
             style={{ width: '140px' }}
@@ -451,7 +451,7 @@ export default function roomEdit(props: Room) {
             <IconEdit size={18} />
             수정하기
           </CHoverDiv>
-        </CenteringDiv>
+        </Center_Div>
       </>
     </div>
   )

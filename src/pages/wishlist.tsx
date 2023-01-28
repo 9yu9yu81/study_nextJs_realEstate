@@ -8,7 +8,7 @@ import {
   B,
   CBstyled,
   CHoverDiv,
-  CenteringDiv,
+  Center_Div,
   StyledImage,
 } from 'components/styledComponent'
 import { WISHLISTS_QUERY_KEY } from 'constants/querykey'
@@ -108,9 +108,9 @@ export default function wishlist() {
 
   return session ? (
     isLoading ? (
-      <CenteringDiv className="m-72">
+      <Center_Div className="m-72">
         <Loader />
-      </CenteringDiv>
+      </Center_Div>
     ) : wishlists ? (
       <div className="p-3">
         <div className="flex flex-col">
@@ -191,7 +191,7 @@ export default function wishlist() {
           {wishlists.map((wishlist, idx) => (
             <B key={idx} className="m-2 p-1 rounded-md">
               <CBstyled className="m-2">{wishlist.title}</CBstyled>
-              <CenteringDiv className="relative">
+              <Center_Div className="relative">
                 <StyledImage
                   onClick={() => router.push(`/rooms/${wishlist.id}`)}
                   style={{
@@ -216,11 +216,11 @@ export default function wishlist() {
                     className="absolute right-5 top-5"
                   />
                 </CHoverDiv>
-              </CenteringDiv>
-              <CenteringDiv
+              </Center_Div>
+              <Center_Div
                 className="font-light text-zinc-600 text-xs
               "
-              ></CenteringDiv>
+              ></Center_Div>
               <div className="p-2 flex flex-col space-y-1">
                 <CBstyled>{wishlist.address}</CBstyled>
                 <div className="grid grid-cols-2 space-x-2">
@@ -241,7 +241,7 @@ export default function wishlist() {
             </B>
           ))}
         </div>
-        <CenteringDiv className="mt-10">
+        <Center_Div className="mt-10">
           {total && (
             <Pagination
               color={'gray'}
@@ -250,12 +250,12 @@ export default function wishlist() {
               total={total}
             />
           )}
-        </CenteringDiv>
+        </Center_Div>
       </div>
     ) : (
-      <CenteringDiv className="m-40">관심 목록이 비어있습니다.</CenteringDiv>
+      <Center_Div className="m-40">관심 목록이 비어있습니다.</Center_Div>
     )
   ) : (
-    <CenteringDiv className="m-40">로그인이 필요합니다.</CenteringDiv>
+    <Center_Div className="m-40">로그인이 필요합니다.</Center_Div>
   )
 }

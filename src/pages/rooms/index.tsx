@@ -14,7 +14,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   CBbstyled,
   CHoverDiv,
-  CenteringDiv,
+  Center_Div,
   Cstyled,
   StyledImage,
 } from 'components/styledComponent'
@@ -152,7 +152,7 @@ export default function Rooms() {
       <Map width="950px" height="500px" address={String(keyword)} />
 
       <div className="grid grid-cols-6 items-center m-5 text-xs">
-        <CenteringDiv className="col-span-2">
+        <Center_Div className="col-span-2">
           <Input
             className="w-full"
             icon={<IconSearch size={16} />}
@@ -160,8 +160,8 @@ export default function Rooms() {
             ref={searchRef}
             onKeyUp={handleEnterKeypress}
           />
-        </CenteringDiv>
-        <CenteringDiv>
+        </Center_Div>
+        <Center_Div>
           <Menu width={130}>
             <Menu.Target>
               <CHoverDiv>
@@ -171,17 +171,17 @@ export default function Rooms() {
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Item value={'-1'} onClick={() => setCategory('-1')}>
-                <CenteringDiv>전체</CenteringDiv>
+                <Center_Div>전체</Center_Div>
               </Menu.Item>
               {CATEGORY_MAP.map((cat, idx) => (
                 <Menu.Item value={idx} onClick={() => setCategory(String(idx))}>
-                  <CenteringDiv>{cat}</CenteringDiv>
+                  <Center_Div>{cat}</Center_Div>
                 </Menu.Item>
               ))}
             </Menu.Dropdown>
           </Menu>
-        </CenteringDiv>
-        <CenteringDiv>
+        </Center_Div>
+        <Center_Div>
           <Menu width={130}>
             <Menu.Target>
               <CHoverDiv>
@@ -191,17 +191,17 @@ export default function Rooms() {
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Item value={-1} onClick={() => setYm('-1')}>
-                <CenteringDiv>전체</CenteringDiv>
+                <Center_Div>전체</Center_Div>
               </Menu.Item>
               {YEAR_MONTH_MAP.map((cat, idx) => (
                 <Menu.Item value={idx} onClick={() => setYm(String(idx))}>
-                  <CenteringDiv>{cat}</CenteringDiv>
+                  <Center_Div>{cat}</Center_Div>
                 </Menu.Item>
               ))}
             </Menu.Dropdown>
           </Menu>
-        </CenteringDiv>{' '}
-        <CenteringDiv>
+        </Center_Div>{' '}
+        <Center_Div>
           <Menu>
             <Menu.Target>
               <CHoverDiv>
@@ -213,8 +213,8 @@ export default function Rooms() {
               <Menu.Item>checkbox modal</Menu.Item>
             </Menu.Dropdown>
           </Menu>
-        </CenteringDiv>
-        <CenteringDiv>
+        </Center_Div>
+        <Center_Div>
           <Menu width={130}>
             <Menu.Target>
               <CHoverDiv>
@@ -228,33 +228,33 @@ export default function Rooms() {
                   value={filter.value}
                   onClick={() => setFilter(filter.value)}
                 >
-                  <CenteringDiv>{filter.label}</CenteringDiv>
+                  <Center_Div>{filter.label}</Center_Div>
                 </Menu.Item>
               ))}
             </Menu.Dropdown>
           </Menu>
-        </CenteringDiv>
+        </Center_Div>
       </div>
       {isLoading ? (
-        <CenteringDiv className="m-40">
+        <Center_Div className="m-40">
           <Loader />
-        </CenteringDiv>
+        </Center_Div>
       ) : (
         <div className="flex flex-col space-y-3 mt-3 text-sm font-light text-zinc-500">
           {rooms &&
             (rooms.length === 0 ? (
               <>
-                <CenteringDiv className="mt-40 mb-40 text-xl font-bold">
+                <Center_Div className="mt-40 mb-40 text-xl font-bold">
                   {keyword} 에 <br />
                   해당하는 매물이 존재하지 않습니다.
-                </CenteringDiv>
+                </Center_Div>
               </>
             ) : (
               <>
                 {rooms.map((room, idx) => (
                   <div className="border-b p-3" key={idx}>
                     <div className="flex">
-                      <CenteringDiv className="relative">
+                      <Center_Div className="relative">
                         <StyledImage
                           onClick={() => router.push(`/rooms/${room.id}`)}
                           style={{
@@ -307,16 +307,16 @@ export default function Rooms() {
                             </CHoverDiv>
                           </>
                         )}
-                      </CenteringDiv>
+                      </Center_Div>
                       <div className="p-3 w-full">
                         <div className="flex mb-1">
                           {room.title}
-                          <CenteringDiv className="ml-auto text-xs">
+                          <Center_Div className="ml-auto text-xs">
                             <IconEye size={15} />
                             {room.views}
                             <IconHeart size={15} className="ml-1" />
                             {room.wished}
-                          </CenteringDiv>
+                          </Center_Div>
                         </div>
                         <div className="flex space-x-3">
                           <CBbstyled>매물 정보</CBbstyled>
@@ -356,7 +356,7 @@ export default function Rooms() {
                     </div>
                   </div>
                 ))}
-                <CenteringDiv className="mt-10">
+                <Center_Div className="mt-10">
                   {total && (
                     <Pagination
                       color={'gray'}
@@ -365,7 +365,7 @@ export default function Rooms() {
                       total={total}
                     />
                   )}
-                </CenteringDiv>
+                </Center_Div>
               </>
             ))}
         </div>

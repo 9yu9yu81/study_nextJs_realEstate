@@ -1,6 +1,6 @@
 import { Room } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
-import { CenteringDiv } from 'components/styledComponent'
+import { Center_Div } from 'components/styledComponent'
 import { ROOMS_QUERY_KEY } from 'constants/querykey'
 import { useEffect, useRef, useState } from 'react'
 
@@ -114,14 +114,14 @@ export default function Maptest() {
 
   return (
     <>
-      <CenteringDiv>
+      <Center_Div>
         <div
           id="map"
           ref={mapRef}
           style={{ width: '100vw', height: '92vh' }}
         ></div>
         <button ref={overlayRef}>hi</button>
-      </CenteringDiv>
+      </Center_Div>
     </>
   )
 }

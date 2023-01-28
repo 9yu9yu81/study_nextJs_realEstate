@@ -1,42 +1,56 @@
 import { SegmentedControl } from '@mantine/core'
-import { subColor } from './styledComponent'
+import { mainColor, subColor_lighter, subColor_medium } from './styledComponent'
 
 export default function CustomSegmentedControl({
   value,
   onChange,
   data,
+  margin,
+  padding,
 }: {
-  value: string
-  onChange: any
-  data: any
+  value?: string
+  onChange?: any
+  data?: any
+  margin?: number
+  padding?: number
 }) {
   return (
     <SegmentedControl
       value={value}
       onChange={onChange}
       color={'gray'}
+      data={data}
       styles={(theme) => ({
         root: {
           backgroundColor: 'white',
+          padding: '10px',
         },
         label: {
-          marginRight: 5,
-          marginLeft: 5,
-          backgroundColor: subColor,
+          border: `0.5px solid ${subColor_medium}`,
+          padding: '10px',
+          paddingRight: '20px',
+          paddingLeft: '20px',
+          fontSize: '13px',
+          color: `${mainColor}`,
+          fontWeight: 'normal',
         },
         labelActive: {
-          marginRight: 5,
-          marginLeft: 5,
-          backgroundColor: '#52525B',
+          backgroundColor: `${mainColor}`,
+          padding: '10px',
+          paddingRight: '20px',
+          paddingLeft: '20px',
+          fontSize: '13px',
+          color: `${subColor_lighter} !important`,
+          fontWeight: 'normal',
         },
-        active: {
-          marginRight: 5,
-          marginLeft: 5,
+        control: {
+          borderWidth: '0px !important',
+          paddingRight: '10px',
+          paddingLeft: '10px',
         },
-        control: { borderWidth: '0px !important' },
+        active: { backgroundColor: 'white', padding: '10px' },
       })}
       transitionDuration={0}
-      data={data}
     />
   )
 }

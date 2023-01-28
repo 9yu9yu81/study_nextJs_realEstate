@@ -1,15 +1,13 @@
-export const DESCRIPTION_PLACEHOLDER = `[상세설명 작성 주의사항]
-- 매물 정보와 관련없는 홍보성 정보는 입력할 수 없습니다.
-- 매물등록 규정에 위반되는 금칙어는 입력할 수 없습니다.
-
-위 주의사항 위반시 임의로 매물 삭제 혹은 서비스 이용이 제한될 수 있습니다.`
-
-export const DETAILADDR_PLACEHOLDER = `상세 주소
-예) e편한세상 101동 1101호`
-
-export const CATEGORY_MAP = ['원룸', '투룸', '오피스텔', '쓰리룸', '그 외']
+export const CATEGORY_MAP = [
+  '원룸',
+  '투룸',
+  '쓰리룸',
+  '오피스텔 ∙ 도시형',
+  '그 외',
+]
 export const YEAR_MONTH_MAP = ['전세', '월세']
 export const STATUS_MAP = ['공개중', '거래완료', '기한만료']
+export const HEAT_MAP = ['중앙난방', '개별난방', '지역난방']
 export const TYPE_MAP = [
   '단독주택',
   '다가구주택',

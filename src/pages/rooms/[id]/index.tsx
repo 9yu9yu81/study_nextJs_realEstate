@@ -18,7 +18,7 @@ import {
   Bt,
   CHoverDiv,
   Cbb,
-  CenteringDiv,
+  Center_Div,
   StyledImage,
 } from 'components/styledComponent'
 import { ROOMS_QUERY_KEY, WISHLIST_QUERY_KEY } from 'constants/querykey'
@@ -179,7 +179,7 @@ export default function RoomIndex(props: Room) {
         <div className="ml-auto flex">
           {props.userId === session?.user.id ? (
             <div className="flex relative">
-              <CenteringDiv
+              <Center_Div
                 style={{ width: '160px' }}
                 className="absolute bottom-10 left-44"
               >
@@ -218,8 +218,8 @@ export default function RoomIndex(props: Room) {
                     </>
                   )}
                 </CHoverDiv>
-              </CenteringDiv>
-              <CenteringDiv
+              </Center_Div>
+              <Center_Div
                 onClick={() =>
                   increaseViews({ id: props.id, views: props.views + 1 })
                 }
@@ -228,11 +228,11 @@ export default function RoomIndex(props: Room) {
               >
                 <IconEyeCheck size={18} stroke={1} />
                 {props.views + 1}
-              </CenteringDiv>
-              <CenteringDiv className="p-2 mr-1" style={{ width: '60px' }}>
+              </Center_Div>
+              <Center_Div className="p-2 mr-1" style={{ width: '60px' }}>
                 <IconHeart color="red" fill="red" size={18} stroke={1} />
                 {wished}
-              </CenteringDiv>
+              </Center_Div>
               <CHoverDiv
                 onClick={() => router.push(`/rooms/${props.id}/edit`)}
                 className="p-2 bg-blue-400 text-white font-normal"
@@ -252,12 +252,12 @@ export default function RoomIndex(props: Room) {
             </div>
           ) : (
             <>
-              <CenteringDiv style={{ width: '60px' }}>
+              <Center_Div style={{ width: '60px' }}>
                 <IconEyeCheck size={18} stroke={1} />
                 {props.views + 1}
-              </CenteringDiv>
+              </Center_Div>
               {session && (
-                <CenteringDiv style={{ width: '160px' }}>
+                <Center_Div style={{ width: '160px' }}>
                   <CHoverDiv onClick={() => updateWishlist(props.id)}>
                     {isWished ? (
                       <>
@@ -282,7 +282,7 @@ export default function RoomIndex(props: Room) {
                       </>
                     )}
                   </CHoverDiv>
-                </CenteringDiv>
+                </Center_Div>
               )}
             </>
           )}
@@ -321,7 +321,7 @@ export default function RoomIndex(props: Room) {
             ))}
           </Carousel>
         </Modal>
-        <CenteringDiv className="space-x-3">
+        <Center_Div className="space-x-3">
           <div>
             <StyledImage
               style={{ width: '490px', height: '380px', margin: '5px' }}
@@ -360,7 +360,7 @@ export default function RoomIndex(props: Room) {
               )}
             </div>
             {props.images.split(',').length > 5 && (
-              <CenteringDiv className="text-xs text-zinc-500">
+              <Center_Div className="text-xs text-zinc-500">
                 <Button
                   onClick={() => setCarousel(true)}
                   variant="subtle"
@@ -371,7 +371,7 @@ export default function RoomIndex(props: Room) {
                 >
                   모든 사진 보기
                 </Button>
-              </CenteringDiv>
+              </Center_Div>
             )}
           </div>
           <div>
@@ -439,7 +439,7 @@ export default function RoomIndex(props: Room) {
               </Bt>
             </B>
           </div>
-        </CenteringDiv>
+        </Center_Div>
       </div>
     </>
   )

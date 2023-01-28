@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import {
   Badge,
@@ -7,7 +6,7 @@ import {
   FileButton,
   Input,
   Loader,
-  SegmentedControl,
+  Modal,
   Textarea,
 } from '@mantine/core'
 import {
@@ -17,33 +16,47 @@ import {
   IconEyeCheck,
   IconHeart,
   IconMapPin,
-  IconSlash,
   IconX,
 } from '@tabler/icons'
 import Map from 'components/MapN'
 import {
   CHoverDiv,
-  Cbl,
-  CenteringDiv,
+  Center2_Div,
+  Center_Div,
   HoverDiv,
   StyledImage,
+  mainColor,
+  subColor_light,
+  subColor_lighter,
+  subColor_medium,
 } from 'components/styledComponent'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Room } from '@prisma/client'
 import { ROOMS_QUERY_KEY } from 'constants/querykey'
 import { useSession } from 'next-auth/react'
 import {
-  DESCRIPTION_PLACEHOLDER,
-  DETAILADDR_PLACEHOLDER,
   CATEGORY_MAP,
   STATUS_MAP,
   YEAR_MONTH_MAP,
+  TYPE_MAP,
+  HEAT_MAP,
 } from 'constants/const'
 import { useRouter } from 'next/router'
 import format from 'date-fns/format'
+import HomeLogo from 'components/home/HomeLogo'
+import UploadCaveats from 'components/upload/UploadCaveats'
+import CustomSegmentedControl from 'components/CustomSegmentedControl'
+import styled from '@emotion/styled'
+import { Calendar } from '@mantine/dates'
 
-//todo 내 방관리에서는 올린 매물 보여주고 그 매물 정보 수정할 수도 있게(db update)
-//todo date-fns 설치, 남은 기한 표시, 30일 기한 지날 시 status = 2 ('기한만료')
+export const DESCRIPTION_PLACEHOLDER = `[상세설명 작성 주의사항]
+- 매물 정보와 관련없는 홍보성 정보는 입력할 수 없습니다.
+- 매물등록 규정에 위반되는 금칙어는 입력할 수 없습니다.
+
+위 주의사항 위반시 임의로 매물 삭제 혹은 서비스 이용이 제한될 수 있습니다.`
+
+export const DETAILADDR_PLACEHOLDER = `상세 주소
+예) e편한세상 101동 1101호`
 
 export default function upload() {
   const router = useRouter()
@@ -56,16 +69,22 @@ export default function upload() {
   useEffect(() => {
     router.query.isManagePage === 'true' && setIsUploadPage(false)
   }, [router.query.isManagePage])
-  //db에 올릴 state
+  //state
   const [category, setCategory] = useState<string>('0')
-  const [ym, setYm] = useState<string>('0') //전/월세 -> 월세는 deposit 받음
+  const [type, setType] = useState<string>('0')
+  const [ym, setYm] = useState<string>('0')
+  const [heat, setHeat] = useState<string>('0')
   const depositRef = useRef<HTMLInputElement | null>(null)
   const priceRef = useRef<HTMLInputElement | null>(null)
   const areaRef = useRef<HTMLInputElement | null>(null)
+  const supAreaRef = useRef<HTMLInputElement | null>(null)
+  const floorRef = useRef<HTMLInputElement | null>(null)
+  const totalFloorRef = useRef<HTMLInputElement | null>(null)
   const titleRef = useRef<HTMLInputElement | null>(null)
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
   const [images, setImages] = useState<string[]>([])
-
+  const [moveIn, setMoveIn] = useState<Date | null>(new Date())
+  const [modal, setModal] = useState<boolean>(false)
   //daum-postcode
   const addrRef = useRef<HTMLInputElement | null>(null)
   // const [addr, setAddr] = useState<string>('')
@@ -242,7 +261,7 @@ export default function upload() {
         : images.length < 6 || images.length > 10
         ? alert('최소 5장, 최대 10장 이미지를 첨부해주세요')
         : addRoom({
-            categoryId: category,
+            category_id: Number(category),
             ym: ym,
             address: String(addrRef.current?.value),
             detailAddress: String(detailAddrRef.current?.value),
@@ -267,298 +286,338 @@ export default function upload() {
   )
 
   return session ? (
-    <div className="text-sm">
-      <CenteringDiv className="m-14">
-        <Link href="/" className="flex">
-          <Image
-            className="mr-1"
-            src="/../public/images/home.png"
-            alt="home"
-            width={55}
-            height={55}
-          ></Image>
-          <div className="text-3xl">MySpot</div>
-        </Link>
-      </CenteringDiv>
+    <div>
+      <HomeLogo size={50} margin={100} />
       {isUploadPage ? (
         <>
-          <CenteringDiv>
-            <button
-              className=" border border-zinc-400 bg-zinc-600 text-zinc-100"
-              style={{ width: '50vw', height: '5vh' }}
-              onClick={() => setIsUploadPage(true)}
-            >
+          <Center2_Div className="mb-5">
+            <Upload_Btn_Dark onClick={() => setIsUploadPage(true)}>
               방 내놓기
-            </button>
-            <button
-              className=" border border-zinc-400"
-              style={{ width: '50vw', height: '5vh' }}
-              onClick={() => setIsUploadPage(false)}
-            >
+            </Upload_Btn_Dark>
+            <Upload_Btn_Bright onClick={() => setIsUploadPage(false)}>
               내 방 관리
-            </button>
-          </CenteringDiv>
-          <div className="w-full mt-6 p-4  border border-zinc-300 text-zinc-500 text-xs leading-5">
-            ∙ 전/월세 매물만 등록할 수 있습니다.
-            <br />∙ 한 번에 1개의 매물만 등록 가능하며, 직거래로 표시됩니다.
-            <br />∙ 등록한 매물은 30일 간 노출됩니다.
-          </div>
-          <CenteringDiv className="relative flex-col border border-zinc-400 mt-6">
-            <div className="flex font-bold m-3">
-              <span>매물 정보</span>
-            </div>
-            <div className="flex w-full border-t border-zinc-400 text-xs items-center">
-              <CenteringDiv className="w-32">매물 종류</CenteringDiv>
-              <CenteringDiv className="p-3  border-l border-zinc-400">
-                <SegmentedControl
-                  value={category}
-                  onChange={setCategory}
-                  color={'gray'}
-                  styles={(theme) => ({
-                    root: {
-                      backgroundColor: 'white',
-                    },
-                    label: { marginRight: 10, marginLeft: 10 },
-                    active: {
-                      marginRight: 10,
-                      marginLeft: 10,
-                      backgroundColor: '#52525B',
-                    },
-                    control: { borderWidth: '0px !important' },
-                  })}
-                  transitionDuration={0}
-                  data={CATEGORY_MAP.map((label, id) => ({
-                    label: label,
-                    value: String(id),
-                  }))}
-                />
-              </CenteringDiv>
-            </div>
-          </CenteringDiv>
-          <CenteringDiv className="relative flex-col  border border-zinc-400 mt-6 ">
-            <div className="flex font-bold m-3">
-              <span>위치 정보</span>
-              <div className="absolute right-5">
-                <span className="text-zinc-400" style={{ fontSize: 12 }}>
-                  *등기부등본 상의 주소를 입력해 주세요.
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center w-full border-t border-zinc-400 text-xs">
-              <CenteringDiv className="w-32">주소</CenteringDiv>
-              <div className="h-72 border-l border-zinc-400 pl-10 pt-14">
-                <div className="flex items-center text-zinc-400 mb-3">
-                  <IconExclamationCircle className="mr-1" />
-                  <span>
+            </Upload_Btn_Bright>
+          </Center2_Div>
+          <UploadCaveats />
+          <Upload_Div_B>
+            <Upload_Div_Title>매물 정보</Upload_Div_Title>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>매물 종류</Upload_Div_Sub_Title>
+              <CustomSegmentedControl
+                value={String(category)}
+                onChange={setCategory}
+                data={CATEGORY_MAP.map((label, id) => ({
+                  label: label,
+                  value: String(id),
+                }))}
+              />
+            </Upload_Div_Bt>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>건물 유형</Upload_Div_Sub_Title>
+              <CustomSegmentedControl
+                value={String(type)}
+                onChange={setType}
+                data={TYPE_MAP.map((label, id) => ({
+                  label: label,
+                  value: String(id),
+                }))}
+              />
+            </Upload_Div_Bt>
+          </Upload_Div_B>
+          <Upload_Div_B className="relative">
+            <Upload_Div_Absolute className="right-3">
+              *등기부등본 상의 주소를 입력해 주세요.
+            </Upload_Div_Absolute>
+            <Upload_Div_Title>위치 정보</Upload_Div_Title>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>주소</Upload_Div_Sub_Title>
+              <Upload_Div_Sub>
+                <div>
+                  <Center2_Div className="font-light">
+                    <IconExclamationCircle
+                      className="mr-1"
+                      size={18}
+                      stroke={1.5}
+                    />
                     도로명, 건물명, 지번에 대해 통합검색이 가능합니다.
-                  </span>
-                </div>
-                <div className="flex mb-5">
-                  <Input
-                    className="w-full"
-                    id="input"
-                    type={'text'}
-                    placeholder="예) 번동 10-1, 강북구 번동"
-                    ref={addrRef}
-                    onKeyUp={handleEnterKeypress}
-                  />
-                  <Button
-                    className="bg-zinc-600 text-zinc-100 ml-1"
-                    radius={'sm'}
-                    color={'gray'}
-                    onClick={loadLayout}
-                    ref={postcodeButtonRef}
-                  >
-                    주소 검색
-                  </Button>
-                </div>
-                <Textarea
-                  className="w-full"
-                  minRows={4}
-                  placeholder={DETAILADDR_PLACEHOLDER}
-                  ref={detailAddrRef}
-                />
-              </div>
-              <div className="ml-12 p-3">
-                {addrSearchComplete && addrRef.current?.value !== '' ? (
-                  <Map
-                    width="330px"
-                    height="300px"
-                    address={addrRef.current?.value}
-                  />
-                ) : (
-                  <CenteringDiv
-                    className="border flex-col text-zinc-400"
-                    style={{ width: '330px', height: '300px' }}
-                  >
-                    <IconMapPin />
-                    <div>주소 검색을 하시면</div>
-                    <div>해당 위치가 지도에 표시됩니다.</div>
-                  </CenteringDiv>
-                )}
-              </div>
-            </div>
-          </CenteringDiv>
-          <CenteringDiv className="relative flex-col  border border-zinc-400 mt-6">
-            <div className="flex font-bold m-3">
-              <span>거래 정보</span>
-            </div>
-            <div className="flex w-full  border-t border-zinc-400 text-xs items-center">
-              <div className="w-32 flex justify-center">거래 종류</div>
-              <CenteringDiv className="p-3  border-l border-zinc-400">
-                <SegmentedControl
-                  className="mr-5"
-                  value={ym}
-                  onChange={setYm}
-                  color={'gray'}
-                  styles={(theme) => ({
-                    root: {
-                      backgroundColor: 'white',
-                    },
-                    label: { marginRight: 10, marginLeft: 10 },
-                    active: {
-                      marginRight: 10,
-                      marginLeft: 10,
-                      backgroundColor: '#52525B',
-                    },
-                    control: { borderWidth: '0px !important' },
-                  })}
-                  transitionDuration={0}
-                  data={YEAR_MONTH_MAP.map((label, id) => ({
-                    label: label,
-                    value: String(id),
-                  }))}
-                />
-                {ym === '0' ? (
-                  <>
-                    <CenteringDiv className="space-x-1">
-                      <Input type="text" placeholder="전세" ref={priceRef} />
-                      <span>만원</span>
-                    </CenteringDiv>
-                  </>
-                ) : (
-                  <>
-                    <CenteringDiv className="space-x-1">
-                      <Input
-                        type="text"
-                        placeholder="보증금"
-                        ref={depositRef}
-                      />
-                      <IconSlash />
-                      <Input type="text" placeholder="월세" ref={priceRef} />
-                      <span>만원</span>
-                    </CenteringDiv>
-                  </>
-                )}
-              </CenteringDiv>
-            </div>
-          </CenteringDiv>
-          <CenteringDiv className="relative flex-col  border border-zinc-400 mt-6">
-            <div className="flex font-bold m-3">
-              <span>기본 정보</span>
-            </div>
-            <div className="flex w-full  border-t border-zinc-400 text-xs items-center">
-              <div className="w-32 flex justify-center">건물 크기</div>
-              <CenteringDiv className="p-3  border-l border-zinc-400">
-                <div className="flex ">
-                  <Input type="text" placeholder="평" ref={areaRef} />
-                </div>
-              </CenteringDiv>
-            </div>
-          </CenteringDiv>
-          <CenteringDiv className="relative flex-col border border-zinc-400 mt-6">
-            <div className="flex font-bold m-3">
-              <span>상세 정보</span>
-            </div>
-            <div className="flex flex-col w-full  border-t border-zinc-400 text-xs items-center">
-              <div className="flex w-full items-center  border-b border-zinc-300">
-                <div className="w-32 flex justify-center">제목</div>
-                <div className="p-3  border-l border-zinc-400">
-                  <Input
-                    style={{ width: '800px' }}
-                    placeholder="예) 신논현역 도보 5분거리, 혼자 살기 좋은 방 입니다."
-                    ref={titleRef}
+                  </Center2_Div>
+                  <Center2_Div>
+                    <Upload_Input
+                      type={'text'}
+                      placeholder="예) 번동 10-1, 강북구 번동"
+                      ref={addrRef}
+                      onKeyUp={handleEnterKeypress}
+                    />
+                    <Upload_Btn_Submit
+                      onClick={loadLayout}
+                      ref={postcodeButtonRef}
+                    >
+                      주소 검색
+                    </Upload_Btn_Submit>
+                  </Center2_Div>
+                  <Upload_Textarea
+                    placeholder={DETAILADDR_PLACEHOLDER}
+                    ref={detailAddrRef}
                   />
                 </div>
-              </div>
-              <div className="flex w-full items-center">
-                <div className="w-32 flex justify-center">상세 설명</div>
-                <div className="p-3  border-l border-zinc-400">
-                  <Textarea
-                    style={{ width: '800px' }}
-                    minRows={8}
-                    wrap="hard"
-                    placeholder={DESCRIPTION_PLACEHOLDER}
-                    ref={descriptionRef}
-                  />
+                <div className="ml-auto">
+                  {addrSearchComplete && addrRef.current?.value !== '' ? (
+                    <Map
+                      width="300px"
+                      height="280px"
+                      address={addrRef.current?.value}
+                    />
+                  ) : (
+                    <Center_Div
+                      className="border flex-col font-light"
+                      style={{ width: '300px', height: '280px' }}
+                    >
+                      <IconMapPin size={20} stroke={1.5} />
+                      <div>주소 검색을 하시면</div>
+                      <div>해당 위치가 지도에 표시됩니다.</div>
+                    </Center_Div>
+                  )}
                 </div>
-              </div>
-            </div>
-          </CenteringDiv>
-          <div className="relative flex flex-col  border border-zinc-400 mt-6 items-center">
-            <div className="flex font-bold m-3">
-              <span>사진 등록</span>
-            </div>
-            <div className="flex flex-col w-full p-3  border-t border-zinc-400 text-xs items-center">
-              <div className="p-3 w-full border border-zinc-300 text-zinc-500 text-xs leading-5">
-                - 사진은 가로로 찍은 사진을 권장합니다.
-                <br />- 사진 용량은 사진 한 장당 200KB 까지 등록 가능합니다.
-                <br />- 사진은 최소 5장 이상 등록해야하며, 최대 10장까지 등록
-                가능합니다.
-              </div>
-              <div>
-                <div className="m-5 p-5 bg-zinc-100" style={{ width: '950px' }}>
-                  <div className="mb-5">
-                    <FileButton accept="image/*" multiple onChange={setFiles}>
-                      {(props) => (
-                        <Button
-                          {...props}
-                          className="bg-zinc-600 text-zinc-100 ml-1"
-                          radius={'sm'}
-                          color={'gray'}
-                        >
-                          사진 추가하기
-                        </Button>
-                      )}
-                    </FileButton>
-                  </div>
-                  <div className="grid grid-cols-4 items-center space-y-2">
-                    {images &&
-                      images.length > 0 &&
-                      images.map((image, idx) => (
-                        <div className="relative" key={idx}>
-                          <Image
-                            className="border border-zinc-400"
-                            alt={'img'}
-                            key={idx}
-                            src={image}
-                            width={200}
-                            height={200}
-                          />
-                          <HoverDiv
-                            className="absolute top-0 right-5"
-                            onClick={() => handleImgDel(image)}
-                          >
-                            <IconX color="red" size={18} stroke={1.5} />
-                          </HoverDiv>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
-              <div
-                className="flex items-center text-zinc-400 mr-auto"
-                style={{ fontSize: '13px' }}
+              </Upload_Div_Sub>
+            </Upload_Div_Bt>
+          </Upload_Div_B>
+          <Upload_Div_B>
+            <Upload_Div_Title>거래 정보</Upload_Div_Title>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>거래 종류</Upload_Div_Sub_Title>
+              <CustomSegmentedControl
+                value={ym}
+                onChange={setYm}
+                data={YEAR_MONTH_MAP.map((label, id) => ({
+                  label: label,
+                  value: String(id),
+                }))}
+              />
+              <Upload_Div_Sub_Title>가격</Upload_Div_Sub_Title>
+              {ym === '0' ? (
+                <Upload_Div_Sub3>
+                  <Upload_Input2
+                    type="text"
+                    placeholder="전세"
+                    ref={priceRef}
+                  />{' '}
+                  만원
+                </Upload_Div_Sub3>
+              ) : (
+                <>
+                  <Upload_Div_Sub3>
+                    <Upload_Input2
+                      type="text"
+                      placeholder="보증금"
+                      ref={depositRef}
+                    />{' '}
+                    /
+                    <Upload_Input2
+                      type="text"
+                      placeholder="월세"
+                      ref={priceRef}
+                    />{' '}
+                    만원
+                  </Upload_Div_Sub3>
+                </>
+              )}
+            </Upload_Div_Bt>
+          </Upload_Div_B>
+          <Upload_Div_B>
+            <Upload_Div_Title>기본 정보</Upload_Div_Title>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title className="flex-col">
+                <div>건물 크기</div>
+                <div>(1평=3.3058㎡)</div>
+              </Upload_Div_Sub_Title>
+              <Upload_Div_Sub2 className="flex-col">
+                <Upload_Div_Sub3 className="border-b">
+                  공급 면적
+                  <Upload_Input2 type="text" ref={supAreaRef} /> 평
+                </Upload_Div_Sub3>
+                <Upload_Div_Sub3 className="border-b">
+                  전용 면적
+                  <Upload_Input2 type="text" ref={areaRef} /> 평
+                </Upload_Div_Sub3>
+              </Upload_Div_Sub2>
+              <Upload_Div_Sub_Title className="flex-col">
+                <div>건물 층수</div>
+              </Upload_Div_Sub_Title>
+              <Upload_Div_Sub2 className="flex-col">
+                <Upload_Div_Sub3 className="border-b">
+                  건물 층수
+                  <Upload_Input2 type="text" ref={totalFloorRef} /> 층
+                </Upload_Div_Sub3>
+                <Upload_Div_Sub3 className="border-b">
+                  해당 층수
+                  <Upload_Input2 type="text" ref={floorRef} /> 층
+                </Upload_Div_Sub3>
+              </Upload_Div_Sub2>
+            </Upload_Div_Bt>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>난방 종류</Upload_Div_Sub_Title>
+              <CustomSegmentedControl
+                value={heat}
+                onChange={setHeat}
+                data={HEAT_MAP.map((label, id) => ({
+                  label: label,
+                  value: id,
+                }))}
+              />
+            </Upload_Div_Bt>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>입주 가능일</Upload_Div_Sub_Title>
+              <Modal
+                withCloseButton={false}
+                opened={modal}
+                onClose={() => setModal(false)}
+                centered
+                size={'auto'}
               >
-                <IconExclamationCircle size={18} className="mr-1" />
-                <span>
-                  허위 매물을 등록할 경우 MySpot에서 임의로 계정 및 매물 전체
-                  삭제 처리됩니다.
-                </span>
+                <Center_Div className="flex-col">
+                  <Calendar value={moveIn} onChange={setMoveIn} />
+                  <Upload_Btn_Calendar onClick={() => setModal(false)}>
+                    선택 완료
+                  </Upload_Btn_Calendar>
+                </Center_Div>
+              </Modal>
+              <Upload_Btn_Calendar onClick={() => setModal(true)}>
+                날짜 선택
+              </Upload_Btn_Calendar>
+              <Upload_Text>
+                {moveIn && format(moveIn, 'yyyy년 MM월 dd일')}
+              </Upload_Text>
+            </Upload_Div_Bt>
+          </Upload_Div_B>
+          <Upload_Div_B>
+            <Upload_Div_Title>기본 정보</Upload_Div_Title>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title className="flex-col">
+                <div>건물 크기</div>
+                <div>(1평=3.3058㎡)</div>
+              </Upload_Div_Sub_Title>
+              <Upload_Div_Sub2 className="flex-col">
+                <Upload_Div_Sub3 className="border-b">
+                  공급 면적
+                  <Upload_Input2 type="text" ref={supAreaRef} /> 평
+                </Upload_Div_Sub3>
+                <Upload_Div_Sub3 className="border-b">
+                  전용 면적
+                  <Upload_Input2 type="text" ref={areaRef} /> 평
+                </Upload_Div_Sub3>
+              </Upload_Div_Sub2>
+              <Upload_Div_Sub_Title className="flex-col">
+                <div>건물 층수</div>
+              </Upload_Div_Sub_Title>
+              <Upload_Div_Sub2 className="flex-col">
+                <Upload_Div_Sub3 className="border-b">
+                  건물 층수
+                  <Upload_Input2 type="text" ref={totalFloorRef} /> 층
+                </Upload_Div_Sub3>
+                <Upload_Div_Sub3 className="border-b">
+                  해당 층수
+                  <Upload_Input2 type="text" ref={floorRef} /> 층
+                </Upload_Div_Sub3>
+              </Upload_Div_Sub2>
+            </Upload_Div_Bt>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>난방 종류</Upload_Div_Sub_Title>
+              <CustomSegmentedControl
+                value={heat}
+                onChange={setHeat}
+                data={HEAT_MAP.map((label, id) => ({
+                  label: label,
+                  value: id,
+                }))}
+              />
+            </Upload_Div_Bt>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>입주 가능일</Upload_Div_Sub_Title>
+              <Modal
+                withCloseButton={false}
+                opened={modal}
+                onClose={() => setModal(false)}
+                centered
+                size={'auto'}
+              >
+                <Center_Div className="flex-col">
+                  <Calendar value={moveIn} onChange={setMoveIn} />
+                  <Upload_Btn_Calendar onClick={() => setModal(false)}>
+                    선택 완료
+                  </Upload_Btn_Calendar>
+                </Center_Div>
+              </Modal>
+              <Upload_Btn_Calendar onClick={() => setModal(true)}>
+                날짜 선택
+              </Upload_Btn_Calendar>
+              <Upload_Text>
+                {moveIn && format(moveIn, 'yyyy년 MM월 dd일')}
+              </Upload_Text>
+            </Upload_Div_Bt>
+          </Upload_Div_B>
+          <Upload_Div_B>
+            <Upload_Div_Title>상세 정보</Upload_Div_Title>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>제목</Upload_Div_Sub_Title>
+              <Upload_Input3
+                placeholder="예) 신논현역 도보 5분거리, 혼자 살기 좋은 방 입니다."
+                ref={titleRef}
+              />
+            </Upload_Div_Bt>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>상세 설명</Upload_Div_Sub_Title>
+              <Upload_Textarea2
+                wrap="hard"
+                placeholder={DESCRIPTION_PLACEHOLDER}
+                ref={descriptionRef}
+              />
+            </Upload_Div_Bt>
+          </Upload_Div_B>
+
+          <Upload_Div_B>
+            <Upload_Div_Title>사진 등록</Upload_Div_Title>
+            <UploadCaveats picture={true} />
+            <div>
+              <div style={{ minWidth: '1000px', padding: '20px' }}>
+                <FileButton accept="image/*" multiple onChange={setFiles}>
+                  {(props) => (
+                    <Upload_Btn_Submit {...props}>
+                      사진 추가하기
+                    </Upload_Btn_Submit>
+                  )}
+                </FileButton>
+                <div className="grid grid-cols-4 items-center space-y-2 mt-5">
+                  {images &&
+                    images.length > 0 &&
+                    images.map((image, idx) => (
+                      <div className="relative" key={idx}>
+                        <Image
+                          alt={'img'}
+                          key={idx}
+                          src={image}
+                          width={200}
+                          height={200}
+                        />
+                        <HoverDiv
+                          className="absolute top-0 right-5"
+                          onClick={() => handleImgDel(image)}
+                        >
+                          <IconX color="red" size={18} stroke={1.5} />
+                        </HoverDiv>
+                      </div>
+                    ))}
+                </div>
               </div>
             </div>
-          </div>
-          <CenteringDiv className="m-5 space-x-5">
+            <Center2_Div className="m-3">
+              <IconExclamationCircle size={18} className="mr-1" />
+              <span style={{ fontSize: '13px' }}>
+                허위 매물을 등록할 경우 MySpot에서 임의로 계정 및 매물 전체 삭제
+                처리됩니다.
+              </span>
+            </Center2_Div>
+          </Upload_Div_B>
+          <Center_Div className="m-5 space-x-5">
             <button
               className=" border border-zinc-400 rounde"
               style={{ width: '120px', height: '50px' }}
@@ -574,38 +633,23 @@ export default function upload() {
             >
               등록하기
             </button>
-          </CenteringDiv>
+          </Center_Div>
         </>
       ) : (
         <>
-          <CenteringDiv>
-            <button
-              className=" border border-zinc-400 "
-              style={{ width: '50vw', height: '5vh' }}
-              onClick={() => setIsUploadPage(true)}
-            >
+          <Center2_Div className="mb-5">
+            <Upload_Btn_Bright onClick={() => setIsUploadPage(true)}>
               방 내놓기
-            </button>
-            <button
-              className=" border border-zinc-400 bg-zinc-600 text-zinc-100"
-              style={{ width: '50vw', height: '5vh' }}
-              onClick={() => setIsUploadPage(false)}
-            >
+            </Upload_Btn_Bright>
+            <Upload_Btn_Dark onClick={() => setIsUploadPage(false)}>
               내 방 관리
-            </button>
-          </CenteringDiv>
-          <div className="w-full mt-6 p-4  border border-zinc-300 text-zinc-500 text-xs leading-5">
-            ∙ 전/월세 매물만 등록할 수 있습니다.
-            <br />∙ 한 번에 1개의 매물만 등록 가능하며, 직거래로 표시됩니다.
-            <br />∙ 등록한 매물은 30일 간 노출됩니다.
-            <br />∙ 공개중 : 내가 등록한 매물이 공개중인 상태
-            <br />∙ 거래완료 : 등록한 매물이 거래완료된 상태
-            <br />∙ 기한만료 : 등록한 매물의 30일 기한이 만료된 상태
-          </div>
+            </Upload_Btn_Dark>
+          </Center2_Div>
+          <UploadCaveats manage={true} />
           {isLoading ? (
-            <CenteringDiv className="m-72">
+            <Center_Div className="m-72">
               <Loader />
-            </CenteringDiv>
+            </Center_Div>
           ) : rooms ? (
             rooms.map((room, idx) => (
               <>
@@ -613,13 +657,13 @@ export default function upload() {
                   className="relative flex-col  border border-zinc-400 mt-6 font-light text-zinc-600"
                   style={{ fontSize: '13px' }}
                 >
-                  <CenteringDiv className="border-zinc-400 border-b">
-                    <CenteringDiv
+                  <Center_Div className="border-zinc-400 border-b">
+                    <Center_Div
                       className="border-r border-zinc-400 p-2 bg-zinc-500 text-white font-normal"
                       style={{ width: '100px' }}
                     >
                       {idx + 1}
-                    </CenteringDiv>
+                    </Center_Div>
                     <div className="w-full p-2 text-sm font-">
                       <Badge
                         className="mr-3"
@@ -667,7 +711,7 @@ export default function upload() {
                       <IconX size={18} stroke={1} />
                       매물삭제
                     </CHoverDiv>
-                  </CenteringDiv>
+                  </Center_Div>
                   <div className="flex relative">
                     <div className="absolute right-3 top-2">
                       게시일: {format(new Date(room.updatedAt), 'yyyy/MM/dd')}
@@ -687,75 +731,75 @@ export default function upload() {
                         fill
                       />
                     </StyledImage>
-                    <CenteringDiv>
+                    <Center_Div>
                       <div className="p-3">
                         <div className="border border-zinc-400">
-                          <CenteringDiv className="border p-2">
+                          <Center_Div className="border p-2">
                             매물정보
-                          </CenteringDiv>
-                          <CenteringDiv>
-                            <CenteringDiv
+                          </Center_Div>
+                          <Center_Div>
+                            <Center_Div
                               className="border-r"
                               style={{ width: '60px' }}
                             >
                               매물종류
-                            </CenteringDiv>
+                            </Center_Div>
                             <div className="p-1">
                               {CATEGORY_MAP[Number(room.categoryId)]}
                             </div>
-                          </CenteringDiv>
+                          </Center_Div>
                         </div>
                       </div>
                       <div className="p-3" style={{ maxWidth: '270px' }}>
                         <div className="border border-zinc-400">
-                          <CenteringDiv className="border-b p-2">
+                          <Center_Div className="border-b p-2">
                             위치정보
-                          </CenteringDiv>
-                          <CenteringDiv className="border-b">
-                            <CenteringDiv
+                          </Center_Div>
+                          <Center_Div className="border-b">
+                            <Center_Div
                               className="border-r"
                               style={{ width: '60px' }}
                             >
                               주소
-                            </CenteringDiv>
+                            </Center_Div>
                             <div className="p-1 mr-auto">{room.address}</div>
-                          </CenteringDiv>
-                          <CenteringDiv>
-                            <CenteringDiv
+                          </Center_Div>
+                          <Center_Div>
+                            <Center_Div
                               className="border-r"
                               style={{ width: '60px' }}
                             >
                               상세주소
-                            </CenteringDiv>
+                            </Center_Div>
                             <div className="p-1 mr-auto">
                               {room.detailAddress}
                             </div>
-                          </CenteringDiv>
+                          </Center_Div>
                         </div>
                       </div>
                       <div className="p-3">
                         <div className="border border-zinc-400">
-                          <CenteringDiv className="border p-2">
+                          <Center_Div className="border p-2">
                             거래정보
-                          </CenteringDiv>
-                          <CenteringDiv className="border-b">
-                            <CenteringDiv
+                          </Center_Div>
+                          <Center_Div className="border-b">
+                            <Center_Div
                               className="border-r"
                               style={{ width: '60px' }}
                             >
                               거래종류
-                            </CenteringDiv>
+                            </Center_Div>
                             <div className="p-1 mr-auto">
                               {YEAR_MONTH_MAP[Number(room.ym)]}
                             </div>
-                          </CenteringDiv>
-                          <CenteringDiv>
-                            <CenteringDiv
+                          </Center_Div>
+                          <Center_Div>
+                            <Center_Div
                               className="border-r"
                               style={{ width: '60px' }}
                             >
                               가격
-                            </CenteringDiv>
+                            </Center_Div>
                             <div className="p-1 mr-auto">
                               {room.ym == '0' ? (
                                 <>{room.price}만원</>
@@ -765,37 +809,253 @@ export default function upload() {
                                 </>
                               )}
                             </div>
-                          </CenteringDiv>
+                          </Center_Div>
                         </div>
                       </div>
                       <div className="p-3">
                         <div className="border border-zinc-400">
-                          <CenteringDiv className="border p-2">
+                          <Center_Div className="border p-2">
                             기본정보
-                          </CenteringDiv>
-                          <CenteringDiv>
-                            <CenteringDiv
+                          </Center_Div>
+                          <Center_Div>
+                            <Center_Div
                               className="border-r"
                               style={{ width: '60px' }}
                             >
                               건물크기
-                            </CenteringDiv>
+                            </Center_Div>
                             <div className="p-1">{room.area}평</div>
-                          </CenteringDiv>
+                          </Center_Div>
                         </div>
                       </div>
-                    </CenteringDiv>
+                    </Center_Div>
                   </div>
                 </div>
               </>
             ))
           ) : (
-            <CenteringDiv className="m-40">등록된 매물이 없습니다</CenteringDiv>
+            <Center_Div className="m-40">등록된 매물이 없습니다</Center_Div>
           )}
         </>
       )}
     </div>
   ) : (
-    <CenteringDiv className="m-40">로그인 해주시기 바랍니다.</CenteringDiv>
+    <Center_Div className="m-40">로그인 해주시기 바랍니다.</Center_Div>
   )
 }
+
+const fontsize: number = 14
+const Upload_Btn_Dark = styled.button`
+  color: ${subColor_lighter};
+  background-color: ${mainColor};
+  border: 0.5px solid ${subColor_lighter};
+  min-width: 500px;
+  width: 500px;
+  height: 60px;
+  font-size: ${fontsize}px;
+`
+
+const Upload_Btn_Bright = styled.button`
+  color: ${mainColor};
+  background-color: ${subColor_lighter};
+  border: 0.5px solid ${subColor_lighter};
+  min-width: 500px;
+  width: 500px;
+  height: 60px;
+  font-size: ${fontsize}px;
+`
+
+const Upload_Input = styled.input`
+  border: 0.5px solid ${subColor_medium};
+  font-size: ${fontsize - 2}px;
+  height: 36px;
+  width: 330px;
+  padding: 10px;
+  :hover {
+    border: 0.5px solid ${mainColor};
+  }
+  :active {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  :focus {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  margin-right: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+`
+const Upload_Input2 = styled.input`
+  border: 0.5px solid ${subColor_medium};
+  font-size: ${fontsize - 2}px;
+  height: 40px;
+  width: 110px;
+  padding: 10px;
+  :hover {
+    border: 0.5px solid ${mainColor};
+  }
+  :active {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  :focus {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  margin: 10px;
+`
+const Upload_Input3 = styled.input`
+  border: 0.5px solid ${subColor_medium};
+  font-size: ${fontsize - 1}px;
+  height: 40px;
+  min-width: 840px;
+  padding: 10px;
+  :hover {
+    border: 0.5px solid ${mainColor};
+  }
+  :active {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  :focus {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  margin: 5px;
+`
+const Upload_Text = styled.text`
+  border: 0.5px solid ${subColor_medium};
+  padding: 10px;
+  font-size: 12px;
+  color: ${subColor_medium};
+  :hover {
+    border: 0.5px solid ${mainColor};
+  }
+  :focus {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  margin: 10px;
+  resize: none;
+`
+
+const Upload_Textarea = styled.textarea`
+  border: 0.5px solid ${subColor_medium};
+  font-size: ${fontsize - 2}px;
+  height: 100px;
+  width: 440px;
+  padding: 10px;
+  :hover {
+    border: 0.5px solid ${mainColor};
+  }
+  :active {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  :focus {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  margin-right: 10px;
+  resize: none;
+`
+const Upload_Textarea2 = styled.textarea`
+  border: 0.5px solid ${subColor_medium};
+  font-size: ${fontsize - 1}px;
+  min-height: 500px;
+  min-width: 840px;
+  padding: 10px;
+  :hover {
+    border: 0.5px solid ${mainColor};
+  }
+  :active {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  :focus {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  margin: 5px;
+  resize: none;
+`
+
+const Upload_Btn_Submit = styled.button`
+  color: ${subColor_lighter};
+  background-color: ${mainColor};
+  width: 100px;
+  height: 36px;
+  font-size: ${fontsize - 2}px;
+`
+
+const Upload_Btn_Calendar = styled.button`
+  color: ${mainColor};
+  border: 0.5px solid ${subColor_medium};
+  width: 86px;
+  height: 40px;
+  font-size: ${fontsize - 2}px;
+  margin: 10px;
+  margin-left: 20px;
+  border-radius: 4px;
+`
+
+const Upload_Div_B = styled.div`
+  border: 0.5px solid ${subColor_medium};
+  margin-top: 30px;
+  min-width: 1000px;
+  * {
+    color: ${mainColor};
+  }
+`
+
+const Upload_Div_Absolute = styled.div`
+  font-size: ${fontsize - 3}px;
+  position: absolute;
+  right: 10px;
+  top: 20px;
+  color: ${subColor_medium};
+`
+
+const Upload_Div_Title = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 15px;
+  width: 100%;
+  border-bottom: 0.5px solid ${subColor_medium};
+`
+const Upload_Div_Sub_Title = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  font-size: ${fontsize}px;
+  background-color: ${subColor_lighter};
+`
+
+const Upload_Div_Bt = styled.div`
+  width: 100%;
+  display: flex;
+  font-size: ${fontsize}px;
+  border-top: 1px solid ${subColor_light};
+`
+const Upload_Div_Sub = styled.div`
+  padding: 35px;
+  display: flex;
+  width: 850px;
+  align-items: center;
+`
+const Upload_Div_Sub2 = styled.div`
+  display: flex;
+  min-width: 350px;
+`
+
+const Upload_Div_Sub3 = styled.div`
+  padding-left: 20px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid ${subColor_light};
+`

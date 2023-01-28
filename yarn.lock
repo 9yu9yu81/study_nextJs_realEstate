@@ -298,6 +298,13 @@
     "@radix-ui/react-scroll-area" "1.0.2"
     react-textarea-autosize "8.3.4"
 
+"@mantine/dates@^5.10.2":
+  version "5.10.2"
+  resolved "https://registry.yarnpkg.com/@mantine/dates/-/dates-5.10.2.tgz#c4c9dc99fc2699becf58117d393eb666a0a368a4"
+  integrity sha512-9ufXdaK8sCy6z5cUWqP8JzX9GBRQs5F+1YOJZOOE2gg6pvNSeab0fhin1rhKifEO+ufO07gE+2SElRmWG3tMhA==
+  dependencies:
+    "@mantine/utils" "5.10.2"
+
 "@mantine/hooks@^5.10.0":
   version "5.10.0"
   resolved "https://registry.yarnpkg.com/@mantine/hooks/-/hooks-5.10.0.tgz#e7886025a11dfa25f99c8c7fb7186d6a065c9d5c"
@@ -331,6 +338,11 @@
   version "5.10.0"
   resolved "https://registry.yarnpkg.com/@mantine/utils/-/utils-5.10.0.tgz#d77bdbd4fbf0ef7b10dd0c6480ce9a035dd31ae9"
   integrity sha512-mHnNm0ajIa8qLAIEwv82N6+7YKecynOA3I8vzgBHXS2x4HwGsHITFYGmMh2LNpx5dRL034tObfEFYZXqncyEDw==
+
+"@mantine/utils@5.10.2":
+  version "5.10.2"
+  resolved "https://registry.yarnpkg.com/@mantine/utils/-/utils-5.10.2.tgz#207a4e8434b521305bb63563244765db1022b005"
+  integrity sha512-mpXTPG9X2nPfHGg3ejcWkSlYVxuiTx6RxWbbFHEk/U2fSikEAQdMNdVPaKI2c0/S2jksqJXlODZJv2Qt9HAFMQ==
 
 "@next-auth/prisma-adapter@^1.0.5":
   version "1.0.5"
@@ -1130,6 +1142,11 @@ date-fns@^2.29.3:
   version "2.29.3"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.29.3.tgz#27402d2fc67eb442b511b70bbdf98e6411cd68a8"
   integrity sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==
+
+dayjs@^1.11.7:
+  version "1.11.7"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.7.tgz#4b296922642f70999544d1144a2c25730fce63e2"
+  integrity sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==
 
 debug@^2.6.9:
   version "2.6.9"

@@ -13,7 +13,7 @@ import {
   Bb,
   CBbstyled,
   CHoverDiv,
-  CenteringDiv,
+  Center_Div,
   Cstyled,
   StyledImage,
 } from 'components/styledComponent'
@@ -182,34 +182,19 @@ export default function home() {
               ]}
             />
           </div>
-          <div className="ml-20">
-            <CustomSegmentedControl
-              value={ym}
-              onChange={setYm}
-              data={[
-                {
-                  label: '전체',
-                  value: '-1',
-                },
-                ...YEAR_MONTH_MAP.map((label, id) => ({
-                  label: label,
-                  value: String(id),
-                })),
-              ]}
-            />
-          </div>
+          <div className="ml-20"></div>
         </div>
         {isLoading ? (
-          <CenteringDiv className="m-40">
+          <Center_Div className="m-40">
             <Loader />
-          </CenteringDiv>
+          </Center_Div>
         ) : (
           <div className="flex flex-col space-y-3 mt-3 text-sm font-light text-zinc-500">
             {rooms &&
               rooms.map((room, idx) => (
                 <div className="border-b p-3" key={idx}>
                   <div className="flex">
-                    <CenteringDiv className="relative">
+                    <Center_Div className="relative">
                       <StyledImage
                         onClick={() => router.push(`/rooms/${room.id}`)}
                         style={{
@@ -262,16 +247,16 @@ export default function home() {
                           </CHoverDiv>
                         </>
                       )}
-                    </CenteringDiv>
+                    </Center_Div>
                     <div className="p-3 w-full">
                       <div className="flex mb-1">
                         {room.title}
-                        <CenteringDiv className="ml-auto text-xs">
+                        <Center_Div className="ml-auto text-xs">
                           <IconEye size={15} />
                           {room.views}
                           <IconHeart size={15} className="ml-1" />
                           {room.wished}
-                        </CenteringDiv>
+                        </Center_Div>
                       </div>
                       <div className="flex space-x-3">
                         <CBbstyled>매물 정보</CBbstyled>

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { CenteringDiv } from './styledComponent'
+import { Center_Div } from './styledComponent'
 
 export default function Map({
   width,
@@ -60,7 +60,7 @@ export default function Map({
 
   return (
     <>
-      <CenteringDiv>
+      <Center_Div>
         <div
           id="map"
           className=" border border-zinc-500"
@@ -69,7 +69,7 @@ export default function Map({
             height: height,
           }}
         ></div>
-      </CenteringDiv>
+      </Center_Div>
     </>
   )
 }
