@@ -6,7 +6,7 @@ export const CATEGORY_MAP = [
   '그 외',
 ]
 export const YEAR_MONTH_MAP = ['전세', '월세']
-export const STATUS_MAP = ['공개중', '거래완료', '기한만료']
+export const STATUS_MAP = ['공개중', '거래완료', '기한만료', '숨김']
 export const HEAT_MAP = ['중앙난방', '개별난방', '지역난방']
 export const TYPE_MAP = [
   '단독주택',

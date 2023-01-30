@@ -2,17 +2,14 @@ import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { Badge, Chip, FileButton, Loader, Modal } from '@mantine/core'
 import {
-  IconCheck,
-  IconEdit,
   IconExclamationCircle,
-  IconEyeCheck,
   IconHeart,
+  IconEye,
   IconMapPin,
   IconX,
 } from '@tabler/icons'
 import Map from 'components/MapN'
 import {
-  CHoverDiv,
   HoverDiv,
   StyledImage,
   mainColor,
@@ -28,7 +25,6 @@ import {
   Room,
   SaleInfo,
 } from '@prisma/client'
-import { ROOMS_QUERY_KEY } from 'constants/querykey'
 import { useSession } from 'next-auth/react'
 import {
   CATEGORY_MAP,
@@ -49,16 +45,18 @@ import styled from '@emotion/styled'
 import { Calendar } from '@mantine/dates'
 import CustomCheckBox from 'components/CustomCheckBox'
 
-export const DESCRIPTION_PLACEHOLDER = `[상세설명 작성 주의사항]
+const DESCRIPTION_PLACEHOLDER = `[상세설명 작성 주의사항]
 - 매물 정보와 관련없는 홍보성 정보는 입력할 수 없습니다.
 - 매물등록 규정에 위반되는 금칙어는 입력할 수 없습니다.
 
 위 주의사항 위반시 임의로 매물 삭제 혹은 서비스 이용이 제한될 수 있습니다.`
 
-export const DETAILADDR_PLACEHOLDER = `상세 주소
+const DETAILADDR_PLACEHOLDER = `상세 주소
 예) e편한세상 101동 1101호`
 
-export interface roomAllData {
+const ROOMS_QUERY_KEY = 'api/room/get-ManagedRooms'
+
+interface roomAllData {
   room: Omit<
     Room,
     'user_id' | 'id' | 'updatedAt' | 'status_id' | 'views' | 'wished'
@@ -68,42 +66,50 @@ export interface roomAllData {
   addressInfo: Omit<AddressInfo, 'id' | 'room_id'>
   moreInfo: Omit<MoreInfo, 'id' | 'room_id'>
 }
+interface ManagedRoom extends Omit<Room, 'user_id' | 'description'> {
+  ym: number
+  deposit?: number
+  price: number
+  doro: string
+  detailAddr: string
+  area: number
+  mFee: number
+}
 
 export default function upload() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
 
-  //방 내놓기인지 내 방관리인지 확인하는 state
-  const [isUploadPage, setIsUploadPage] = useState(true)
-  //내 방 관리로 바로 이동하게끔 함
+  const [isUploadPage, setIsUploadPage] = useState(true) //방 내놓기 or 내 방 관리
   useEffect(() => {
+    //내 방 관리로 바로 이동
     router.query.isManagePage === 'true' && setIsUploadPage(false)
   }, [router.query.isManagePage])
+
   //state
-  const [category, setCategory] = useState<string>('0')
-  const [roomType, setRoomType] = useState<string>('0')
-  const [ym, setYm] = useState<string>('0')
-  const [heat, setHeat] = useState<string>('0')
-  const depositRef = useRef<HTMLInputElement | null>(null)
-  const priceRef = useRef<HTMLInputElement | null>(null)
-  const areaRef = useRef<HTMLInputElement | null>(null)
-  const supAreaRef = useRef<HTMLInputElement | null>(null)
-  const floorRef = useRef<HTMLInputElement | null>(null)
-  const totalFloorRef = useRef<HTMLInputElement | null>(null)
-  const titleRef = useRef<HTMLInputElement | null>(null)
-  const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
-  const [images, setImages] = useState<string[]>([])
+  const [category, setCategory] = useState<string>('0') //매물종류
+  const [roomType, setRoomType] = useState<string>('0') //건물유형
+  const [ym, setYm] = useState<string>('0') //전월세
+  const [heat, setHeat] = useState<string>('0') //난방종류
+  const depositRef = useRef<HTMLInputElement | null>(null) //보증금
+  const priceRef = useRef<HTMLInputElement | null>(null) //세
+  const areaRef = useRef<HTMLInputElement | null>(null) //전용면적
+  const supAreaRef = useRef<HTMLInputElement | null>(null) //공급면적
+  const floorRef = useRef<HTMLInputElement | null>(null) //층
+  const totalFloorRef = useRef<HTMLInputElement | null>(null) //건물층수
+  const titleRef = useRef<HTMLInputElement | null>(null) //제목
+  const descriptionRef = useRef<HTMLTextAreaElement | null>(null) //상세설명
+  const [images, setImages] = useState<string[]>([]) //사진
   const [moveIn, setMoveIn] = useState<Date | null>(new Date()) //입주가능일
   const [modal, setModal] = useState<boolean>(false) //캘린더 모달
   const [checked, setChecked] = useState<boolean>(false) //관리비 없음 체크
   const mFeeRef = useRef<HTMLInputElement | null>(null) //관리비
   const [mOption, setMOption] = useState<string[]>([]) //관리비 항목
-  const [elevator, setElevator] = useState<string>('0')
-  const [parking, setParking] = useState<string>('0')
-  const [option, setOption] = useState<string[]>([])
-  const [structure, setStructure] = useState<string[]>([])
-  useEffect(() => {}, [checked])
+  const [elevator, setElevator] = useState<string>('0') //엘베 유무
+  const [parking, setParking] = useState<string>('0') //주차가능한지
+  const [option, setOption] = useState<string[]>([]) //옵션항목
+  const [structure, setStructure] = useState<string[]>([]) //방구조
 
   //daum-postcode
   const [doro, setDoro] = useState<string>('')
@@ -230,6 +236,7 @@ export default function upload() {
   )
 
   const validate = (type: 'submit') => {
+    //add room
     //todo checking: checked && maintenence fee = 0
     if (type === 'submit') {
       addrRef.current?.value == ''
@@ -258,7 +265,7 @@ export default function upload() {
         ? alert('제목을 입력하세요')
         : descriptionRef.current?.value == ''
         ? alert('상세 설명을 입력하세요.')
-        : images.length < 5 || images.length > 10
+        : images.length < 3 || images.length > 10
         ? alert('최소 5장, 최대 10장 이미지를 첨부해주세요')
         : moveIn &&
           addRoom({
@@ -301,10 +308,10 @@ export default function upload() {
     }
   }
 
-    const { data: rooms, isLoading } = useQuery<
-    { rooms: Room[] },
+  const { data: rooms, isLoading: roomsLoading } = useQuery<
+    { rooms: ManagedRoom[] },
     unknown,
-    Room[]
+    ManagedRoom[]
   >([ROOMS_QUERY_KEY], () =>
     fetch(ROOMS_QUERY_KEY)
       .then((res) => res.json())
@@ -368,7 +375,6 @@ export default function upload() {
   //     },
   //   }
   // )
-
 
   return session ? (
     <div>
@@ -815,196 +821,15 @@ export default function upload() {
             </Upload_Btn_Dark>
           </Center_Div2>
           <UploadCaveats manage={true} />
-          {/* {isLoading ? (
+          {roomsLoading ? (
             <Center_Div className="m-72">
               <Loader />
             </Center_Div>
           ) : rooms ? (
-            rooms.map((room, idx) => (
-              <>
-                <div
-                  className="relative flex-col  border border-zinc-400 mt-6 font-light text-zinc-600"
-                  style={{ fontSize: '13px' }}
-                >
-                  <Center_Div className="border-zinc-400 border-b">
-                    <Center_Div
-                      className="border-r border-zinc-400 p-2 bg-zinc-500 text-white font-normal"
-                      style={{ width: '100px' }}
-                    >
-                      {idx + 1}
-                    </Center_Div>
-                    <div className="w-full p-2 text-sm font-">
-                      <Badge
-                        className="mr-3"
-                        color={
-                          room.status === 0
-                            ? 'blue'
-                            : room.status === 1
-                            ? 'green'
-                            : 'red'
-                        }
-                      >
-                        {STATUS_MAP[room.status]}
-                      </Badge>
-                      {room.title}
-                    </div>
-                    <Cbl className="p-2" style={{ width: '80px' }}>
-                      <IconEyeCheck size={18} stroke={1} />
-                      {room.views}
-                    </Cbl>
-                    <Cbl className="p-2" style={{ width: '80px' }}>
-                      <IconHeart color="red" fill="red" size={18} stroke={1} />
-                      {room.wished}
-                    </Cbl>
-                    <CHoverDiv
-                      onClick={() => updateStatus({ id: room.id, status: 1 })}
-                      className="p-2 bg-green-500 text-white font-normal"
-                      style={{ width: '140px' }}
-                    >
-                      <IconCheck size={18} stroke={1} />
-                      거래완료
-                    </CHoverDiv>
-                    <CHoverDiv
-                      onClick={() => router.push(`/rooms/${room.id}/edit`)}
-                      className="p-2 bg-blue-400 text-white font-normal"
-                      style={{ width: '140px' }}
-                    >
-                      <IconEdit size={18} stroke={1} />
-                      수정하기
-                    </CHoverDiv>
-                    <CHoverDiv
-                      onClick={() => deleteRoom(room.id)}
-                      className="p-2 bg-red-500 text-white font-normal"
-                      style={{ width: '140px' }}
-                    >
-                      <IconX size={18} stroke={1} />
-                      매물삭제
-                    </CHoverDiv>
-                  </Center_Div>
-                  <div className="flex relative">
-                    <div className="absolute right-3 top-2">
-                      게시일: {format(new Date(room.updatedAt), 'yyyy/MM/dd')}
-                    </div>
-                    <StyledImage
-                      onClick={() => router.push(`/rooms/${room.id}`)}
-                      style={{
-                        width: '260px',
-                        height: '200px',
-                        margin: '10px',
-                      }}
-                    >
-                      <Image
-                        className="styled"
-                        src={room.images.split(',')[0]}
-                        alt={'thumbnail'}
-                        fill
-                      />
-                    </StyledImage>
-                    <Center_Div>
-                      <div className="p-3">
-                        <div className="border border-zinc-400">
-                          <Center_Div className="border p-2">
-                            매물정보
-                          </Center_Div>
-                          <Center_Div>
-                            <Center_Div
-                              className="border-r"
-                              style={{ width: '60px' }}
-                            >
-                              매물종류
-                            </Center_Div>
-                            <div className="p-1">
-                              {CATEGORY_MAP[Number(room.categoryId)]}
-                            </div>
-                          </Center_Div>
-                        </div>
-                      </div>
-                      <div className="p-3" style={{ maxWidth: '270px' }}>
-                        <div className="border border-zinc-400">
-                          <Center_Div className="border-b p-2">
-                            위치정보
-                          </Center_Div>
-                          <Center_Div className="border-b">
-                            <Center_Div
-                              className="border-r"
-                              style={{ width: '60px' }}
-                            >
-                              주소
-                            </Center_Div>
-                            <div className="p-1 mr-auto">{room.address}</div>
-                          </Center_Div>
-                          <Center_Div>
-                            <Center_Div
-                              className="border-r"
-                              style={{ width: '60px' }}
-                            >
-                              상세주소
-                            </Center_Div>
-                            <div className="p-1 mr-auto">
-                              {room.detailAddress}
-                            </div>
-                          </Center_Div>
-                        </div>
-                      </div>
-                      <div className="p-3">
-                        <div className="border border-zinc-400">
-                          <Center_Div className="border p-2">
-                            거래정보
-                          </Center_Div>
-                          <Center_Div className="border-b">
-                            <Center_Div
-                              className="border-r"
-                              style={{ width: '60px' }}
-                            >
-                              거래종류
-                            </Center_Div>
-                            <div className="p-1 mr-auto">
-                              {YEAR_MONTH_MAP[Number(room.ym)]}
-                            </div>
-                          </Center_Div>
-                          <Center_Div>
-                            <Center_Div
-                              className="border-r"
-                              style={{ width: '60px' }}
-                            >
-                              가격
-                            </Center_Div>
-                            <div className="p-1 mr-auto">
-                              {room.ym == '0' ? (
-                                <>{room.price}만원</>
-                              ) : (
-                                <>
-                                  {room.deposit}/{room.price}만원
-                                </>
-                              )}
-                            </div>
-                          </Center_Div>
-                        </div>
-                      </div>
-                      <div className="p-3">
-                        <div className="border border-zinc-400">
-                          <Center_Div className="border p-2">
-                            기본정보
-                          </Center_Div>
-                          <Center_Div>
-                            <Center_Div
-                              className="border-r"
-                              style={{ width: '60px' }}
-                            >
-                              건물크기
-                            </Center_Div>
-                            <div className="p-1">{room.area}평</div>
-                          </Center_Div>
-                        </div>
-                      </div>
-                    </Center_Div>
-                  </div>
-                </div>
-              </>
-            ))
+            rooms.map((room, idx) => <></>)
           ) : (
             <Center_Div className="m-40">등록된 매물이 없습니다</Center_Div>
-          )} */}
+          )}
         </>
       )}
     </div>

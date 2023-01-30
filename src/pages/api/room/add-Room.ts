@@ -55,9 +55,7 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   const session = await getSession({ req })
-
   const roomAllData = JSON.parse(req.body)
-  console.log(roomAllData)
 
   if (session == null) {
     res.status(200).json({ items: undefined, message: 'no Session' })
