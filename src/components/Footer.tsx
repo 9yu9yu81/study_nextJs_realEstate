@@ -1,25 +1,17 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { IconBrandInstagram } from '@tabler/icons'
 import { useRouter } from 'next/router'
+import styled from '@emotion/styled'
+import { mainColor } from './styledComponent'
+import HomeLogo from './home/HomeLogo'
 
 export default function Footer() {
   const router = useRouter()
-  //todo
   return (
-    <div className="font-extralight text-xs text-zinc-600">
+    <Footer_Div>
       <div className="border-double border-t-2 border-zinc-400 p-4">
         <div className="flex space-x-3">
-          <Link href="/" className="flex">
-            <Image
-              className="mr-1"
-              src="/../public/images/home.png"
-              alt="home"
-              width={30}
-              height={30}
-            ></Image>
-            <div className="text-zinc-700 text-sm">MySpot</div>
-          </Link>
+          <HomeLogo size={20} />
           <div className="flex items-center">
             <div className="pl-3 pr-3">
               <Link href="/introduce">사업소개</Link>
@@ -54,6 +46,13 @@ export default function Footer() {
           onClick={() => router.push('https://www.instagram.com/9yu9yu81/')}
         />
       </div>
-    </div>
+    </Footer_Div>
   )
 }
+
+const Footer_Div = styled.div`
+  min-width: 1000px;
+  font-size: 14px;
+  color: ${mainColor};
+  font-weight: 300;
+`

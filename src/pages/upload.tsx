@@ -1,14 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import {
-  Badge,
-  Button,
-  FileButton,
-  Input,
-  Loader,
-  Modal,
-  Textarea,
-} from '@mantine/core'
+import { Badge, Chip, FileButton, Loader, Modal } from '@mantine/core'
 import {
   IconCheck,
   IconEdit,
@@ -21,8 +13,6 @@ import {
 import Map from 'components/MapN'
 import {
   CHoverDiv,
-  Center2_Div,
-  Center_Div,
   HoverDiv,
   StyledImage,
   mainColor,
@@ -31,7 +21,13 @@ import {
   subColor_medium,
 } from 'components/styledComponent'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Room } from '@prisma/client'
+import {
+  AddressInfo,
+  BasicInfo,
+  MoreInfo,
+  Room,
+  SaleInfo,
+} from '@prisma/client'
 import { ROOMS_QUERY_KEY } from 'constants/querykey'
 import { useSession } from 'next-auth/react'
 import {
@@ -40,6 +36,9 @@ import {
   YEAR_MONTH_MAP,
   TYPE_MAP,
   HEAT_MAP,
+  MAINTENENCE_MAP,
+  STRUCTURE_MAP,
+  OPTION_MAP,
 } from 'constants/const'
 import { useRouter } from 'next/router'
 import format from 'date-fns/format'
@@ -48,6 +47,7 @@ import UploadCaveats from 'components/upload/UploadCaveats'
 import CustomSegmentedControl from 'components/CustomSegmentedControl'
 import styled from '@emotion/styled'
 import { Calendar } from '@mantine/dates'
+import CustomCheckBox from 'components/CustomCheckBox'
 
 export const DESCRIPTION_PLACEHOLDER = `[상세설명 작성 주의사항]
 - 매물 정보와 관련없는 홍보성 정보는 입력할 수 없습니다.
@@ -57,6 +57,17 @@ export const DESCRIPTION_PLACEHOLDER = `[상세설명 작성 주의사항]
 
 export const DETAILADDR_PLACEHOLDER = `상세 주소
 예) e편한세상 101동 1101호`
+
+export interface roomAllData {
+  room: Omit<
+    Room,
+    'user_id' | 'id' | 'updatedAt' | 'status_id' | 'views' | 'wished'
+  >
+  saleInfo: Omit<SaleInfo, 'id' | 'room_id'>
+  basicInfo: Omit<BasicInfo, 'id' | 'room_id'>
+  addressInfo: Omit<AddressInfo, 'id' | 'room_id'>
+  moreInfo: Omit<MoreInfo, 'id' | 'room_id'>
+}
 
 export default function upload() {
   const router = useRouter()
@@ -71,7 +82,7 @@ export default function upload() {
   }, [router.query.isManagePage])
   //state
   const [category, setCategory] = useState<string>('0')
-  const [type, setType] = useState<string>('0')
+  const [roomType, setRoomType] = useState<string>('0')
   const [ym, setYm] = useState<string>('0')
   const [heat, setHeat] = useState<string>('0')
   const depositRef = useRef<HTMLInputElement | null>(null)
@@ -83,13 +94,24 @@ export default function upload() {
   const titleRef = useRef<HTMLInputElement | null>(null)
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
   const [images, setImages] = useState<string[]>([])
-  const [moveIn, setMoveIn] = useState<Date | null>(new Date())
-  const [modal, setModal] = useState<boolean>(false)
+  const [moveIn, setMoveIn] = useState<Date | null>(new Date()) //입주가능일
+  const [modal, setModal] = useState<boolean>(false) //캘린더 모달
+  const [checked, setChecked] = useState<boolean>(false) //관리비 없음 체크
+  const mFeeRef = useRef<HTMLInputElement | null>(null) //관리비
+  const [mOption, setMOption] = useState<string[]>([]) //관리비 항목
+  const [elevator, setElevator] = useState<string>('0')
+  const [parking, setParking] = useState<string>('0')
+  const [option, setOption] = useState<string[]>([])
+  const [structure, setStructure] = useState<string[]>([])
+  useEffect(() => {}, [checked])
+
   //daum-postcode
+  const [doro, setDoro] = useState<string>('')
+  const [jibun, setJibun] = useState<string>('')
+  const [lat, setLat] = useState<number>(0)
+  const [lng, setLng] = useState<number>(0)
   const addrRef = useRef<HTMLInputElement | null>(null)
-  // const [addr, setAddr] = useState<string>('')
   const detailAddrRef = useRef<HTMLTextAreaElement | null>(null)
-  // const [detailAddr, setDetailAddr] = useState<string>('')
   //주소 검색을 눌렀는지 확인하는 state
   const [addrSearchComplete, setAddrSearchComplete] = useState<boolean>(false)
   //daum-postcode 띄우는 함수
@@ -108,6 +130,8 @@ export default function upload() {
               addrRef.current.value = data.jibunAddress
             }
           }
+          setDoro(data.roadAddress)
+          setJibun(data.jibunAddress)
           setAddrSearchComplete(true) //주소 검색이 되었는지 확인
         },
       })
@@ -125,6 +149,26 @@ export default function upload() {
       }
     }
   }
+  //주소 좌표
+  const onLoadKakaoMap = () => {
+    kakao.maps.load(() => {
+      //주소 변환 객체
+      const geocoder = new kakao.maps.services.Geocoder()
+      const addrConverter = (address: string) => {
+        // 주소로 좌표를 검색
+        geocoder.addressSearch(address, (result: any, status: any) => {
+          if (status === window.kakao.maps.services.Status.OK) {
+            setLng(Number(result[0].x))
+            setLat(Number(result[0].y))
+          }
+        })
+      }
+      addrRef.current?.value && addrConverter(addrRef.current.value)
+    })
+  }
+  useEffect(() => {
+    onLoadKakaoMap()
+  }, [addrRef.current?.value])
 
   //Image Uploader
   const [files, setFiles] = useState<File[]>([])
@@ -155,13 +199,7 @@ export default function upload() {
     setImages(images.filter((image) => image != delImage))
   }
 
-  //입력받은 room data POST
-  const { mutate: addRoom } = useMutation<
-    unknown,
-    unknown,
-    Omit<Room, 'userId' | 'id' | 'updatedAt' | 'status' | 'views' | 'wished'>,
-    any
-  >(
+  const { mutate: addRoom } = useMutation<unknown, unknown, roomAllData, any>(
     (room) =>
       fetch('/api/room/add-Room', {
         method: 'POST',
@@ -176,73 +214,23 @@ export default function upload() {
       onSuccess: async () => {
         setCategory('0')
         setYm('0')
+        setRoomType('0')
+        setHeat('0')
+        setMoveIn(new Date())
+        setChecked(false)
+        setMOption([])
+        setElevator('0')
+        setParking('0')
+        setOption([])
+        setStructure([])
         setImages([])
         setIsUploadPage(false)
       },
     }
   )
-  //올린 매물 삭제
-  const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
-    (id) =>
-      fetch('/api/room/delete-Room', {
-        method: 'POST',
-        body: JSON.stringify(id),
-      })
-        .then((data) => data.json())
-        .then((res) => res.items),
-    {
-      onSuccess: async () => {
-        queryClient.invalidateQueries([ROOMS_QUERY_KEY])
-      },
-    }
-  )
-
-  //매물 상태 변경(-> 거래 완료)
-  const { mutate: updateStatus } = useMutation<
-    unknown,
-    unknown,
-    Pick<Room, 'id' | 'status'>,
-    any
-  >(
-    (items) =>
-      fetch('/api/room/update-Room-status', {
-        method: 'POST',
-        body: JSON.stringify(items),
-      })
-        .then((data) => data.json())
-        .then((res) => res.items),
-    {
-      onMutate: async (items) => {
-        await queryClient.cancelQueries([ROOMS_QUERY_KEY])
-
-        const previous = queryClient.getQueryData([ROOMS_QUERY_KEY])
-
-        if (previous) {
-          queryClient.setQueryData<Room[]>(
-            [ROOMS_QUERY_KEY],
-            (olds) =>
-              olds &&
-              olds.map((old) =>
-                old.id === items.id
-                  ? { ...old, status: items.status }
-                  : { ...old }
-              )
-          )
-        }
-
-        // 이전 값 리턴
-        return { previous }
-      },
-      onError: (__, _, context) => {
-        queryClient.setQueryData([ROOMS_QUERY_KEY], context.previous)
-      },
-      onSuccess: async () => {
-        queryClient.invalidateQueries([ROOMS_QUERY_KEY])
-      },
-    }
-  )
 
   const validate = (type: 'submit') => {
+    //todo checking: checked && maintenence fee = 0
     if (type === 'submit') {
       addrRef.current?.value == ''
         ? alert('주소를 입력하세요.')
@@ -252,30 +240,68 @@ export default function upload() {
         ? alert('보증금을 입력하세요.')
         : priceRef.current?.value == ''
         ? alert('가격을 입력하세요.')
+        : supAreaRef.current?.value == ''
+        ? alert('공급 면적을 입력하세요.')
         : areaRef.current?.value == ''
-        ? alert('건물 크기를 입력하세요.')
+        ? alert('전용 면적을 입력하세요.')
+        : totalFloorRef.current?.value == ''
+        ? alert('건물 층수를 입력하세요.')
+        : floorRef.current?.value == ''
+        ? alert('해당 층수를 입력하세요.')
+        : mFeeRef.current?.value == ''
+        ? alert('관리비를 입력해주세요. 없다면 관리비 없음을 체크해 주세요.')
+        : mFeeRef.current?.value != '0' && mOption == null
+        ? alert('관리비 항목을 선택해주세요.')
+        : floorRef.current?.value == ''
+        ? alert('관리비를 입력해주세요. 없다면 관리비 없음을 체크해 주세요.')
         : titleRef.current?.value == ''
         ? alert('제목을 입력하세요')
         : descriptionRef.current?.value == ''
         ? alert('상세 설명을 입력하세요.')
-        : images.length < 6 || images.length > 10
+        : images.length < 5 || images.length > 10
         ? alert('최소 5장, 최대 10장 이미지를 첨부해주세요')
-        : addRoom({
-            category_id: Number(category),
-            ym: ym,
-            address: String(addrRef.current?.value),
-            detailAddress: String(detailAddrRef.current?.value),
-            area: Number(areaRef.current?.value),
-            price: Number(priceRef.current?.value),
-            deposit: Number(depositRef.current?.value),
-            images: images.join(','),
-            title: String(titleRef.current?.value),
-            description: String(descriptionRef.current?.value),
+        : moveIn &&
+          addRoom({
+            room: {
+              category_id: Number(category),
+              type_id: Number(roomType),
+              title: String(titleRef.current?.value),
+              description: String(descriptionRef.current?.value),
+              images: images.join(','),
+            },
+            saleInfo: {
+              type_id: Number(ym),
+              deposit: Number(depositRef.current?.value),
+              price: Number(priceRef.current?.value),
+            },
+            basicInfo: {
+              supply_area: Number(supAreaRef.current?.value),
+              area: Number(areaRef.current?.value),
+              total_floor: Number(totalFloorRef.current?.value),
+              floor: Number(floorRef.current?.value),
+              move_in: moveIn,
+              heat_id: Number(heat),
+            },
+            addressInfo: {
+              doro: doro,
+              jibun: jibun,
+              detail: String(detailAddrRef.current?.value),
+              lat: lat,
+              lng: lng,
+            },
+            moreInfo: {
+              maintenance_fee: Number(mFeeRef.current?.value),
+              maintenance_ids: mOption?.join(','),
+              elevator: Boolean(Number(elevator)),
+              parking: Boolean(Number(elevator)),
+              option_ids: option?.join(','),
+              structure_ids: structure?.join(','),
+            },
           })
     }
   }
-  // get Rooms data
-  const { data: rooms, isLoading } = useQuery<
+
+    const { data: rooms, isLoading } = useQuery<
     { rooms: Room[] },
     unknown,
     Room[]
@@ -285,43 +311,106 @@ export default function upload() {
       .then((data) => data.items)
   )
 
+  // const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
+  //   (id) =>
+  //     fetch('/api/room/delete-Room', {
+  //       method: 'POST',
+  //       body: JSON.stringify(id),
+  //     })
+  //       .then((data) => data.json())
+  //       .then((res) => res.items),
+  //   {
+  //     onSuccess: async () => {
+  //       queryClient.invalidateQueries([ROOMS_QUERY_KEY])
+  //     },
+  //   }
+  // )
+
+  // 매물 상태 변경(-> 거래 완료)
+  // const { mutate: updateStatus } = useMutation<
+  //   unknown,
+  //   unknown,
+  //   Pick<Room, 'id' | 'status_id'>,
+  //   any
+  // >(
+  //   (items) =>
+  //     fetch('/api/room/update-Room-status', {
+  //       method: 'POST',
+  //       body: JSON.stringify(items),
+  //     })
+  //       .then((data) => data.json())
+  //       .then((res) => res.items),
+  //   {
+  //     onMutate: async (items) => {
+  //       await queryClient.cancelQueries([ROOMS_QUERY_KEY])
+
+  //       const previous = queryClient.getQueryData([ROOMS_QUERY_KEY])
+
+  //       if (previous) {
+  //         queryClient.setQueryData<Room[]>(
+  //           [ROOMS_QUERY_KEY],
+  //           (olds) =>
+  //             olds &&
+  //             olds.map((old) =>
+  //               old.id === items.id
+  //                 ? { ...old, status: items.status_id }
+  //                 : { ...old }
+  //             )
+  //         )
+  //       }
+  //       return { previous }
+  //     },
+  //     onError: (__, _, context) => {
+  //       queryClient.setQueryData([ROOMS_QUERY_KEY], context.previous)
+  //     },
+  //     onSuccess: async () => {
+  //       queryClient.invalidateQueries([ROOMS_QUERY_KEY])
+  //     },
+  //   }
+  // )
+
+
   return session ? (
     <div>
       <HomeLogo size={50} margin={100} />
       {isUploadPage ? (
         <>
-          <Center2_Div className="mb-5">
+          <Center_Div2 className="mb-5">
             <Upload_Btn_Dark onClick={() => setIsUploadPage(true)}>
               방 내놓기
             </Upload_Btn_Dark>
             <Upload_Btn_Bright onClick={() => setIsUploadPage(false)}>
               내 방 관리
             </Upload_Btn_Bright>
-          </Center2_Div>
+          </Center_Div2>
           <UploadCaveats />
           <Upload_Div_B>
             <Upload_Div_Title>매물 정보</Upload_Div_Title>
             <Upload_Div_Bt>
               <Upload_Div_Sub_Title>매물 종류</Upload_Div_Sub_Title>
-              <CustomSegmentedControl
-                value={String(category)}
-                onChange={setCategory}
-                data={CATEGORY_MAP.map((label, id) => ({
-                  label: label,
-                  value: String(id),
-                }))}
-              />
+              <Upload_Div_Sub>
+                <CustomSegmentedControl
+                  value={String(category)}
+                  onChange={setCategory}
+                  data={CATEGORY_MAP.map((label, id) => ({
+                    label: label,
+                    value: String(id),
+                  }))}
+                />
+              </Upload_Div_Sub>
             </Upload_Div_Bt>
             <Upload_Div_Bt>
               <Upload_Div_Sub_Title>건물 유형</Upload_Div_Sub_Title>
-              <CustomSegmentedControl
-                value={String(type)}
-                onChange={setType}
-                data={TYPE_MAP.map((label, id) => ({
-                  label: label,
-                  value: String(id),
-                }))}
-              />
+              <Upload_Div_Sub>
+                <CustomSegmentedControl
+                  value={String(roomType)}
+                  onChange={setRoomType}
+                  data={TYPE_MAP.map((label, id) => ({
+                    label: label,
+                    value: String(id),
+                  }))}
+                />
+              </Upload_Div_Sub>
             </Upload_Div_Bt>
           </Upload_Div_B>
           <Upload_Div_B className="relative">
@@ -331,18 +420,18 @@ export default function upload() {
             <Upload_Div_Title>위치 정보</Upload_Div_Title>
             <Upload_Div_Bt>
               <Upload_Div_Sub_Title>주소</Upload_Div_Sub_Title>
-              <Upload_Div_Sub>
+              <Upload_Div_Sub style={{ padding: '35px' }}>
                 <div>
-                  <Center2_Div className="font-light">
+                  <Center_Div2 className="font-light">
                     <IconExclamationCircle
                       className="mr-1"
                       size={18}
                       stroke={1.5}
                     />
                     도로명, 건물명, 지번에 대해 통합검색이 가능합니다.
-                  </Center2_Div>
-                  <Center2_Div>
-                    <Upload_Input
+                  </Center_Div2>
+                  <Center_Div2>
+                    <Upload_Input1
                       type={'text'}
                       placeholder="예) 번동 10-1, 강북구 번동"
                       ref={addrRef}
@@ -354,8 +443,8 @@ export default function upload() {
                     >
                       주소 검색
                     </Upload_Btn_Submit>
-                  </Center2_Div>
-                  <Upload_Textarea
+                  </Center_Div2>
+                  <Upload_Textarea1
                     placeholder={DETAILADDR_PLACEHOLDER}
                     ref={detailAddrRef}
                   />
@@ -369,8 +458,12 @@ export default function upload() {
                     />
                   ) : (
                     <Center_Div
-                      className="border flex-col font-light"
-                      style={{ width: '300px', height: '280px' }}
+                      style={{
+                        flexFlow: 'column',
+                        width: '300px',
+                        height: '280px',
+                        border: `0.5px solid ${subColor_medium}`,
+                      }}
                     >
                       <IconMapPin size={20} stroke={1.5} />
                       <div>주소 검색을 하시면</div>
@@ -385,42 +478,46 @@ export default function upload() {
             <Upload_Div_Title>거래 정보</Upload_Div_Title>
             <Upload_Div_Bt>
               <Upload_Div_Sub_Title>거래 종류</Upload_Div_Sub_Title>
-              <CustomSegmentedControl
-                value={ym}
-                onChange={setYm}
-                data={YEAR_MONTH_MAP.map((label, id) => ({
-                  label: label,
-                  value: String(id),
-                }))}
-              />
+              <Upload_Div_Sub1>
+                <CustomSegmentedControl
+                  value={ym}
+                  onChange={setYm}
+                  data={YEAR_MONTH_MAP.map((label, id) => ({
+                    label: label,
+                    value: String(id),
+                  }))}
+                />
+              </Upload_Div_Sub1>
               <Upload_Div_Sub_Title>가격</Upload_Div_Sub_Title>
-              {ym === '0' ? (
-                <Upload_Div_Sub3>
-                  <Upload_Input2
-                    type="text"
-                    placeholder="전세"
-                    ref={priceRef}
-                  />{' '}
-                  만원
-                </Upload_Div_Sub3>
-              ) : (
-                <>
+              <Upload_Div_Sub1>
+                {ym === '0' ? (
                   <Upload_Div_Sub3>
                     <Upload_Input2
-                      type="text"
-                      placeholder="보증금"
-                      ref={depositRef}
-                    />{' '}
-                    /
-                    <Upload_Input2
-                      type="text"
-                      placeholder="월세"
+                      type="number"
+                      placeholder="전세"
                       ref={priceRef}
                     />{' '}
                     만원
                   </Upload_Div_Sub3>
-                </>
-              )}
+                ) : (
+                  <>
+                    <Upload_Div_Sub3>
+                      <Upload_Input2
+                        type="number"
+                        placeholder="보증금"
+                        ref={depositRef}
+                      />{' '}
+                      /
+                      <Upload_Input2
+                        type="number"
+                        placeholder="월세"
+                        ref={priceRef}
+                      />{' '}
+                      만원
+                    </Upload_Div_Sub3>
+                  </>
+                )}
+              </Upload_Div_Sub1>
             </Upload_Div_Bt>
           </Upload_Div_B>
           <Upload_Div_B>
@@ -430,29 +527,29 @@ export default function upload() {
                 <div>건물 크기</div>
                 <div>(1평=3.3058㎡)</div>
               </Upload_Div_Sub_Title>
-              <Upload_Div_Sub2 className="flex-col">
+              <Upload_Div_Sub1 className="flex-col">
                 <Upload_Div_Sub3 className="border-b">
                   공급 면적
-                  <Upload_Input2 type="text" ref={supAreaRef} /> 평
+                  <Upload_Input2 type="number" ref={supAreaRef} /> 평
                 </Upload_Div_Sub3>
-                <Upload_Div_Sub3 className="border-b">
+                <Upload_Div_Sub3>
                   전용 면적
-                  <Upload_Input2 type="text" ref={areaRef} /> 평
+                  <Upload_Input2 type="number" ref={areaRef} /> 평
                 </Upload_Div_Sub3>
-              </Upload_Div_Sub2>
+              </Upload_Div_Sub1>
               <Upload_Div_Sub_Title className="flex-col">
                 <div>건물 층수</div>
               </Upload_Div_Sub_Title>
-              <Upload_Div_Sub2 className="flex-col">
+              <Upload_Div_Sub1 className="flex-col">
                 <Upload_Div_Sub3 className="border-b">
                   건물 층수
-                  <Upload_Input2 type="text" ref={totalFloorRef} /> 층
+                  <Upload_Input2 type="number" ref={totalFloorRef} /> 층
                 </Upload_Div_Sub3>
-                <Upload_Div_Sub3 className="border-b">
+                <Upload_Div_Sub3>
                   해당 층수
-                  <Upload_Input2 type="text" ref={floorRef} /> 층
+                  <Upload_Input2 type="number" ref={floorRef} /> 층
                 </Upload_Div_Sub3>
-              </Upload_Div_Sub2>
+              </Upload_Div_Sub1>
             </Upload_Div_Bt>
             <Upload_Div_Bt>
               <Upload_Div_Sub_Title>난방 종류</Upload_Div_Sub_Title>
@@ -461,7 +558,7 @@ export default function upload() {
                 onChange={setHeat}
                 data={HEAT_MAP.map((label, id) => ({
                   label: label,
-                  value: id,
+                  value: String(id),
                 }))}
               />
             </Upload_Div_Bt>
@@ -473,86 +570,163 @@ export default function upload() {
                 onClose={() => setModal(false)}
                 centered
                 size={'auto'}
+                overlayOpacity={0.1}
               >
                 <Center_Div className="flex-col">
                   <Calendar value={moveIn} onChange={setMoveIn} />
-                  <Upload_Btn_Calendar onClick={() => setModal(false)}>
+                  <Upload_Btn_Outline onClick={() => setModal(false)}>
                     선택 완료
-                  </Upload_Btn_Calendar>
+                  </Upload_Btn_Outline>
                 </Center_Div>
               </Modal>
-              <Upload_Btn_Calendar onClick={() => setModal(true)}>
+              <Upload_Btn_Outline1 onClick={() => setModal(true)}>
                 날짜 선택
-              </Upload_Btn_Calendar>
+              </Upload_Btn_Outline1>
               <Upload_Text>
                 {moveIn && format(moveIn, 'yyyy년 MM월 dd일')}
               </Upload_Text>
             </Upload_Div_Bt>
           </Upload_Div_B>
           <Upload_Div_B>
-            <Upload_Div_Title>기본 정보</Upload_Div_Title>
+            <Upload_Div_Title>추가 정보</Upload_Div_Title>
             <Upload_Div_Bt>
-              <Upload_Div_Sub_Title className="flex-col">
-                <div>건물 크기</div>
-                <div>(1평=3.3058㎡)</div>
-              </Upload_Div_Sub_Title>
-              <Upload_Div_Sub2 className="flex-col">
-                <Upload_Div_Sub3 className="border-b">
-                  공급 면적
-                  <Upload_Input2 type="text" ref={supAreaRef} /> 평
+              <Upload_Div_Sub_Title>관리비</Upload_Div_Sub_Title>
+              <Upload_Div_Sub className="flex-col">
+                <Upload_Div_Sub3 className="border-b space-x-5">
+                  <Upload_Input2
+                    type="number"
+                    disabled={checked}
+                    ref={mFeeRef}
+                    value={checked ? '0' : undefined}
+                  />{' '}
+                  만원
+                  <CustomCheckBox
+                    label="관리비 없음"
+                    checked={checked}
+                    onChange={(e) => setChecked(e.target.checked)}
+                  />
                 </Upload_Div_Sub3>
-                <Upload_Div_Sub3 className="border-b">
-                  전용 면적
-                  <Upload_Input2 type="text" ref={areaRef} /> 평
+                <Upload_Div_Sub3>
+                  <Center_Div
+                    className="flex-col"
+                    style={{ minWidth: '80px', margin: '10px 20px 10px 0' }}
+                  >
+                    <div>관리비 항목</div>
+                    <div>(다중선택가능)</div>
+                  </Center_Div>
+                  <Chip.Group
+                    position="center"
+                    multiple
+                    value={mOption}
+                    onChange={setMOption}
+                    color={'dark'}
+                  >
+                    {MAINTENENCE_MAP.map((m, idx) => (
+                      <Chip
+                        key={idx}
+                        color={'dark'}
+                        styles={(theme) => ({
+                          label: {
+                            borderRadius: 0,
+                            border: `0.5px solid ${subColor_medium} !important`,
+                          },
+                        })}
+                        value={String(idx)}
+                      >
+                        {m}
+                      </Chip>
+                    ))}
+                  </Chip.Group>
                 </Upload_Div_Sub3>
-              </Upload_Div_Sub2>
-              <Upload_Div_Sub_Title className="flex-col">
-                <div>건물 층수</div>
-              </Upload_Div_Sub_Title>
-              <Upload_Div_Sub2 className="flex-col">
-                <Upload_Div_Sub3 className="border-b">
-                  건물 층수
-                  <Upload_Input2 type="text" ref={totalFloorRef} /> 층
-                </Upload_Div_Sub3>
-                <Upload_Div_Sub3 className="border-b">
-                  해당 층수
-                  <Upload_Input2 type="text" ref={floorRef} /> 층
-                </Upload_Div_Sub3>
-              </Upload_Div_Sub2>
+              </Upload_Div_Sub>
             </Upload_Div_Bt>
             <Upload_Div_Bt>
-              <Upload_Div_Sub_Title>난방 종류</Upload_Div_Sub_Title>
-              <CustomSegmentedControl
-                value={heat}
-                onChange={setHeat}
-                data={HEAT_MAP.map((label, id) => ({
-                  label: label,
-                  value: id,
-                }))}
-              />
+              <Upload_Div_Sub_Title>
+                <div>엘리베이터</div>
+              </Upload_Div_Sub_Title>
+              <Upload_Div_Sub1>
+                <CustomSegmentedControl
+                  value={elevator}
+                  onChange={setElevator}
+                  data={[
+                    { value: '0', label: '불가능' },
+                    { value: '1', label: '가능' },
+                  ]}
+                />
+              </Upload_Div_Sub1>
+              <Upload_Div_Sub_Title>
+                <div>주차여부</div>
+              </Upload_Div_Sub_Title>
+              <Upload_Div_Sub1>
+                <CustomSegmentedControl
+                  value={parking}
+                  onChange={setParking}
+                  data={[
+                    { value: '0', label: '불가능' },
+                    { value: '1', label: '가능' },
+                  ]}
+                />
+              </Upload_Div_Sub1>
             </Upload_Div_Bt>
             <Upload_Div_Bt>
-              <Upload_Div_Sub_Title>입주 가능일</Upload_Div_Sub_Title>
-              <Modal
-                withCloseButton={false}
-                opened={modal}
-                onClose={() => setModal(false)}
-                centered
-                size={'auto'}
-              >
-                <Center_Div className="flex-col">
-                  <Calendar value={moveIn} onChange={setMoveIn} />
-                  <Upload_Btn_Calendar onClick={() => setModal(false)}>
-                    선택 완료
-                  </Upload_Btn_Calendar>
-                </Center_Div>
-              </Modal>
-              <Upload_Btn_Calendar onClick={() => setModal(true)}>
-                날짜 선택
-              </Upload_Btn_Calendar>
-              <Upload_Text>
-                {moveIn && format(moveIn, 'yyyy년 MM월 dd일')}
-              </Upload_Text>
+              <Upload_Div_Sub_Title>
+                <div>구조</div>
+              </Upload_Div_Sub_Title>
+              <Upload_Div_Sub>
+                <Chip.Group
+                  style={{ padding: '10px 20px 10px 20px' }}
+                  multiple
+                  value={structure}
+                  onChange={setStructure}
+                  color={'dark'}
+                >
+                  {STRUCTURE_MAP.map((s, idx) => (
+                    <Chip
+                      key={idx}
+                      color={'dark'}
+                      styles={(theme) => ({
+                        label: {
+                          borderRadius: 0,
+                          border: `0.5px solid ${subColor_medium} !important`,
+                        },
+                      })}
+                      value={String(idx)}
+                    >
+                      {s}
+                    </Chip>
+                  ))}
+                </Chip.Group>
+              </Upload_Div_Sub>
+            </Upload_Div_Bt>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>
+                <div>옵션항목</div>
+              </Upload_Div_Sub_Title>
+              <Upload_Div_Sub>
+                <Chip.Group
+                  style={{ padding: '10px 20px 10px 20px' }}
+                  multiple
+                  value={option}
+                  onChange={setOption}
+                  color={'dark'}
+                >
+                  {OPTION_MAP.map((o, idx) => (
+                    <Chip
+                      key={idx}
+                      color={'dark'}
+                      styles={(theme) => ({
+                        label: {
+                          borderRadius: 0,
+                          border: `0.5px solid ${subColor_medium} !important`,
+                        },
+                      })}
+                      value={String(idx)}
+                    >
+                      {o}
+                    </Chip>
+                  ))}
+                </Chip.Group>
+              </Upload_Div_Sub>
             </Upload_Div_Bt>
           </Upload_Div_B>
           <Upload_Div_B>
@@ -573,7 +747,6 @@ export default function upload() {
               />
             </Upload_Div_Bt>
           </Upload_Div_B>
-
           <Upload_Div_B>
             <Upload_Div_Title>사진 등록</Upload_Div_Title>
             <UploadCaveats picture={true} />
@@ -609,44 +782,40 @@ export default function upload() {
                 </div>
               </div>
             </div>
-            <Center2_Div className="m-3">
+            <Center_Div2 className="m-3">
               <IconExclamationCircle size={18} className="mr-1" />
               <span style={{ fontSize: '13px' }}>
                 허위 매물을 등록할 경우 MySpot에서 임의로 계정 및 매물 전체 삭제
                 처리됩니다.
               </span>
-            </Center2_Div>
+            </Center_Div2>
           </Upload_Div_B>
-          <Center_Div className="m-5 space-x-5">
-            <button
-              className=" border border-zinc-400 rounde"
-              style={{ width: '120px', height: '50px' }}
-            >
-              취소
-            </button>
-            <button
-              className=" border border-zinc-400 bg-zinc-600 text-zinc-100"
-              style={{ width: '120px', height: '50px' }}
+          <Center_Div
+            className="space-x-5"
+            style={{ minWidth: '1000px', margin: '30px 0 30px 0' }}
+          >
+            <Upload_Btn_Outline>취소</Upload_Btn_Outline>
+            <Upload_Btn_Submit
               onClick={() => {
                 validate('submit')
               }}
             >
               등록하기
-            </button>
+            </Upload_Btn_Submit>
           </Center_Div>
         </>
       ) : (
         <>
-          <Center2_Div className="mb-5">
+          <Center_Div2 className="mb-5">
             <Upload_Btn_Bright onClick={() => setIsUploadPage(true)}>
               방 내놓기
             </Upload_Btn_Bright>
             <Upload_Btn_Dark onClick={() => setIsUploadPage(false)}>
               내 방 관리
             </Upload_Btn_Dark>
-          </Center2_Div>
+          </Center_Div2>
           <UploadCaveats manage={true} />
-          {isLoading ? (
+          {/* {isLoading ? (
             <Center_Div className="m-72">
               <Loader />
             </Center_Div>
@@ -835,7 +1004,7 @@ export default function upload() {
             ))
           ) : (
             <Center_Div className="m-40">등록된 매물이 없습니다</Center_Div>
-          )}
+          )} */}
         </>
       )}
     </div>
@@ -845,32 +1014,40 @@ export default function upload() {
 }
 
 const fontsize: number = 14
-const Upload_Btn_Dark = styled.button`
+//button
+const Upload_Btn = styled.button`
+  min-width: 500px;
+  width: 500px;
+  height: 60px;
+  font-size: ${fontsize}px;
+  border: 0.5px solid ${subColor_lighter};
+`
+const Upload_Btn_Medium = styled.button`
+  width: 100px;
+  height: 40px;
+  font-size: ${fontsize - 2}px;
+`
+const Upload_Btn_Dark = styled(Upload_Btn)`
   color: ${subColor_lighter};
   background-color: ${mainColor};
-  border: 0.5px solid ${subColor_lighter};
-  min-width: 500px;
-  width: 500px;
-  height: 60px;
-  font-size: ${fontsize}px;
 `
-
-const Upload_Btn_Bright = styled.button`
+const Upload_Btn_Bright = styled(Upload_Btn)`
   color: ${mainColor};
   background-color: ${subColor_lighter};
-  border: 0.5px solid ${subColor_lighter};
-  min-width: 500px;
-  width: 500px;
-  height: 60px;
-  font-size: ${fontsize}px;
 `
-
-const Upload_Input = styled.input`
+const Upload_Btn_Submit = styled(Upload_Btn_Medium)`
+  color: ${subColor_lighter};
+  background-color: ${mainColor};
+`
+const Upload_Btn_Outline = styled(Upload_Btn_Medium)`
+  color: ${mainColor};
   border: 0.5px solid ${subColor_medium};
-  font-size: ${fontsize - 2}px;
-  height: 36px;
-  width: 330px;
-  padding: 10px;
+`
+const Upload_Btn_Outline1 = styled(Upload_Btn_Outline)`
+  margin: 10px 10px 10px 20px;
+`
+//input
+const Upload_Input = styled.input`
   :hover {
     border: 0.5px solid ${mainColor};
   }
@@ -882,48 +1059,30 @@ const Upload_Input = styled.input`
     outline: none !important;
     border: 1px solid ${mainColor};
   }
-  margin-right: 10px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-`
-const Upload_Input2 = styled.input`
   border: 0.5px solid ${subColor_medium};
-  font-size: ${fontsize - 2}px;
+  font-size: ${fontsize - 1}px;
+`
+const Upload_Input1 = styled(Upload_Input)`
+  height: 40px;
+  width: 330px;
+  padding: 10px;
+  margin: 20px 10px 20px 0;
+`
+const Upload_Input2 = styled(Upload_Input)`
   height: 40px;
   width: 110px;
   padding: 10px;
-  :hover {
-    border: 0.5px solid ${mainColor};
-  }
-  :active {
-    outline: none !important;
-    border: 1px solid ${mainColor};
-  }
-  :focus {
-    outline: none !important;
-    border: 1px solid ${mainColor};
-  }
   margin: 10px;
 `
-const Upload_Input3 = styled.input`
-  border: 0.5px solid ${subColor_medium};
-  font-size: ${fontsize - 1}px;
+
+const Upload_Input3 = styled(Upload_Input)`
   height: 40px;
   min-width: 840px;
   padding: 10px;
-  :hover {
-    border: 0.5px solid ${mainColor};
-  }
-  :active {
-    outline: none !important;
-    border: 1px solid ${mainColor};
-  }
-  :focus {
-    outline: none !important;
-    border: 1px solid ${mainColor};
-  }
   margin: 5px;
 `
+
+//text
 const Upload_Text = styled.text`
   border: 0.5px solid ${subColor_medium};
   padding: 10px;
@@ -939,67 +1098,45 @@ const Upload_Text = styled.text`
   margin: 10px;
   resize: none;
 `
-
+//textarea
 const Upload_Textarea = styled.textarea`
   border: 0.5px solid ${subColor_medium};
-  font-size: ${fontsize - 2}px;
+  font-size: ${fontsize - 1}px;
+  :hover {
+    border: 0.5px solid ${mainColor};
+  }
+  :active {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  :focus {
+    outline: none !important;
+    border: 1px solid ${mainColor};
+  }
+  resize: none;
+`
+const Upload_Textarea1 = styled(Upload_Textarea)`
   height: 100px;
   width: 440px;
   padding: 10px;
-  :hover {
-    border: 0.5px solid ${mainColor};
-  }
-  :active {
-    outline: none !important;
-    border: 1px solid ${mainColor};
-  }
-  :focus {
-    outline: none !important;
-    border: 1px solid ${mainColor};
-  }
   margin-right: 10px;
-  resize: none;
 `
-const Upload_Textarea2 = styled.textarea`
-  border: 0.5px solid ${subColor_medium};
-  font-size: ${fontsize - 1}px;
+const Upload_Textarea2 = styled(Upload_Textarea)`
   min-height: 500px;
   min-width: 840px;
   padding: 10px;
-  :hover {
-    border: 0.5px solid ${mainColor};
-  }
-  :active {
-    outline: none !important;
-    border: 1px solid ${mainColor};
-  }
-  :focus {
-    outline: none !important;
-    border: 1px solid ${mainColor};
-  }
   margin: 5px;
-  resize: none;
 `
-
-const Upload_Btn_Submit = styled.button`
-  color: ${subColor_lighter};
-  background-color: ${mainColor};
-  width: 100px;
-  height: 36px;
-  font-size: ${fontsize - 2}px;
+//div
+const Center_Div = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `
-
-const Upload_Btn_Calendar = styled.button`
-  color: ${mainColor};
-  border: 0.5px solid ${subColor_medium};
-  width: 86px;
-  height: 40px;
-  font-size: ${fontsize - 2}px;
-  margin: 10px;
-  margin-left: 20px;
-  border-radius: 4px;
+const Center_Div2 = styled.div`
+  display: flex;
+  align-items: center;
 `
-
 const Upload_Div_B = styled.div`
   border: 0.5px solid ${subColor_medium};
   margin-top: 30px;
@@ -1008,7 +1145,6 @@ const Upload_Div_B = styled.div`
     color: ${mainColor};
   }
 `
-
 const Upload_Div_Absolute = styled.div`
   font-size: ${fontsize - 3}px;
   position: absolute;
@@ -1016,46 +1152,31 @@ const Upload_Div_Absolute = styled.div`
   top: 20px;
   color: ${subColor_medium};
 `
-
-const Upload_Div_Title = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
+const Upload_Div_Title = styled(Center_Div)`
   font-size: 18px;
   font-weight: 600;
   padding: 15px;
   width: 100%;
   border-bottom: 0.5px solid ${subColor_medium};
 `
-const Upload_Div_Sub_Title = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
+const Upload_Div_Sub_Title = styled(Center_Div)`
   width: 150px;
   font-size: ${fontsize}px;
   background-color: ${subColor_lighter};
 `
-
 const Upload_Div_Bt = styled.div`
   width: 100%;
   display: flex;
   font-size: ${fontsize}px;
   border-top: 1px solid ${subColor_light};
 `
-const Upload_Div_Sub = styled.div`
-  padding: 35px;
-  display: flex;
+const Upload_Div_Sub = styled(Center_Div2)`
   width: 850px;
-  align-items: center;
 `
-const Upload_Div_Sub2 = styled.div`
-  display: flex;
-  min-width: 350px;
+const Upload_Div_Sub1 = styled(Center_Div2)`
+  width: 350px;
 `
-
-const Upload_Div_Sub3 = styled.div`
+const Upload_Div_Sub3 = styled(Center_Div2)`
   padding-left: 20px;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid ${subColor_light};
+  width: 100%;
 `

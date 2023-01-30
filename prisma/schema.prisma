@@ -55,19 +55,19 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model Category {
+model RoomCategory {
   id            Int      @id @default(autoincrement())
   name          String
   rooms         Room[]
 }
 
-model Status {
+model RoomStatus {
   id            Int      @id @default(autoincrement())
   name          String
   rooms         Room[]
 }
 
-model Type {
+model RoomType {
   id            Int      @id @default(autoincrement())
   name          String
   rooms         Room[]
@@ -79,30 +79,28 @@ model SaleInfoType {
   saleInfos     SaleInfo[]
 }
 
-model Heat {
+model RoomHeat {
   id            Int      @id @default(autoincrement())
   name          String
   basicInfo     BasicInfo[]
 }
 
-model Structrue {
+model RoomStructure {
   id            Int      @id @default(autoincrement())
   name          String
-  moreInfo      MoreInfo[]
 }
-
 
 
 model Room {
   id            Int      @id @default(autoincrement())
-  category      Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  category      RoomCategory @relation(fields: [category_id], references: [id], onDelete: Cascade)
   category_id   Int
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id       String
-  status        Status   @relation(fields: [status_id], references: [id], onDelete: Cascade)
+  status        RoomStatus   @relation(fields: [status_id], references: [id], onDelete: Cascade)
   status_id     Int      @default(0)
-  type          Type?    @relation(fields: [type_id], references: [id], onDelete: Cascade)    
-  type_id       Int?
+  type          RoomType    @relation(fields: [type_id], references: [id], onDelete: Cascade)    
+  type_id       Int
   updatedAt     DateTime @default(now())
   title         String
   description   String   @db.VarChar(1000)
@@ -137,7 +135,7 @@ model BasicInfo {
   total_floor   Int        
   floor         Int
   move_in       DateTime
-  heat          Heat     @relation(fields: [heat_id], references: [id], onDelete: Cascade)
+  heat          RoomHeat     @relation(fields: [heat_id], references: [id], onDelete: Cascade)
   heat_id       Int
 }
 
@@ -157,11 +155,10 @@ model MoreInfo {
   room            Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
   room_id         Int
   maintenance_fee Int
-  maintenance_ids String
+  maintenance_ids String?
   elevator        Boolean
   parking         Boolean
-  structure       Structrue @relation(fields: [sturcture_id],references: [id], onDelete: Cascade)
-  sturcture_id    Int
+  structure_ids   String?
   option_ids      String
 }
 

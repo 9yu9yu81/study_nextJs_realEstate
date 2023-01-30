@@ -27,13 +27,11 @@ export default function App({
           <meta name="description" content="My Spot direct transaction" />
         </Head>
         <Auth>
-          <div className="relative">
-            <Header />
-            <div className="flex justify-center">
-              <div className="w-full" style={{ maxWidth: '1000px' }}>
-                <Component {...pageProps} />
-                <Footer />
-              </div>
+          <Header />
+          <div className="flex justify-center">
+            <div style={{ maxWidth: '1000px', width: '100%' }}>
+              <Component {...pageProps} />
+              <Footer />
             </div>
           </div>
         </Auth>
