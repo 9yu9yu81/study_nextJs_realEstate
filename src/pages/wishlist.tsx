@@ -11,7 +11,6 @@ import {
   Center_Div,
   StyledImage,
 } from 'components/styledComponent'
-import { WISHLISTS_QUERY_KEY } from 'constants/querykey'
 import { CATEGORY_MAP, YEAR_MONTH_MAP, WISHLIST_TAKE } from 'constants/const'
 import { useRouter } from 'next/router'
 import { useState } from 'react'

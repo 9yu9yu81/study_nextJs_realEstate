@@ -145,8 +145,8 @@ model SaleInfo {
   room_id       Int
   type          SaleInfoType @relation(fields: [type_id], references: [id], onDelete: Cascade)
   type_id       Int
-  deposit       Int?
-  price         Int
+  deposit       Int
+  price         Int?
 }
 
 
@@ -159,7 +159,7 @@ model MoreInfo {
   elevator        Boolean
   parking         Boolean
   structure_ids   String?
-  option_ids      String
+  option_ids      String?
 }
 
 model Wishlist {

@@ -1,7 +1,6 @@
 import { Room } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { Center_Div } from 'components/styledComponent'
-import { ROOMS_QUERY_KEY } from 'constants/querykey'
 import { useEffect, useRef, useState } from 'react'
 
 export default function Maptest() {

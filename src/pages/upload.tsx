@@ -56,7 +56,7 @@ const DETAILADDR_PLACEHOLDER = `상세 주소
 
 const ROOMS_QUERY_KEY = 'api/room/get-ManagedRooms'
 
-interface roomAllData {
+export interface roomAllData {
   room: Omit<
     Room,
     'user_id' | 'id' | 'updatedAt' | 'status_id' | 'views' | 'wished'
@@ -88,10 +88,10 @@ export default function upload() {
   }, [router.query.isManagePage])
 
   //state
-  const [category, setCategory] = useState<string>('0') //매물종류
-  const [roomType, setRoomType] = useState<string>('0') //건물유형
-  const [ym, setYm] = useState<string>('0') //전월세
-  const [heat, setHeat] = useState<string>('0') //난방종류
+  const [category, setCategory] = useState<string>('1') //매물종류
+  const [roomType, setRoomType] = useState<string>('1') //건물유형
+  const [ym, setYm] = useState<string>('1') //전월세
+  const [heat, setHeat] = useState<string>('1') //난방종류
   const depositRef = useRef<HTMLInputElement | null>(null) //보증금
   const priceRef = useRef<HTMLInputElement | null>(null) //세
   const areaRef = useRef<HTMLInputElement | null>(null) //전용면적
@@ -218,10 +218,10 @@ export default function upload() {
         queryClient.invalidateQueries([ROOMS_QUERY_KEY])
       },
       onSuccess: async () => {
-        setCategory('0')
-        setYm('0')
-        setRoomType('0')
-        setHeat('0')
+        setCategory('1')
+        setYm('1')
+        setRoomType('1')
+        setHeat('1')
         setMoveIn(new Date())
         setChecked(false)
         setMOption([])
@@ -243,9 +243,9 @@ export default function upload() {
         ? alert('주소를 입력하세요.')
         : detailAddrRef.current?.value == ''
         ? alert('상세 주소를 입력하세요.')
-        : ym === '1' && depositRef.current?.value == ''
+        : depositRef.current?.value == ''
         ? alert('보증금을 입력하세요.')
-        : priceRef.current?.value == ''
+        : ym === '2' && priceRef.current?.value == ''
         ? alert('가격을 입력하세요.')
         : supAreaRef.current?.value == ''
         ? alert('공급 면적을 입력하세요.')
@@ -398,9 +398,9 @@ export default function upload() {
                 <CustomSegmentedControl
                   value={String(category)}
                   onChange={setCategory}
-                  data={CATEGORY_MAP.map((label, id) => ({
+                  data={CATEGORY_MAP.map((label, idx) => ({
                     label: label,
-                    value: String(id),
+                    value: String(idx+1),
                   }))}
                 />
               </Upload_Div_Sub>
@@ -411,9 +411,9 @@ export default function upload() {
                 <CustomSegmentedControl
                   value={String(roomType)}
                   onChange={setRoomType}
-                  data={TYPE_MAP.map((label, id) => ({
+                  data={TYPE_MAP.map((label, idx) => ({
                     label: label,
-                    value: String(id),
+                    value: String(idx+1),
                   }))}
                 />
               </Upload_Div_Sub>
@@ -488,20 +488,20 @@ export default function upload() {
                 <CustomSegmentedControl
                   value={ym}
                   onChange={setYm}
-                  data={YEAR_MONTH_MAP.map((label, id) => ({
+                  data={YEAR_MONTH_MAP.map((label, idx) => ({
                     label: label,
-                    value: String(id),
+                    value: String(idx+1),
                   }))}
                 />
               </Upload_Div_Sub1>
               <Upload_Div_Sub_Title>가격</Upload_Div_Sub_Title>
               <Upload_Div_Sub1>
-                {ym === '0' ? (
+                {ym === '1' ? (
                   <Upload_Div_Sub3>
                     <Upload_Input2
                       type="number"
                       placeholder="전세"
-                      ref={priceRef}
+                      ref={depositRef}
                     />{' '}
                     만원
                   </Upload_Div_Sub3>
@@ -562,9 +562,9 @@ export default function upload() {
               <CustomSegmentedControl
                 value={heat}
                 onChange={setHeat}
-                data={HEAT_MAP.map((label, id) => ({
+                data={HEAT_MAP.map((label, idx) => ({
                   label: label,
-                  value: String(id),
+                  value: String(idx + 1),
                 }))}
               />
             </Upload_Div_Bt>

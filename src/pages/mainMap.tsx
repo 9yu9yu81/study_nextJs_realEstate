@@ -1,6 +1,5 @@
 import { Room } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
-import { ROOMS_QUERY_KEY } from 'constants/querykey'
 import { useEffect, useState } from 'react'
 import { Map, MapMarker } from 'react-kakao-maps-sdk'
 
