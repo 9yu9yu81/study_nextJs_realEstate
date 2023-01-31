@@ -331,20 +331,33 @@ export default function upload() {
     }
   )
 
-  // const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
-  //   (id) =>
-  //     fetch('/api/room/delete-Room', {
-  //       method: 'POST',
-  //       body: JSON.stringify(id),
-  //     })
-  //       .then((data) => data.json())
-  //       .then((res) => res.items),
-  //   {
-  //     onSuccess: async () => {
-  //       queryClient.invalidateQueries([ROOMS_QUERY_KEY])
-  //     },
-  //   }
-  // )
+  const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
+    (id) =>
+      fetch('/api/room/delete-Room', {
+        method: 'POST',
+        body: JSON.stringify(id),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: async (id) => {
+        await queryClient.cancelQueries([MANAGED_ROOMS_QUERY_KEY])
+        const previous = queryClient.getQueryData([MANAGED_ROOMS_QUERY_KEY])
+
+        if (previous) {
+          queryClient.setQueryData<ManagedRoom[]>(
+            [MANAGED_ROOMS_QUERY_KEY],
+            (olds) => olds?.filter((f) => f.id !== id)
+          )
+        }
+
+        return previous
+      },
+      onSuccess: async () => {
+        queryClient.invalidateQueries([MANAGED_ROOMS_QUERY_KEY])
+      },
+    }
+  )
 
   // 매물 상태 변경(-> 거래 완료)
   // const { mutate: updateStatus } = useMutation<
@@ -934,7 +947,9 @@ export default function upload() {
                       style={{ width: '160px', marginTop: 'auto' }}
                     >
                       <Manage_Btn>수정</Manage_Btn>
-                      <Manage_Btn>삭제</Manage_Btn>
+                      <Manage_Btn onClick={() => deleteRoom(room.id)}>
+                        삭제
+                      </Manage_Btn>
                       <Manage_Btn>숨김</Manage_Btn>
                       <Manage_Btn>거래완료</Manage_Btn>
                     </div>
