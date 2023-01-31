@@ -4,7 +4,7 @@ import { getSession } from 'next-auth/react'
 
 const prisma = new PrismaClient()
 
-async function getManagedRooms(user_id: string) {
+async function getManagedRooms(user_id: string, skip: number, take: number) {
   try {
     const response = await prisma.$queryRaw`
       select r.id, r.category_id, r.status_id,r.updatedAt, r.title, r.views, r.wished, r.images, 
@@ -15,7 +15,8 @@ async function getManagedRooms(user_id: string) {
             where r.id=s.room_id 
               and r.id=a.room_id
               and r.id=b.room_id
-              and r.user_id=${user_id}`
+              and r.user_id=${user_id}
+            limit ${skip},${take}`
     console.log(response)
     return response
   } catch (error) {
@@ -36,8 +37,13 @@ export default async function handler(
     res.status(200).json({ items: undefined, message: 'no Session' })
     return
   }
+  const { skip, take } = req.query
   try {
-    const managedRooms = await getManagedRooms(String(session.user?.id))
+    const managedRooms = await getManagedRooms(
+      String(session.user?.id),
+      Number(skip),
+      Number(take)
+    )
     res.status(200).json({ items: managedRooms, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'Failed' })

@@ -1,13 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { Chip, FileButton, Loader, Modal } from '@mantine/core'
-import {
-  IconExclamationCircle,
-  IconHeart,
-  IconEye,
-  IconMapPin,
-  IconX,
-} from '@tabler/icons'
+import { Chip, FileButton, Loader, Modal, Pagination } from '@mantine/core'
+import { IconExclamationCircle, IconMapPin, IconX } from '@tabler/icons'
 import Map from 'components/MapN'
 import {
   HoverDiv,
@@ -45,7 +39,7 @@ import CustomSegmentedControl from 'components/CustomSegmentedControl'
 import styled from '@emotion/styled'
 import { Calendar } from '@mantine/dates'
 import CustomCheckBox from 'components/CustomCheckBox'
-import { add, differenceInDays, sub } from 'date-fns'
+import { add, differenceInDays } from 'date-fns'
 
 const DESCRIPTION_PLACEHOLDER = `[상세설명 작성 주의사항]
 - 매물 정보와 관련없는 홍보성 정보는 입력할 수 없습니다.
@@ -55,8 +49,6 @@ const DESCRIPTION_PLACEHOLDER = `[상세설명 작성 주의사항]
 
 const DETAILADDR_PLACEHOLDER = `상세 주소
 예) e편한세상 101동 1101호`
-
-const ROOMS_QUERY_KEY = 'api/room/get-ManagedRooms'
 
 export interface roomAllData {
   room: Omit<
@@ -81,6 +73,13 @@ export default function upload() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
+
+  const [activePage, setActivePage] = useState(1) //page
+  const MANAGED_ROOMS_TAKE: number = 10
+  const MANAGED_ROOMS_COUNT_QUERY_KEY = 'api/room/get-ManagedRooms-Count'
+  const MANAGED_ROOMS_QUERY_KEY = `api/room/get-ManagedRooms-Take?skip=${
+    (activePage - 1) * MANAGED_ROOMS_TAKE
+  }&take=${MANAGED_ROOMS_TAKE}`
 
   const [isUploadPage, setIsUploadPage] = useState(false) //방 내놓기 or 내 방 관리
   useEffect(() => {
@@ -215,7 +214,7 @@ export default function upload() {
         .then((res) => res.items),
     {
       onMutate: () => {
-        queryClient.invalidateQueries([ROOMS_QUERY_KEY])
+        queryClient.invalidateQueries([MANAGED_ROOMS_QUERY_KEY])
       },
       onSuccess: async () => {
         setCategory('1')
@@ -312,10 +311,24 @@ export default function upload() {
     { rooms: ManagedRoom[] },
     unknown,
     ManagedRoom[]
-  >([ROOMS_QUERY_KEY], () =>
-    fetch(ROOMS_QUERY_KEY)
+  >([MANAGED_ROOMS_QUERY_KEY], () =>
+    fetch(MANAGED_ROOMS_QUERY_KEY)
       .then((res) => res.json())
       .then((data) => data.items)
+  )
+
+  //get total page
+  const { data: total } = useQuery(
+    [MANAGED_ROOMS_COUNT_QUERY_KEY],
+    () =>
+      fetch(MANAGED_ROOMS_COUNT_QUERY_KEY)
+        .then((res) => res.json())
+        .then((data) => (data.items === 0 ? 1 : Math.ceil(data.items / 10))),
+    {
+      onSuccess: async () => {
+        setActivePage(1)
+      },
+    }
   )
 
   // const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
@@ -826,107 +839,119 @@ export default function upload() {
               <Loader />
             </Center_Div>
           ) : rooms ? (
-            rooms.map((room, idx) => (
-              <Manage_Div key={idx}>
-                <Center_Div className="flex-col" style={{ width: '150px' }}>
-                  <div
-                    style={{
-                      borderBottom: `0.5px solid ${subColor_medium}`,
-                      padding: '0px 10px 5px 10px',
-                      marginBottom: '20px',
-                      fontSize: '16px',
-                    }}
-                  >
-                    {idx + 1}
-                  </div>
-                  <div>{STATUS_MAP[room.status_id - 1]}</div>
-                  <div>
-                    D-
-                    {differenceInDays(
-                      add(new Date(room.updatedAt), { days: 30 }),
-                      new Date()
-                    )}{' '}
-                    일
-                  </div>
-                </Center_Div>
-                <StyledImage style={{ width: '300px', height: '220px' }}>
-                  <Image
-                    alt="thumbnail"
-                    className="styled"
-                    src={room.images.split(',')[0]}
-                    fill
-                  ></Image>
-                </StyledImage>
-                <div
-                  className="flex-col"
-                  style={{
-                    display: 'flex',
-                    width: '350px',
-                    padding: '30px 0 30px 30px',
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: '20px',
-                      fontWeight: '600',
-                      marginBottom: '20px',
-                    }}
-                  >
-                    {CATEGORY_MAP[room.category_id - 1]}{' '}
-                    {YEAR_MONTH_MAP[room.type_id - 1]} {room.deposit}
-                    {room.price !== null && `/${room.price}`}
-                  </div>
-                  <div>{room.doro}</div>
-                  <div>{room.detail}</div>
-                  <div style={{ marginTop: '20px' }}>{room.title}</div>
-                </div>
-                <div
-                  className="flex flex-col"
-                  style={{
-                    width: '200px',
-                    padding: '20px',
-                    borderLeft: `1px solid ${subColor_light}`,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '160px',
-                      marginTop: '10px',
-                      fontSize: '13px',
-                    }}
-                  >
-                    등록일 : {format(new Date(room.updatedAt), 'yyyy-MM-dd')}
-                  </div>
-                  <div
-                    className="flex"
-                    style={{ width: '180px', marginTop: '10px' }}
-                  >
-                    <div style={{ width: '75px', fontSize: '13px' }}>
-                      조회수: {room.views}
-                    </div>
+            <>
+              {rooms.map((room, idx) => (
+                <Manage_Div key={idx}>
+                  <Center_Div className="flex-col" style={{ width: '150px' }}>
                     <div
                       style={{
-                        width: '75px',
-                        fontSize: '13px',
-                        paddingLeft: '10px',
-                        borderLeft: `1px solid ${subColor_light}`,
+                        borderBottom: `0.5px solid ${subColor_medium}`,
+                        padding: '0px 10px 5px 10px',
+                        marginBottom: '20px',
+                        fontSize: '16px',
                       }}
                     >
-                      찜: {room.wished}
+                      {idx + 1 + (activePage - 1) * MANAGED_ROOMS_TAKE}
                     </div>
+                    <div>{STATUS_MAP[room.status_id - 1]}</div>
+                    <div>
+                      D-
+                      {differenceInDays(
+                        add(new Date(room.updatedAt), { days: 30 }),
+                        new Date()
+                      )}{' '}
+                      일
+                    </div>
+                  </Center_Div>
+                  <StyledImage style={{ width: '300px', height: '220px' }}>
+                    <Image
+                      alt="thumbnail"
+                      className="styled"
+                      src={room.images.split(',')[0]}
+                      fill
+                    ></Image>
+                  </StyledImage>
+                  <div
+                    className="flex-col"
+                    style={{
+                      display: 'flex',
+                      width: '350px',
+                      padding: '30px 0 30px 30px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: '20px',
+                        fontWeight: '600',
+                        marginBottom: '20px',
+                      }}
+                    >
+                      {CATEGORY_MAP[room.category_id - 1]}{' '}
+                      {YEAR_MONTH_MAP[room.type_id - 1]} {room.deposit}
+                      {room.price !== null && `/${room.price}`}
+                    </div>
+                    <div>{room.doro}</div>
+                    <div>{room.detail}</div>
+                    <div style={{ marginTop: '20px' }}>{room.title}</div>
                   </div>
                   <div
-                    className="grid grid-cols-2 grid-rows-2"
-                    style={{ width: '160px', marginTop: 'auto' }}
+                    className="flex flex-col"
+                    style={{
+                      width: '200px',
+                      padding: '20px',
+                      borderLeft: `1px solid ${subColor_light}`,
+                    }}
                   >
-                    <Manage_Btn>수정</Manage_Btn>
-                    <Manage_Btn>삭제</Manage_Btn>
-                    <Manage_Btn>숨김</Manage_Btn>
-                    <Manage_Btn>거래완료</Manage_Btn>
+                    <div
+                      style={{
+                        width: '160px',
+                        marginTop: '10px',
+                        fontSize: '13px',
+                      }}
+                    >
+                      등록일 : {format(new Date(room.updatedAt), 'yyyy-MM-dd')}
+                    </div>
+                    <div
+                      className="flex"
+                      style={{ width: '180px', marginTop: '10px' }}
+                    >
+                      <div style={{ width: '75px', fontSize: '13px' }}>
+                        조회수: {room.views}
+                      </div>
+                      <div
+                        style={{
+                          width: '75px',
+                          fontSize: '13px',
+                          paddingLeft: '10px',
+                          borderLeft: `1px solid ${subColor_light}`,
+                        }}
+                      >
+                        찜: {room.wished}
+                      </div>
+                    </div>
+                    <div
+                      className="grid grid-cols-2 grid-rows-2"
+                      style={{ width: '160px', marginTop: 'auto' }}
+                    >
+                      <Manage_Btn>수정</Manage_Btn>
+                      <Manage_Btn>삭제</Manage_Btn>
+                      <Manage_Btn>숨김</Manage_Btn>
+                      <Manage_Btn>거래완료</Manage_Btn>
+                    </div>
                   </div>
-                </div>
-              </Manage_Div>
-            ))
+                </Manage_Div>
+              ))}
+              {total && (
+                <Center_Div style={{ margin: '30px 0 30px 0' }}>
+                  <Pagination
+                    color={'dark'}
+                    page={activePage}
+                    onChange={setActivePage}
+                    total={total}
+                  />
+                </Center_Div>
+              )}
+            </>
           ) : (
             <Center_Div className="m-40">등록된 매물이 없습니다</Center_Div>
           )}
