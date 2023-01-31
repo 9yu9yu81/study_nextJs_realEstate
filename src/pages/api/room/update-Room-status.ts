@@ -3,13 +3,13 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function updateStatus(id: number, status: number) {
+async function updateStatus(id: number, status_id: number) {
   try {
     const response = await prisma.room.update({
       where: {
         id: id,
       },
-      data: { status: status },
+      data: { status_id: status_id },
     })
     console.log(response)
     return response
@@ -30,7 +30,7 @@ export default async function handler(
   const items = JSON.parse(req.body)
 
   try {
-    const room = await updateStatus(Number(items.id), Number(items.status))
+    const room = await updateStatus(Number(items.id), Number(items.status_id))
     res.status(200).json({ items: room, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'add-Room Failed' })

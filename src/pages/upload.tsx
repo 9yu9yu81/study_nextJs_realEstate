@@ -40,6 +40,7 @@ import styled from '@emotion/styled'
 import { Calendar } from '@mantine/dates'
 import CustomCheckBox from 'components/CustomCheckBox'
 import { add, differenceInDays } from 'date-fns'
+import CustomPagination from 'components/CustomPagination'
 
 const DESCRIPTION_PLACEHOLDER = `[상세설명 작성 주의사항]
 - 매물 정보와 관련없는 홍보성 정보는 입력할 수 없습니다.
@@ -353,54 +354,56 @@ export default function upload() {
 
         return previous
       },
+      onError: (__, _, context) => {
+        queryClient.setQueryData([MANAGED_ROOMS_QUERY_KEY], context.previous)
+      },
       onSuccess: async () => {
         queryClient.invalidateQueries([MANAGED_ROOMS_QUERY_KEY])
       },
     }
   )
 
-  // 매물 상태 변경(-> 거래 완료)
-  // const { mutate: updateStatus } = useMutation<
-  //   unknown,
-  //   unknown,
-  //   Pick<Room, 'id' | 'status_id'>,
-  //   any
-  // >(
-  //   (items) =>
-  //     fetch('/api/room/update-Room-status', {
-  //       method: 'POST',
-  //       body: JSON.stringify(items),
-  //     })
-  //       .then((data) => data.json())
-  //       .then((res) => res.items),
-  //   {
-  //     onMutate: async (items) => {
-  //       await queryClient.cancelQueries([ROOMS_QUERY_KEY])
+  const { mutate: updateStatus } = useMutation<
+    unknown,
+    unknown,
+    Pick<Room, 'id' | 'status_id'>,
+    any
+  >(
+    (items) =>
+      fetch('/api/room/update-Room-status', {
+        method: 'POST',
+        body: JSON.stringify(items),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: async (items) => {
+        await queryClient.cancelQueries([MANAGED_ROOMS_QUERY_KEY])
 
-  //       const previous = queryClient.getQueryData([ROOMS_QUERY_KEY])
+        const previous = queryClient.getQueryData([MANAGED_ROOMS_QUERY_KEY])
 
-  //       if (previous) {
-  //         queryClient.setQueryData<Room[]>(
-  //           [ROOMS_QUERY_KEY],
-  //           (olds) =>
-  //             olds &&
-  //             olds.map((old) =>
-  //               old.id === items.id
-  //                 ? { ...old, status: items.status_id }
-  //                 : { ...old }
-  //             )
-  //         )
-  //       }
-  //       return { previous }
-  //     },
-  //     onError: (__, _, context) => {
-  //       queryClient.setQueryData([ROOMS_QUERY_KEY], context.previous)
-  //     },
-  //     onSuccess: async () => {
-  //       queryClient.invalidateQueries([ROOMS_QUERY_KEY])
-  //     },
-  //   }
-  // )
+        if (previous) {
+          queryClient.setQueryData<ManagedRoom[]>(
+            [MANAGED_ROOMS_QUERY_KEY],
+            (olds) =>
+              olds &&
+              olds.map((old) =>
+                old.id === items.id
+                  ? { ...old, status_id: items.status_id }
+                  : { ...old }
+              )
+          )
+        }
+        return { previous }
+      },
+      onError: (__, _, context) => {
+        queryClient.setQueryData([MANAGED_ROOMS_QUERY_KEY], context.previous)
+      },
+      onSuccess: async () => {
+        queryClient.invalidateQueries([MANAGED_ROOMS_QUERY_KEY])
+      },
+    }
+  )
 
   return session ? (
     <div>
@@ -950,16 +953,33 @@ export default function upload() {
                       <Manage_Btn onClick={() => deleteRoom(room.id)}>
                         삭제
                       </Manage_Btn>
-                      <Manage_Btn>숨김</Manage_Btn>
-                      <Manage_Btn>거래완료</Manage_Btn>
+                      <Manage_Btn
+                        onClick={() =>
+                          updateStatus({
+                            id: room.id,
+                            status_id: 4,
+                          })
+                        }
+                      >
+                        숨김
+                      </Manage_Btn>
+                      <Manage_Btn
+                        onClick={() =>
+                          updateStatus({
+                            id: room.id,
+                            status_id: 2,
+                          })
+                        }
+                      >
+                        거래완료
+                      </Manage_Btn>
                     </div>
                   </div>
                 </Manage_Div>
               ))}
               {total && (
                 <Center_Div style={{ margin: '30px 0 30px 0' }}>
-                  <Pagination
-                    color={'dark'}
+                  <CustomPagination
                     page={activePage}
                     onChange={setActivePage}
                     total={total}

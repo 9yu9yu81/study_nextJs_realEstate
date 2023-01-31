@@ -17,7 +17,7 @@ async function getManagedRooms(user_id: string, skip: number, take: number) {
               and r.id=b.room_id
               and r.user_id=${user_id}
             limit ${skip},${take}`
-    console.log(response)
+    // console.log(response)
     return response
   } catch (error) {
     console.error(error)
