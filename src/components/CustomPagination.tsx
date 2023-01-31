@@ -21,9 +21,10 @@ export default function CustomPagination({
           border: 0,
           color: `${mainColor} !important`,
           backgroundColor: 'white !important',
+          fontWeight: 'lighter',
           '&[data-active]': {
-            fontWeight: 'bold',
-            fontSize: '20px',
+            fontSize: '18px',
+            fontWeight: 'normal',
           },
         },
       })}

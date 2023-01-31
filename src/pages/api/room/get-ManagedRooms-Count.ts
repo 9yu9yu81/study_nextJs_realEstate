@@ -10,7 +10,6 @@ async function getManagedRoomsCount(user_id: string) {
         user_id: user_id,
       },
     })
-    console.log(response)
     return response
   } catch (error) {
     console.error(error)

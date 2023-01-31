@@ -858,17 +858,10 @@ export default function upload() {
             <>
               {rooms.map((room, idx) => (
                 <Manage_Div key={idx}>
-                  <Center_Div className="flex-col" style={{ width: '150px' }}>
-                    <div
-                      style={{
-                        borderBottom: `0.5px solid ${subColor_medium}`,
-                        padding: '0px 10px 5px 10px',
-                        marginBottom: '20px',
-                        fontSize: '16px',
-                      }}
-                    >
+                  <Manage_Div_150>
+                    <Manage_Div_idx>
                       {idx + 1 + (activePage - 1) * MANAGED_ROOMS_TAKE}
-                    </div>
+                    </Manage_Div_idx>
                     <div>{STATUS_MAP[room.status_id - 1]}</div>
                     <div>
                       D-
@@ -878,77 +871,42 @@ export default function upload() {
                       )}{' '}
                       일
                     </div>
-                  </Center_Div>
+                  </Manage_Div_150>
                   <StyledImage style={{ width: '300px', height: '220px' }}>
                     <Image
                       alt="thumbnail"
                       className="styled"
                       src={room.images.split(',')[0]}
                       fill
+                      onClick={() => router.push(`/rooms/${room.id}`)}
                     ></Image>
                   </StyledImage>
-                  <div
-                    className="flex-col"
-                    style={{
-                      display: 'flex',
-                      width: '350px',
-                      padding: '30px 0 30px 30px',
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: '20px',
-                        fontWeight: '600',
-                        marginBottom: '20px',
-                      }}
-                    >
+                  <Manage_Div_350>
+                    <Manage_Div_Bold>
                       {CATEGORY_MAP[room.category_id - 1]}{' '}
                       {YEAR_MONTH_MAP[room.type_id - 1]} {room.deposit}
                       {room.price !== null && `/${room.price}`}
-                    </div>
+                    </Manage_Div_Bold>
                     <div>{room.doro}</div>
                     <div>{room.detail}</div>
                     <div style={{ marginTop: '20px' }}>{room.title}</div>
-                  </div>
-                  <div
-                    className="flex flex-col"
-                    style={{
-                      width: '200px',
-                      padding: '20px',
-                      borderLeft: `1px solid ${subColor_light}`,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '160px',
-                        marginTop: '10px',
-                        fontSize: '13px',
-                      }}
-                    >
+                  </Manage_Div_350>
+                  <Manage_Div_200>
+                    <Manage_Div_160>
                       등록일 : {format(new Date(room.updatedAt), 'yyyy-MM-dd')}
-                    </div>
-                    <div
-                      className="flex"
-                      style={{ width: '180px', marginTop: '10px' }}
-                    >
-                      <div style={{ width: '75px', fontSize: '13px' }}>
-                        조회수: {room.views}
-                      </div>
-                      <div
+                    </Manage_Div_160>
+                    <Manage_Div_160 className="flex">
+                      <Manage_Div_75>조회수: {room.views}</Manage_Div_75>
+                      <Manage_Div_75
                         style={{
-                          width: '75px',
-                          fontSize: '13px',
                           paddingLeft: '10px',
                           borderLeft: `1px solid ${subColor_light}`,
                         }}
                       >
                         찜: {room.wished}
-                      </div>
-                    </div>
-                    <div
-                      className="grid grid-cols-2 grid-rows-2"
-                      style={{ width: '160px', marginTop: 'auto' }}
-                    >
+                      </Manage_Div_75>
+                    </Manage_Div_160>
+                    <Manage_Btn_Wrapper>
                       <Manage_Btn>수정</Manage_Btn>
                       <Manage_Btn onClick={() => deleteRoom(room.id)}>
                         삭제
@@ -973,8 +931,8 @@ export default function upload() {
                       >
                         거래완료
                       </Manage_Btn>
-                    </div>
-                  </div>
+                    </Manage_Btn_Wrapper>
+                  </Manage_Div_200>
                 </Manage_Div>
               ))}
               {total && (
@@ -1036,7 +994,7 @@ const Manage_Btn = styled.button`
   height: 40px;
   padding: 10px 0 10px 0;
   margin: 0px 10px 10px 0;
-  background-color:${subColor_lighter};
+  background-color: ${subColor_lighter};
   color: ${subColor_Dark};
   font-size: 12px;
 `
@@ -1181,4 +1139,48 @@ const Manage_Div = styled(Upload_Div_B)`
   * {
     font-size: 14px;
   }
+`
+const Manage_Div_150 = styled(Center_Div)`
+  flex-flow: column;
+  width: 150px;
+`
+const Manage_Div_idx = styled.div`
+  border-bottom: 0.5px solid ${subColor_medium};
+  padding: 0px 10px 5px 10px;
+  margin-bottom: 20px;
+  font-size: 16px;
+`
+const FlexCol_Div = styled.div`
+  flex-flow: column;
+  display: flex;
+`
+const Manage_Div_350 = styled(FlexCol_Div)`
+  width: 350px;
+  padding: 30px 0 30px 30px;
+`
+const Manage_Div_200 = styled(FlexCol_Div)`
+  width: 200px;
+  padding: 20px;
+  border-left: 1px solid ${subColor_light};
+`
+const Manage_Div_160 = styled.div`
+  width: 160px;
+  margin-top: 10px;
+  font-size: 13px;
+`
+const Manage_Div_75 = styled.div`
+  width: 75px;
+  font-size: 13px;
+`
+const Manage_Div_Bold = styled.div`
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+`
+const Manage_Btn_Wrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  width: 160px;
+  margin-top: auto;
 `
