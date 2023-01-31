@@ -61,86 +61,86 @@ export default function home() {
   }
 
   //get HOME_TAKE recomended Room (HOME_TAKE 수 만큼 방을 받아온다)
-  const { data: rooms, isLoading } = useQuery<
-    { rooms: Room[] },
-    unknown,
-    Room[]
-  >(
-    [
-      `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
-    ],
-    () =>
-      fetch(
-        `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`
-      )
-        .then((res) => res.json())
-        .then((data) => data.items)
-  )
+  // const { data: rooms, isLoading } = useQuery<
+  //   { rooms: Room[] },
+  //   unknown,
+  //   Room[]
+  // >(
+  //   [
+  //     `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
+  //   ],
+  //   () =>
+  //     fetch(
+  //       `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`
+  //     )
+  //       .then((res) => res.json())
+  //       .then((data) => data.items)
+  // )
 
   // get Wishlist (해당 유저의 관심 매물들)
-  const { data: wishlist, isLoading: wishLoading } = useQuery(
-    [WISHLIST_QUERY_KEY],
-    () =>
-      fetch(WISHLIST_QUERY_KEY)
-        .then((res) => res.json())
-        .then((data) => data.items)
-  )
+  // const { data: wishlist, isLoading: wishLoading } = useQuery(
+  //   [WISHLIST_QUERY_KEY],
+  //   () =>
+  //     fetch(WISHLIST_QUERY_KEY)
+  //       .then((res) => res.json())
+  //       .then((data) => data.items)
+  // )
   // 매물들이 해당 유저의 관심 매물인지 확인
-  const isWished = (id: number) =>
-    wishlist != null && id != null ? wishlist.includes(String(id)) : false
+  // const isWished = (id: number) =>
+  //   wishlist != null && id != null ? wishlist.includes(String(id)) : false
 
   // update wishlist
-  const { mutate: updateWishlist } = useMutation<unknown, unknown, number, any>(
-    (roomId) =>
-      fetch('/api/wishlist/update-Wishlist', {
-        method: 'POST',
-        body: JSON.stringify(roomId),
-      })
-        .then((data) => data.json())
-        .then((res) => res.items),
-    {
-      onMutate: async (roomId) => {
-        await queryClient.cancelQueries({ queryKey: [WISHLIST_QUERY_KEY] })
-        const previous = queryClient.getQueryData([WISHLIST_QUERY_KEY])
+  // const { mutate: updateWishlist } = useMutation<unknown, unknown, number, any>(
+  //   (roomId) =>
+  //     fetch('/api/wishlist/update-Wishlist', {
+  //       method: 'POST',
+  //       body: JSON.stringify(roomId),
+  //     })
+  //       .then((data) => data.json())
+  //       .then((res) => res.items),
+  //   {
+  //     onMutate: async (roomId) => {
+  //       await queryClient.cancelQueries({ queryKey: [WISHLIST_QUERY_KEY] })
+  //       const previous = queryClient.getQueryData([WISHLIST_QUERY_KEY])
 
-        //wishlist
-        queryClient.setQueryData<string[]>([WISHLIST_QUERY_KEY], (old) =>
-          old
-            ? old.includes(String(roomId))
-              ? old.filter((id) => id !== String(roomId))
-              : old.concat(String(roomId))
-            : []
-        )
+  //       //wishlist
+  //       queryClient.setQueryData<string[]>([WISHLIST_QUERY_KEY], (old) =>
+  //         old
+  //           ? old.includes(String(roomId))
+  //             ? old.filter((id) => id !== String(roomId))
+  //             : old.concat(String(roomId))
+  //           : []
+  //       )
 
-        //wished
-        queryClient.setQueryData<Room[]>(
-          [
-            `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
-          ],
-          (olds) =>
-            olds
-              ? olds.map((old) =>
-                  old.id === roomId
-                    ? isWished(roomId)
-                      ? { ...old, wished: old.wished - 1 }
-                      : { ...old, wished: old.wished + 1 }
-                    : { ...old }
-                )
-              : undefined
-        )
-        return previous
-      },
-      onError: (__, _, context) => {
-        queryClient.setQueryData([WISHLIST_QUERY_KEY], context.previous)
-      },
-      onSuccess: async () => {
-        queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
-        queryClient.invalidateQueries([
-          `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
-        ])
-      },
-    }
-  )
+  //       //wished
+  //       queryClient.setQueryData<Room[]>(
+  //         [
+  //           `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
+  //         ],
+  //         (olds) =>
+  //           olds
+  //             ? olds.map((old) =>
+  //                 old.id === roomId
+  //                   ? isWished(roomId)
+  //                     ? { ...old, wished: old.wished - 1 }
+  //                     : { ...old, wished: old.wished + 1 }
+  //                   : { ...old }
+  //               )
+  //             : undefined
+  //       )
+  //       return previous
+  //     },
+  //     onError: (__, _, context) => {
+  //       queryClient.setQueryData([WISHLIST_QUERY_KEY], context.previous)
+  //     },
+  //     onSuccess: async () => {
+  //       queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
+  //       queryClient.invalidateQueries([
+  //         `api/room/get-Rooms-take?skip=0&take=${HOME_TAKE}&category=${category}&ym=${ym}&orderBy=mostViewed&contains=${debouncedKeyword}`,
+  //       ])
+  //     },
+  //   }
+  // )
 
   return (
     <div className="text-zinc-600 mt-20">

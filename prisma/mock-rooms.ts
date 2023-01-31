@@ -124,11 +124,13 @@ addrMockData.map((addr, idx) => {
       status_id: 1,
       type_id: getIntRandom(1, 4),
       updatedAt: new Date(),
-      title: `전주 살기 좋은 집. 9yu9yu81의 ${Math.ceil(idx / 3)}번째 매물`,
+      title: `전주 살기 좋은 집. 9yu9yu81의 ${Math.ceil(
+        (idx + 1) / 3
+      )}번째 매물`,
       description:
-        `전주 살기 좋은 집. 9yu9yu81의 ${Math.ceil(idx / 3)}번째 매물` +
+        `전주 살기 좋은 집. 9yu9yu81의 ${Math.ceil((idx + 1) / 3)}번째 매물` +
         '전주 월세.\n' +
-        `9yu9yu81의 ${Math.ceil(idx / 3)}번째 매물.\n` +
+        `9yu9yu81의 ${Math.ceil((idx + 1) / 3)}번째 매물.\n` +
         '해당 방의 상세설명 입니다.\n' +
         '해당 방의 상세설명 입니다.\n' +
         '해당 방의 상세설명 입니다.\n' +
@@ -184,11 +186,13 @@ addrMockData.map((addr, idx) => {
       status_id: 1,
       type_id: getIntRandom(1, 4),
       updatedAt: new Date(),
-      title: `전주 살기 좋은 집. 9yu9yu82의 ${Math.ceil(idx / 3)}번째 매물`,
+      title: `전주 살기 좋은 집. 9yu9yu82의 ${Math.ceil(
+        (idx + 1) / 3
+      )}번째 매물`,
       description:
-        `전주 살기 좋은 집. 9yu9yu82의 ${Math.ceil(idx / 3)}번째 매물` +
+        `전주 살기 좋은 집. 9yu9yu82의 ${Math.ceil((idx + 1) / 3)}번째 매물` +
         '전주 월세.\n' +
-        `9yu9yu81의 ${Math.ceil(idx / 3)}번째 매물.\n` +
+        `9yu9yu81의 ${Math.ceil((idx + 1) / 3)}번째 매물.\n` +
         '해당 방의 상세설명 입니다.\n' +
         '해당 방의 상세설명 입니다.\n' +
         '해당 방의 상세설명 입니다.\n' +
@@ -243,11 +247,13 @@ addrMockData.map((addr, idx) => {
       status_id: 1,
       type_id: getIntRandom(1, 4),
       updatedAt: new Date(),
-      title: `전주 살기 좋은 집. 9yu9yu83의 ${Math.ceil(idx / 3)}번째 매물`,
+      title: `전주 살기 좋은 집. 9yu9yu83의 ${Math.ceil(
+        (idx + 1) / 3
+      )}번째 매물`,
       description:
-        `전주 살기 좋은 집. 9yu9yu83의 ${Math.ceil(idx / 3)}번째 매물` +
+        `전주 살기 좋은 집. 9yu9yu83의 ${Math.ceil((idx + 1) / 3)}번째 매물` +
         '전주 월세.\n' +
-        `9yu9yu81의 ${Math.ceil(idx / 3)}번째 매물.\n` +
+        `9yu9yu81의 ${Math.ceil((idx + 1) / 3)}번째 매물.\n` +
         '해당 방의 상세설명 입니다.\n' +
         '해당 방의 상세설명 입니다.\n' +
         '해당 방의 상세설명 입니다.\n' +

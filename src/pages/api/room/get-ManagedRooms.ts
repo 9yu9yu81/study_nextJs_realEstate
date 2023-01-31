@@ -7,16 +7,14 @@ const prisma = new PrismaClient()
 async function getManagedRooms(userId: string) {
   try {
     const response = await prisma.$queryRaw`
-      select r.id, r.category_id, r.updatedAt, r.title, r.views, r.wished, r.images, 
+      select r.id, r.category_id, r.status_id,r.updatedAt, r.title, r.views, r.wished, r.images, 
             s.type_id, s.deposit, s.price,
             a.doro, a.detail,
-            b.area,
-            m.maintenance_fee
-            from Room as r, SaleInfo as s, AddressInfo as a, BasicInfo as b, MoreInfo as m
+            b.area
+            from Room as r, SaleInfo as s, AddressInfo as a, BasicInfo as b
             where r.id=s.room_id 
               and r.id=a.room_id
               and r.id=b.room_id
-              and r.id=m.room_id
               and r.user_id=${userId}`
     console.log(response)
     return response
