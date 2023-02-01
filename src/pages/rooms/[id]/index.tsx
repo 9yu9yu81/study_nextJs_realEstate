@@ -1,11 +1,16 @@
 import { Button, Loader, Modal } from '@mantine/core'
-import { Room } from '@prisma/client'
+import {
+  AddressInfo,
+  BasicInfo,
+  MoreInfo,
+  Room,
+  SaleInfo,
+} from '@prisma/client'
 import {
   IconCaretLeft,
   IconCaretRight,
   IconDotsCircleHorizontal,
   IconEdit,
-  IconEyeCheck,
   IconHeart,
   IconHeartBroken,
   IconX,
@@ -17,15 +22,12 @@ import {
   Bl,
   Bt,
   CHoverDiv,
-  Cbb,
   Center_Div,
   StyledImage,
 } from 'components/styledComponent'
-import { ROOMS_QUERY_KEY, WISHLIST_QUERY_KEY } from 'constants/querykey'
 import { CATEGORY_MAP, YEAR_MONTH_MAP } from 'constants/const'
 import { format } from 'date-fns'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
-import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import Carousel from 'nuka-carousel'
@@ -46,12 +48,19 @@ export const getServerSideProps: GetServerSideProps = async (
   }
 }
 
-export default function RoomIndex(props: Room) {
+type RoomAllData = Room &
+  Omit<SaleInfo, 'id' | 'room_id' | 'type_id'> & { sType_id: number } & Omit<
+    BasicInfo,
+    'id' | 'room_id'
+  > &
+  Omit<AddressInfo, 'id' | 'room_id'> &
+  Omit<MoreInfo, 'id' | 'room_id'>
+
+export default function RoomIndex(room: RoomAllData) {
   const [carousel, setCarousel] = useState(false)
-  const { data: session } = useSession()
   const queryClient = useQueryClient()
   const router = useRouter()
-
+  const ROOM_QUERY_KEY = `/api/room/get-Room?id=${room.id}`
   //increase views
   const { mutate: increaseViews } = useMutation<
     unknown,
@@ -68,108 +77,108 @@ export default function RoomIndex(props: Room) {
         .then((res) => res.items),
     {
       onSuccess: async () => {
-        queryClient.invalidateQueries([ROOMS_QUERY_KEY])
+        queryClient.invalidateQueries([ROOM_QUERY_KEY])
       },
     }
   )
-  //increase views
-  useEffect(() => {
-    increaseViews({ id: props.id, views: props.views + 1 })
-  }, [])
 
-  //todo status가 0일 때만 페이지를 그리도록 해야함 -> 나머지는 rooms/[id] 페이지 자체가 존재하면 안 됨
+  //increase views
+  // useEffect(() => {
+  //   increaseViews({ id: props.room.id, views: props.room.views + 1 })
+  // }, [])
 
   // get Wished
-  const { data: wished } = useQuery(
-    [`/api/room/get-Room-wished?id=${props.id}`],
-    () =>
-      fetch(`/api/room/get-Room-wished?id=${props.id}`)
-        .then((res) => res.json())
-        .then((data) => data.items)
-  )
+  // const { data: wished } = useQuery(
+  //   [`/api/room/get-Room-wished?id=${props.id}`],
+  //   () =>
+  //     fetch(`/api/room/get-Room-wished?id=${props.id}`)
+  //       .then((res) => res.json())
+  //       .then((data) => data.items)
+  // )
 
   // get isWished
-  const { data: wishlist, isLoading } = useQuery([WISHLIST_QUERY_KEY], () =>
-    fetch(WISHLIST_QUERY_KEY)
-      .then((res) => res.json())
-      .then((data) => data.items)
-  )
+  // const { data: wishlist, isLoading } = useQuery([WISHLIST_QUERY_KEY], () =>
+  //   fetch(WISHLIST_QUERY_KEY)
+  //     .then((res) => res.json())
+  //     .then((data) => data.items)
+  // )
 
-  const isWished =
-    wishlist != null && props.id != null
-      ? wishlist.includes(String(props.id))
-      : false
+  // const isWished =
+  //   wishlist != null && props.id != null
+  //     ? wishlist.includes(String(props.id))
+  //     : false
 
   // update wishlist
-  const { mutate: updateWishlist } = useMutation<unknown, unknown, number, any>(
-    (roomId) =>
-      fetch('/api/wishlist/update-Wishlist', {
-        method: 'POST',
-        body: JSON.stringify(roomId),
-      })
-        .then((data) => data.json())
-        .then((res) => res.items),
-    {
-      onMutate: async (roomId) => {
-        await queryClient.cancelQueries({ queryKey: [WISHLIST_QUERY_KEY] })
-        const previous = queryClient.getQueryData([WISHLIST_QUERY_KEY])
+  // const { mutate: updateWishlist } = useMutation<unknown, unknown, number, any>(
+  //   (roomId) =>
+  //     fetch('/api/wishlist/update-Wishlist', {
+  //       method: 'POST',
+  //       body: JSON.stringify(roomId),
+  //     })
+  //       .then((data) => data.json())
+  //       .then((res) => res.items),
+  //   {
+  //     onMutate: async (roomId) => {
+  //       await queryClient.cancelQueries({ queryKey: [WISHLIST_QUERY_KEY] })
+  //       const previous = queryClient.getQueryData([WISHLIST_QUERY_KEY])
 
-        //wishlist
-        queryClient.setQueryData<string[]>([WISHLIST_QUERY_KEY], (old) =>
-          old
-            ? old.includes(String(roomId))
-              ? old.filter((id) => id !== String(roomId))
-              : old.concat(String(roomId))
-            : []
-        )
+  //       //wishlist
+  //       queryClient.setQueryData<string[]>([WISHLIST_QUERY_KEY], (old) =>
+  //         old
+  //           ? old.includes(String(roomId))
+  //             ? old.filter((id) => id !== String(roomId))
+  //             : old.concat(String(roomId))
+  //           : []
+  //       )
 
-        //wished
-        await queryClient.cancelQueries({
-          queryKey: [`/api/room/get-Room-wished?id=${roomId}`],
-        })
-        queryClient.setQueryData<number>(
-          [`/api/room/get-Room-wished?id=${roomId}`],
-          (old) => (old ? (wished ? old - 1 : old + 1) : 1)
-        )
+  //       //wished
+  //       await queryClient.cancelQueries({
+  //         queryKey: [`/api/room/get-Room-wished?id=${roomId}`],
+  //       })
+  //       queryClient.setQueryData<number>(
+  //         [`/api/room/get-Room-wished?id=${roomId}`],
+  //         (old) => (old ? (wished ? old - 1 : old + 1) : 1)
+  //       )
 
-        return previous
-      },
-      onError: (__, _, context) => {
-        queryClient.setQueryData([WISHLIST_QUERY_KEY], context.previous)
-      },
-      onSuccess: async () => {
-        queryClient.invalidateQueries([
-          `/api/room/get-Room-wished?id=${props.id}`,
-        ])
-        queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
-      },
-    }
-  )
+  //       return previous
+  //     },
+  //     onError: (__, _, context) => {
+  //       queryClient.setQueryData([WISHLIST_QUERY_KEY], context.previous)
+  //     },
+  //     onSuccess: async () => {
+  //       queryClient.invalidateQueries([
+  //         `/api/room/get-Room-wished?id=${props.id}`,
+  //       ])
+  //       queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
+  //     },
+  //   }
+  // )
 
   //delete Room
-  const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
-    (id) =>
-      fetch('/api/room/delete-Room', {
-        method: 'POST',
-        body: JSON.stringify(id),
-      })
-        .then((data) => data.json())
-        .then((res) => res.items),
-    {
-      onSuccess: async () => {
-        router.push('/upload?isManagePage=true')
-      },
-    }
-  )
-  const validate = (type: 'delete') => {
-    if (type === 'delete') {
-      deleteRoom(props.id)
-    }
-  }
+  // const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
+  //   (id) =>
+  //     fetch('/api/room/delete-Room', {
+  //       method: 'POST',
+  //       body: JSON.stringify(id),
+  //     })
+  //       .then((data) => data.json())
+  //       .then((res) => res.items),
+  //   {
+  //     onSuccess: async () => {
+  //       router.push('/upload?isManagePage=true')
+  //     },
+  //   }
+  // )
+  // const validate = (type: 'delete') => {
+  //   if (type === 'delete') {
+  //     deleteRoom(props.id)
+  //   }
+  // }
 
   return (
     <>
-      <Cbb className="m-5 pb-3 text-xs font-light text-zinc-600">
+      <div>{room.doro}</div>
+      {/* <Cbb className="m-5 pb-3 text-xs font-light text-zinc-600">
         <div className="text-lg relative">
           {props.title}
           <div className="absolute left-0 top-12 text-xs">
@@ -440,7 +449,7 @@ export default function RoomIndex(props: Room) {
             </B>
           </div>
         </Center_Div>
-      </div>
+      </div> */}
     </>
   )
 }

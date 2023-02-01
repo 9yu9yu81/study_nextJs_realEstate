@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { Chip, FileButton, Loader, Modal, Pagination } from '@mantine/core'
+import { Chip, FileButton, Loader, Modal } from '@mantine/core'
 import { IconExclamationCircle, IconMapPin, IconX } from '@tabler/icons'
 import Map from 'components/MapN'
 import {
@@ -51,7 +51,7 @@ const DESCRIPTION_PLACEHOLDER = `[상세설명 작성 주의사항]
 const DETAILADDR_PLACEHOLDER = `상세 주소
 예) e편한세상 101동 1101호`
 
-export interface roomAllData {
+export interface RoomUploadData {
   room: Omit<
     Room,
     'user_id' | 'id' | 'updatedAt' | 'status_id' | 'views' | 'wished'
@@ -82,7 +82,7 @@ export default function upload() {
     (activePage - 1) * MANAGED_ROOMS_TAKE
   }&take=${MANAGED_ROOMS_TAKE}`
 
-  const [isUploadPage, setIsUploadPage] = useState(false) //방 내놓기 or 내 방 관리
+  const [isUploadPage, setIsUploadPage] = useState(true) //방 내놓기 or 내 방 관리
   useEffect(() => {
     //내 방 관리로 바로 이동
     router.query.isManagePage === 'true' && setIsUploadPage(false)
@@ -205,7 +205,12 @@ export default function upload() {
     setImages(images.filter((image) => image != delImage))
   }
 
-  const { mutate: addRoom } = useMutation<unknown, unknown, roomAllData, any>(
+  const { mutate: addRoom } = useMutation<
+    unknown,
+    unknown,
+    RoomUploadData,
+    any
+  >(
     (room) =>
       fetch('/api/room/add-Room', {
         method: 'POST',
