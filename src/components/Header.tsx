@@ -102,18 +102,18 @@ export default function Header() {
 
 //Header
 export const Header_Div = styled.div`
+  min-width: 1000px;
   background-color: ${subColor_lighter};
   display: flex;
   align-items: center;
   padding: 20px;
   * {
-    font-size: 12.5px;
+    font-size: 14px;
     color: ${mainColor};
     background-color: ${subColor_lighter};
   }
 `
 export const Header_Btn_B = styled.button`
-  font-size: 14px;
   width: 70px;
   margin: 5px;
   display: flex;

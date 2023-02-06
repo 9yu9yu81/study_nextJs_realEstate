@@ -64,13 +64,13 @@ export interface RoomUploadData {
 interface ManagedRoom extends Omit<Room, 'user_id' | 'description'> {
   type_id: number //전월세
   deposit: number
-  price?: number
+  fee: number
   doro: string
   detail: string
   area: number
 }
 
-export default function upload() {
+export default function Upload() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
@@ -88,13 +88,26 @@ export default function upload() {
     router.query.isManagePage === 'true' && setIsUploadPage(false)
   }, [router.query.isManagePage])
 
+  const chipStyles = {
+    root: {
+      display: 'flex',
+      alignItems: 'center',
+    },
+    label: {
+      display: 'flex',
+      height: '35px',
+      borderRadius: 0,
+      border: `0.5px solid ${subColor_medium} !important`,
+    },
+  }
+
   //state
   const [category, setCategory] = useState<string>('1') //매물종류
   const [roomType, setRoomType] = useState<string>('1') //건물유형
-  const [ym, setYm] = useState<string>('1') //전월세
+  const [ym, setYm] = useState<string>('1') //전월세종류
   const [heat, setHeat] = useState<string>('1') //난방종류
   const depositRef = useRef<HTMLInputElement | null>(null) //보증금
-  const priceRef = useRef<HTMLInputElement | null>(null) //세
+  const [fee, setFee] = useState<string>('0') //월세
   const areaRef = useRef<HTMLInputElement | null>(null) //전용면적
   const supAreaRef = useRef<HTMLInputElement | null>(null) //공급면적
   const floorRef = useRef<HTMLInputElement | null>(null) //층
@@ -104,11 +117,12 @@ export default function upload() {
   const [images, setImages] = useState<string[]>([]) //사진
   const [moveIn, setMoveIn] = useState<Date | null>(new Date()) //입주가능일
   const [modal, setModal] = useState<boolean>(false) //캘린더 모달
-  const [checked, setChecked] = useState<boolean>(false) //관리비 없음 체크
-  const mFeeRef = useRef<HTMLInputElement | null>(null) //관리비
+  const [mChecked, setMChecked] = useState<boolean>(false) //관리비 없음 체크
+  const [mFee, setMFee] = useState<string>('0') //관리비
   const [mOption, setMOption] = useState<string[]>([]) //관리비 항목
   const [elevator, setElevator] = useState<string>('0') //엘베 유무
   const [parking, setParking] = useState<string>('0') //주차가능한지
+  const [pFee, setPFee] = useState<string>('0') //주차비
   const [option, setOption] = useState<string[]>([]) //옵션항목
   const [structure, setStructure] = useState<string[]>([]) //방구조
   //daum-postcode
@@ -228,10 +242,12 @@ export default function upload() {
         setRoomType('1')
         setHeat('1')
         setMoveIn(new Date())
-        setChecked(false)
+        setMChecked(false)
         setMOption([])
+        setMFee('0')
         setElevator('0')
         setParking('0')
+        setPFee('0')
         setOption([])
         setStructure([])
         setImages([])
@@ -242,7 +258,9 @@ export default function upload() {
 
   const validate = (type: 'submit') => {
     //add room
-    //todo checking: checked && maintenence fee = 0
+    mChecked && setMFee('0') //관리비 체킹
+    parking === '0' && setPFee('0') //주차비 체킹
+    ym === '1' && setFee('0')
     if (type === 'submit') {
       addrRef.current?.value == ''
         ? alert('주소를 입력하세요.')
@@ -250,7 +268,7 @@ export default function upload() {
         ? alert('상세 주소를 입력하세요.')
         : depositRef.current?.value == ''
         ? alert('보증금을 입력하세요.')
-        : ym === '2' && priceRef.current?.value == ''
+        : ym === '2' && fee == '0'
         ? alert('가격을 입력하세요.')
         : supAreaRef.current?.value == ''
         ? alert('공급 면적을 입력하세요.')
@@ -260,9 +278,9 @@ export default function upload() {
         ? alert('건물 층수를 입력하세요.')
         : floorRef.current?.value == ''
         ? alert('해당 층수를 입력하세요.')
-        : mFeeRef.current?.value == ''
+        : !mChecked && mFee == '0'
         ? alert('관리비를 입력해주세요. 없다면 관리비 없음을 체크해 주세요.')
-        : mFeeRef.current?.value != '0' && mOption == null
+        : !mChecked && mFee != '0' && mOption == null
         ? alert('관리비 항목을 선택해주세요.')
         : floorRef.current?.value == ''
         ? alert('관리비를 입력해주세요. 없다면 관리비 없음을 체크해 주세요.')
@@ -284,7 +302,7 @@ export default function upload() {
             saleInfo: {
               type_id: Number(ym),
               deposit: Number(depositRef.current?.value),
-              price: Number(priceRef.current?.value),
+              fee: Number(fee),
             },
             basicInfo: {
               supply_area: Number(supAreaRef.current?.value),
@@ -302,10 +320,11 @@ export default function upload() {
               lng: lng,
             },
             moreInfo: {
-              maintenance_fee: Number(mFeeRef.current?.value),
+              maintenance_fee: Number(mFee),
               maintenance_ids: mOption?.join(','),
               elevator: Boolean(Number(elevator)),
               parking: Boolean(Number(elevator)),
+              parking_fee: Number(pFee),
               option_ids: option?.join(','),
               structure_ids: structure?.join(','),
             },
@@ -472,7 +491,7 @@ export default function upload() {
                   </Center_Div2>
                   <Center_Div2>
                     <Upload_Input1
-                      type={'text'}
+                      type="text"
                       placeholder="예) 번동 10-1, 강북구 번동"
                       ref={addrRef}
                       onKeyUp={handleEnterKeypress}
@@ -551,7 +570,9 @@ export default function upload() {
                       <Upload_Input2
                         type="number"
                         placeholder="월세"
-                        ref={priceRef}
+                        onChange={(e) => setFee(e.target.value)}
+                        onBlur={(e) => e.target.value === '' && setFee('0')}
+                        value={fee}
                       />{' '}
                       만원
                     </Upload_Div_Sub3>
@@ -622,9 +643,11 @@ export default function upload() {
               <Upload_Btn_Outline1 onClick={() => setModal(true)}>
                 날짜 선택
               </Upload_Btn_Outline1>
-              <Upload_Text>
-                {moveIn && format(moveIn, 'yyyy년 MM월 dd일')}
-              </Upload_Text>
+              {moveIn && (
+                <Center_Div2 style={{ marginLeft: '10px' }}>
+                  {format(moveIn, 'yyyy년 MM월 dd일')}
+                </Center_Div2>
+              )}
             </Upload_Div_Bt>
           </Upload_Div_B>
           <Upload_Div_B>
@@ -635,15 +658,16 @@ export default function upload() {
                 <Upload_Div_Sub3 className="border-b space-x-5">
                   <Upload_Input2
                     type="number"
-                    disabled={checked}
-                    ref={mFeeRef}
-                    value={checked ? '0' : undefined}
+                    disabled={mChecked}
+                    onChange={(e) => setMFee(e.target.value)}
+                    onBlur={(e) => e.target.value === '' && setMFee('0')}
+                    value={mChecked ? '0' : mFee}
                   />{' '}
                   만원
                   <CustomCheckBox
                     label="관리비 없음"
-                    checked={checked}
-                    onChange={(e) => setChecked(e.target.checked)}
+                    checked={mChecked}
+                    onChange={(e) => setMChecked(e.target.checked)}
                   />
                 </Upload_Div_Sub3>
                 <Upload_Div_Sub3>
@@ -665,12 +689,7 @@ export default function upload() {
                       <Chip
                         key={idx}
                         color={'dark'}
-                        styles={(theme) => ({
-                          label: {
-                            borderRadius: 0,
-                            border: `0.5px solid ${subColor_medium} !important`,
-                          },
-                        })}
+                        styles={(theme) => chipStyles}
                         value={String(idx + 1)}
                       >
                         {m}
@@ -706,6 +725,17 @@ export default function upload() {
                     { value: '1', label: '가능' },
                   ]}
                 />
+                {parking === '1' && (
+                  <>
+                    <Upload_Input4
+                      type="number"
+                      onChange={(e) => setPFee(e.target.value)}
+                      onBlur={(e) => e.target.value === '' && setPFee('0')}
+                      value={pFee}
+                    />{' '}
+                    만원
+                  </>
+                )}
               </Upload_Div_Sub1>
             </Upload_Div_Bt>
             <Upload_Div_Bt>
@@ -724,12 +754,7 @@ export default function upload() {
                     <Chip
                       key={idx}
                       color={'dark'}
-                      styles={(theme) => ({
-                        label: {
-                          borderRadius: 0,
-                          border: `0.5px solid ${subColor_medium} !important`,
-                        },
-                      })}
+                      styles={(theme) => chipStyles}
                       value={String(idx + 1)}
                     >
                       {s}
@@ -754,12 +779,7 @@ export default function upload() {
                     <Chip
                       key={idx}
                       color={'dark'}
-                      styles={(theme) => ({
-                        label: {
-                          borderRadius: 0,
-                          border: `0.5px solid ${subColor_medium} !important`,
-                        },
-                      })}
+                      styles={(theme) => chipStyles}
                       value={String(idx + 1)}
                     >
                       {o}
@@ -799,24 +819,23 @@ export default function upload() {
                     </Upload_Btn_Submit>
                   )}
                 </FileButton>
-                <div className="grid grid-cols-4 items-center space-y-2 mt-5">
+                <div className="items-center mt-5 flex flex-wrap bg-zinc-100 pt-5 pb-5">
                   {images &&
                     images.length > 0 &&
                     images.map((image, idx) => (
-                      <div className="relative" key={idx}>
-                        <Image
-                          alt={'img'}
-                          key={idx}
-                          src={image}
-                          width={200}
-                          height={200}
-                        />
-                        <HoverDiv
-                          className="absolute top-0 right-5"
-                          onClick={() => handleImgDel(image)}
-                        >
-                          <IconX color="red" size={18} stroke={1.5} />
-                        </HoverDiv>
+                      <div
+                        key={idx}
+                        style={{
+                          position: 'relative',
+                          width: '220px',
+                          height: '165px',
+                          margin: '10px',
+                        }}
+                      >
+                        <Image alt={'img'} key={idx} src={image} fill />
+                        <Img_Hover_Div onClick={() => handleImgDel(image)}>
+                          X
+                        </Img_Hover_Div>
                       </div>
                     ))}
                 </div>
@@ -824,10 +843,10 @@ export default function upload() {
             </div>
             <Center_Div2 className="m-3">
               <IconExclamationCircle size={18} className="mr-1" />
-              <span style={{ fontSize: '13px' }}>
+              <div style={{ fontSize: '13px' }}>
                 허위 매물을 등록할 경우 MySpot에서 임의로 계정 및 매물 전체 삭제
                 처리됩니다.
-              </span>
+              </div>
             </Center_Div2>
           </Upload_Div_B>
           <Center_Div
@@ -877,7 +896,7 @@ export default function upload() {
                       일
                     </div>
                   </Manage_Div_150>
-                  <StyledImage style={{ width: '300px', height: '220px' }}>
+                  <StyledImage style={{ width: '300px', height: '225px' }}>
                     <Image
                       alt="thumbnail"
                       className="styled"
@@ -890,7 +909,7 @@ export default function upload() {
                     <Manage_Div_Bold>
                       {CATEGORY_MAP[room.category_id - 1]}{' '}
                       {YEAR_MONTH_MAP[room.type_id - 1]} {room.deposit}
-                      {room.price !== null && `/${room.price}`}
+                      {room.fee !== null && `/${room.fee}`}
                     </Manage_Div_Bold>
                     <div>{room.doro}</div>
                     <div>{room.detail}</div>
@@ -987,7 +1006,7 @@ const Upload_Btn_Submit = styled(Upload_Btn_Medium)`
   color: ${subColor_lighter};
   background-color: ${mainColor};
 `
-const Upload_Btn_Outline = styled(Upload_Btn_Medium)`
+export const Upload_Btn_Outline = styled(Upload_Btn_Medium)`
   color: ${mainColor};
   border: 0.5px solid ${subColor_medium};
 `
@@ -1019,43 +1038,45 @@ const Upload_Input = styled.input`
   }
   border: 0.5px solid ${subColor_medium};
   font-size: ${fontsize - 1}px;
+  padding: 10px;
+  margin: 10px;
 `
 const Upload_Input1 = styled(Upload_Input)`
   height: 40px;
   width: 330px;
-  padding: 10px;
   margin: 20px 10px 20px 0;
 `
 const Upload_Input2 = styled(Upload_Input)`
   height: 40px;
   width: 110px;
-  padding: 10px;
-  margin: 10px;
 `
 
 const Upload_Input3 = styled(Upload_Input)`
   height: 40px;
   min-width: 840px;
-  padding: 10px;
   margin: 5px;
+`
+const Upload_Input4 = styled(Upload_Input)`
+  height: 40px;
+  width: 60px;
 `
 
 //text
-const Upload_Text = styled.text`
-  border: 0.5px solid ${subColor_medium};
-  padding: 10px;
-  font-size: 12px;
-  color: ${subColor_medium};
-  :hover {
-    border: 0.5px solid ${mainColor};
-  }
-  :focus {
-    outline: none !important;
-    border: 1px solid ${mainColor};
-  }
-  margin: 10px;
-  resize: none;
-`
+// const Upload_Text = styled.text`
+//   border: 0.5px solid ${subColor_medium};
+//   padding: 10px;
+//   font-size: 12px;
+//   color: ${subColor_medium};
+//   :hover {
+//     border: 0.5px solid ${mainColor};
+//   }
+//   :focus {
+//     outline: none !important;
+//     border: 1px solid ${mainColor};
+//   }
+//   margin: 10px;
+//   resize: none;
+// `
 //textarea
 const Upload_Textarea = styled.textarea`
   border: 0.5px solid ${subColor_medium};
@@ -1188,4 +1209,16 @@ const Manage_Btn_Wrapper = styled.div`
   grid-template-rows: repeat(2, 1fr);
   width: 160px;
   margin-top: auto;
+`
+const Img_Hover_Div = styled(HoverDiv)`
+  width: 18px;
+  height: 18px;
+  background-color: ${subColor_light};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
 `

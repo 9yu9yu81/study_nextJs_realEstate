@@ -19,7 +19,6 @@ export const Center_Div = styled.div`
 `
 export const Center2_Div = styled.div`
   display: flex;
-  // justify-content: center;
   align-items: center;
 `
 export const CB = styled.div`

@@ -146,7 +146,7 @@ model SaleInfo {
   type          SaleInfoType @relation(fields: [type_id], references: [id], onDelete: Cascade)
   type_id       Int
   deposit       Int
-  price         Int?
+  fee           Int
 }
 
 
@@ -158,6 +158,7 @@ model MoreInfo {
   maintenance_ids String?
   elevator        Boolean
   parking         Boolean
+  parking_fee     Int
   structure_ids   String?
   option_ids      String?
 }

@@ -8,7 +8,7 @@ async function getManagedRooms(user_id: string, skip: number, take: number) {
   try {
     const response = await prisma.$queryRaw`
       select r.id, r.category_id, r.status_id,r.updatedAt, r.title, r.views, r.wished, r.images, 
-            s.type_id, s.deposit, s.price,
+            s.type_id, s.deposit, s.fee,
             a.doro, a.detail,
             b.area
             from Room as r, SaleInfo as s, AddressInfo as a, BasicInfo as b

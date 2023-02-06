@@ -120,7 +120,7 @@ addrMockData.map((addr, idx) => {
     RoomMockData.push({
       id: idx + 1,
       category_id: getIntRandom(1, 5),
-      user_id: 'cldbjk9qz0000qjt889kxl2dj',
+      user_id: 'cldsik8e40000qjsvhgz5i629',
       status_id: 1,
       type_id: getIntRandom(1, 4),
       updatedAt: new Date(),
@@ -165,15 +165,16 @@ addrMockData.map((addr, idx) => {
       room_id: idx + 1,
       type_id: 2,
       deposit: Math.round(getIntRandom(200, 2000) / 100) * 100,
-      price: getIntRandom(25, 50),
+      fee: getIntRandom(25, 50),
     })
     MoreInfoMockData.push({
       id: idx + 1,
       room_id: idx + 1,
       maintenance_fee: getIntRandom(1, 10),
-      maintenance_ids: '1,2,3,4,5,6,7',
+      maintenance_ids: '1,2,3,5,6',
       elevator: Boolean(getIntRandom(0, 1)),
-      parking: Boolean(getIntRandom(0, 1)),
+      parking: true,
+      parking_fee: getIntRandom(0, 10),
       structure_ids: '1,2',
       option_ids: '1,2,3,4,5,6,7,8,9,10,11,12,13',
     })
@@ -227,7 +228,7 @@ addrMockData.map((addr, idx) => {
       room_id: idx + 1,
       type_id: 1,
       deposit: Math.round(getIntRandom(5000, 20000) / 1000) * 1000,
-      price: null,
+      fee: 0,
     })
     MoreInfoMockData.push({
       id: idx + 1,
@@ -235,7 +236,8 @@ addrMockData.map((addr, idx) => {
       maintenance_fee: getIntRandom(1, 10),
       maintenance_ids: '1,3,5',
       elevator: Boolean(getIntRandom(0, 1)),
-      parking: Boolean(getIntRandom(0, 1)),
+      parking: true,
+      parking_fee: getIntRandom(0, 10),
       structure_ids: null,
       option_ids: '1,2,3,4,7,8,9,10,11,12',
     })
@@ -288,7 +290,7 @@ addrMockData.map((addr, idx) => {
       room_id: idx + 1,
       type_id: 2,
       deposit: Math.round(getIntRandom(100, 1000) / 100) * 100,
-      price: getIntRandom(30, 60),
+      fee: getIntRandom(30, 60),
     })
     MoreInfoMockData.push({
       id: idx + 1,
@@ -296,7 +298,8 @@ addrMockData.map((addr, idx) => {
       maintenance_fee: getIntRandom(1, 10),
       maintenance_ids: '2,3,5',
       elevator: Boolean(getIntRandom(0, 1)),
-      parking: Boolean(getIntRandom(0, 1)),
+      parking: false,
+      parking_fee: 0,
       structure_ids: '2',
       option_ids: '1,3,5,6,7,8,10',
     })

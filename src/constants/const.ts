@@ -59,13 +59,13 @@ export const getOrderBy = (orderBy: string) => {
       : orderBy === 'expensive'
       ? {
           orderBy: {
-            price: 'desc',
+            fee: 'desc',
           },
         }
       : orderBy === 'cheap'
       ? {
           orderBy: {
-            price: 'asc',
+            fee: 'asc',
           },
         }
       : orderBy === 'mostViewed'

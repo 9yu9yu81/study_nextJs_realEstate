@@ -1,4 +1,5 @@
-import { Button, Loader, Modal } from '@mantine/core'
+import styled from '@emotion/styled'
+import { Flex, Loader, Modal, RingProgress } from '@mantine/core'
 import {
   AddressInfo,
   BasicInfo,
@@ -7,8 +8,8 @@ import {
   SaleInfo,
 } from '@prisma/client'
 import {
-  IconCaretLeft,
-  IconCaretRight,
+  IconChevronLeft,
+  IconChevronRight,
   IconDotsCircleHorizontal,
   IconEdit,
   IconHeart,
@@ -17,21 +18,29 @@ import {
 } from '@tabler/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  B,
-  Bb,
-  Bl,
-  Bt,
-  CHoverDiv,
-  Center_Div,
+  Center2_Div,
   StyledImage,
+  mainColor,
+  subColor_Dark,
+  subColor_light,
+  subColor_lighter,
+  subColor_medium,
 } from 'components/styledComponent'
-import { CATEGORY_MAP, YEAR_MONTH_MAP } from 'constants/const'
+import { CATEGORY_MAP, MAINTENENCE_MAP, YEAR_MONTH_MAP } from 'constants/const'
 import { format } from 'date-fns'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import Carousel from 'nuka-carousel'
+import { Upload_Btn_Outline } from 'pages/upload'
 import { useEffect, useState } from 'react'
+
+const carouselConfig = {
+  nextButtonText: <IconChevronRight color="black" size={40} stroke={1.5} />,
+  nextButtonStyle: { background: 'rgba(0,0,0,0)' },
+  prevButtonText: <IconChevronLeft color="black" size={40} stroke={1.5} />,
+  prevButtonStyle: { background: 'rgba(0,0,0,0)' },
+}
 
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
@@ -57,30 +66,54 @@ type RoomAllData = Room &
   Omit<MoreInfo, 'id' | 'room_id'>
 
 export default function RoomIndex(room: RoomAllData) {
-  const [carousel, setCarousel] = useState(false)
+  const [modal, setModal] = useState<boolean>(false)
+  const [imgIndex, setImgIndex] = useState<number>(0)
+  const mList: number[] = [] //관리비 항목
+  const noMList: number[] = [] //관리비 제외 항목
+  for (let i = 0; i < MAINTENENCE_MAP.length; i++) {
+    //관리비 항목 나누기
+    room.maintenance_ids?.split(',').includes(String(i + 1))
+      ? mList.push(i)
+      : noMList.push(i)
+  }
+  const showMList = (list: number[]) => {
+    //관리 항목 보여주기
+    return list.map((m, idx) => (
+      <span key={m} style={{ color: `${subColor_Dark}` }}>
+        {MAINTENENCE_MAP[Number(m)]}
+        {idx < list.length - 1 && ', '}
+      </span>
+    ))
+  }
+  const optionList: string[] | undefined = room.option_ids?.split(',')
+  const openModal = (idx: number) => {
+    setModal(true)
+    setImgIndex(idx)
+  }
+
   const queryClient = useQueryClient()
   const router = useRouter()
   const ROOM_QUERY_KEY = `/api/room/get-Room?id=${room.id}`
   //increase views
-  const { mutate: increaseViews } = useMutation<
-    unknown,
-    unknown,
-    Pick<Room, 'id' | 'views'>,
-    any
-  >(
-    (items) =>
-      fetch('/api/room/update-Room-views', {
-        method: 'POST',
-        body: JSON.stringify(items),
-      })
-        .then((data) => data.json())
-        .then((res) => res.items),
-    {
-      onSuccess: async () => {
-        queryClient.invalidateQueries([ROOM_QUERY_KEY])
-      },
-    }
-  )
+  // const { mutate: increaseViews } = useMutation<
+  //   unknown,
+  //   unknown,
+  //   Pick<Room, 'id' | 'views'>,
+  //   any
+  // >(
+  //   (items) =>
+  //     fetch('/api/room/update-Room-views', {
+  //       method: 'POST',
+  //       body: JSON.stringify(items),
+  //     })
+  //       .then((data) => data.json())
+  //       .then((res) => res.items),
+  //   {
+  //     onSuccess: async () => {
+  //       queryClient.invalidateQueries([ROOM_QUERY_KEY])
+  //     },
+  //   }
+  // )
 
   //increase views
   // useEffect(() => {
@@ -176,280 +209,186 @@ export default function RoomIndex(room: RoomAllData) {
   // }
 
   return (
-    <>
-      <div>{room.doro}</div>
-      {/* <Cbb className="m-5 pb-3 text-xs font-light text-zinc-600">
-        <div className="text-lg relative">
-          {props.title}
-          <div className="absolute left-0 top-12 text-xs">
-            게시일: {format(new Date(props.updatedAt), 'yyyy/MM/dd')}
-          </div>
-        </div>
-        <div className="ml-auto flex">
-          {props.userId === session?.user.id ? (
-            <div className="flex relative">
-              <Center_Div
-                style={{ width: '160px' }}
-                className="absolute bottom-10 left-44"
-              >
-                <CHoverDiv onClick={() => updateWishlist(props.id)}>
-                  {isLoading ? (
-                    <>
-                      <IconHeart
-                        color="red"
-                        fill="red"
-                        size={18}
-                        stroke={1.25}
-                        className="mr-1"
-                      />
-                      <Loader size={15} />
-                    </>
-                  ) : isWished ? (
-                    <>
-                      <IconHeart
-                        color="red"
-                        fill="red"
-                        size={18}
-                        stroke={1.25}
-                        className="mr-1"
-                      />
-                      관심목록에 추가 됨
-                    </>
-                  ) : (
-                    <>
-                      <IconHeartBroken
-                        color="gray"
-                        size={18}
-                        stroke={1.25}
-                        className="mr-1"
-                      />
-                      관심목록에 추가
-                    </>
-                  )}
-                </CHoverDiv>
-              </Center_Div>
-              <Center_Div
-                onClick={() =>
-                  increaseViews({ id: props.id, views: props.views + 1 })
-                }
-                className="p-2"
-                style={{ width: '60px' }}
-              >
-                <IconEyeCheck size={18} stroke={1} />
-                {props.views + 1}
-              </Center_Div>
-              <Center_Div className="p-2 mr-1" style={{ width: '60px' }}>
-                <IconHeart color="red" fill="red" size={18} stroke={1} />
-                {wished}
-              </Center_Div>
-              <CHoverDiv
-                onClick={() => router.push(`/rooms/${props.id}/edit`)}
-                className="p-2 bg-blue-400 text-white font-normal"
-                style={{ width: '120px' }}
-              >
-                <IconEdit size={18} stroke={1} />
-                수정하기
-              </CHoverDiv>
-              <CHoverDiv
-                onClick={() => validate('delete')}
-                className="p-2 bg-red-500 text-white font-normal"
-                style={{ width: '120px' }}
-              >
-                <IconX size={18} stroke={1} />
-                매물삭제
-              </CHoverDiv>
-            </div>
-          ) : (
-            <>
-              <Center_Div style={{ width: '60px' }}>
-                <IconEyeCheck size={18} stroke={1} />
-                {props.views + 1}
-              </Center_Div>
-              {session && (
-                <Center_Div style={{ width: '160px' }}>
-                  <CHoverDiv onClick={() => updateWishlist(props.id)}>
-                    {isWished ? (
-                      <>
-                        <IconHeart
-                          color="red"
-                          fill="red"
-                          size={18}
-                          stroke={1.25}
-                          className="mr-1"
-                        />
-                        관심목록에 추가 됨
-                      </>
-                    ) : (
-                      <>
-                        <IconHeartBroken
-                          color="gray"
-                          size={18}
-                          stroke={1.25}
-                          className="mr-1"
-                        />
-                        관심목록에 추가
-                      </>
-                    )}
-                  </CHoverDiv>
-                </Center_Div>
-              )}
-            </>
-          )}
-        </div>
-      </Cbb>
-      <div>
+    <Info_Div>
+      <Img_Wrapper>
         <Modal
-          opened={carousel}
-          onClose={() => setCarousel(false)}
+          opened={modal}
+          onClose={() => setModal(false)}
           withCloseButton={false}
           centered
-          size={700}
+          size={1000}
         >
           <Carousel
-            adaptiveHeight={true}
+            slideIndex={imgIndex}
             wrapAround
-            defaultControlsConfig={{
-              nextButtonText: (
-                <IconCaretRight color="black" size={30} stroke={1.5} />
-              ),
-              nextButtonStyle: { background: 'rgba(0,0,0,0)' },
-              prevButtonText: (
-                <IconCaretLeft color="black" size={30} stroke={1.5} />
-              ),
-              prevButtonStyle: { background: 'rgba(0,0,0,0)' },
-            }}
+            defaultControlsConfig={carouselConfig}
           >
-            {props.images.split(',').map((image, idx) => (
+            {room.images.split(',').map((img, idx) => (
               <div
                 key={idx}
                 className="relative"
-                style={{ width: '700px', height: '500px' }}
+                style={{ width: '1000px', height: '750px' }}
               >
-                <Image src={image} alt="carousel" key={idx} fill />
+                <Image src={img} alt="carousel" key={idx} fill />
               </div>
             ))}
           </Carousel>
         </Modal>
-        <Center_Div className="space-x-3">
-          <div>
-            <StyledImage
-              style={{ width: '490px', height: '380px', margin: '5px' }}
-            >
+        <Carousel
+          wrapAround
+          slidesToShow={2}
+          cellAlign="center"
+          defaultControlsConfig={carouselConfig}
+        >
+          {room.images.split(',').map((image, idx) => (
+            <StyledImage1 key={idx} onClick={() => openModal(idx)}>
               <Image
-                onClick={() => setCarousel(true)}
                 className="styled"
-                src={props.images.split(',')[0]}
-                alt={'thumbnail'}
+                alt="img1"
+                src={room.images.split(',')[idx]}
                 fill
               />
-            </StyledImage>
-            <div className="grid grid-cols-2 grid-rows-2">
-              {props.images.split(',').map(
-                (image, idx) =>
-                  idx > 0 &&
-                  idx < 5 && (
-                    <StyledImage
-                      key={idx}
-                      className="relative"
-                      style={{
-                        width: '240px',
-                        height: '190px',
-                        margin: '5px',
-                      }}
-                    >
-                      <Image
-                        onClick={() => setCarousel(true)}
-                        className="styled"
-                        src={image}
-                        alt="image"
-                        fill
-                      />
-                    </StyledImage>
-                  )
-              )}
+            </StyledImage1>
+          ))}
+        </Carousel>
+        <Img_Btn onClick={() => openModal(0)}>사진 크게 보기</Img_Btn>
+      </Img_Wrapper>
+      <Info_Div1_Col>
+        <Info_Div_Title>가격정보</Info_Div_Title>
+        <Info_Div1_B>
+          <Info_Div_SubTitle>
+            {room.sType_id === 1 ? <div>전세</div> : <div>월세</div>}
+          </Info_Div_SubTitle>
+          {room.sType_id === 1 ? (
+            <Info_Div2>{room.deposit}</Info_Div2>
+          ) : (
+            <Info_Div2>
+              {room.deposit}/{room.fee}
+            </Info_Div2>
+          )}
+        </Info_Div1_B>
+        <Info_Div1_B>
+          <Info_Div_SubTitle>관리비</Info_Div_SubTitle>
+          {room.maintenance_fee === 0 ? (
+            <Info_Div2>관리비 없음</Info_Div2>
+          ) : (
+            <div>
+              <Info_Div2_B>
+                <div>매월 {room.maintenance_fee} 만원</div>
+                <div>{showMList(mList)}</div>
+              </Info_Div2_B>
+              <Info_Div2>
+                별도 금액으로 부과되는 항목
+                <div>{showMList(noMList)}</div>
+              </Info_Div2>
             </div>
-            {props.images.split(',').length > 5 && (
-              <Center_Div className="text-xs text-zinc-500">
-                <Button
-                  onClick={() => setCarousel(true)}
-                  variant="subtle"
-                  color={'gray'}
-                  leftIcon={
-                    <IconDotsCircleHorizontal size={18} stroke={1.25} />
-                  }
-                >
-                  모든 사진 보기
-                </Button>
-              </Center_Div>
-            )}
-          </div>
-          <div>
-            <B className="flex-col" style={{ width: '480px' }}>
-              <div className="flex font-bold p-3">
-                <span>매물 정보</span>
-              </div>
-              <Bt className="flex flex-col w-full text-xs">
-                <div className="flex w-full items-center">
-                  <span className="w-32 flex justify-center">매물 종류</span>
-                  <Bl className="p-3">
-                    {CATEGORY_MAP[Number(props.categoryId)]}
-                  </Bl>
-                </div>
-              </Bt>
-              <Bt className="flex font-bold p-3">
-                <span>위치 정보</span>
-              </Bt>
-              <Bt className="flex flex-col w-full text-xs">
-                <Bb className="flex w-full items-center">
-                  <span className="w-32 flex justify-center">주소</span>
-                  <Bl className="p-3">{props.address}</Bl>
-                </Bb>
-                <div className="flex w-full items-center">
-                  <span className="w-32 flex justify-center">상세 주소</span>
-                  <Bl className="p-3">{props.detailAddress}</Bl>
-                </div>
-              </Bt>
-              <Bt className="flex font-bold p-3">
-                <span>거래 정보</span>
-              </Bt>
-              <Bt className="flex flex-col w-full text-xs">
-                <Bb className="flex w-full items-center">
-                  <span className="w-32 flex justify-center">거래 종류</span>
-                  <Bl className="p-3">{YEAR_MONTH_MAP[Number(props.ym)]}</Bl>
-                </Bb>
-                <div className="flex w-full items-center">
-                  <span className="w-32 flex justify-center">가격</span>
-                  <Bl className="p-3">
-                    {props.ym === '0'
-                      ? `${props.price} 만원`
-                      : `${props.deposit} / ${props.price} 만원`}
-                  </Bl>
-                </div>
-              </Bt>
-              <Bt className="flex font-bold p-3">
-                <span>기본 정보</span>
-              </Bt>
-              <Bt className="flex flex-col w-full text-xs">
-                <div className="flex w-full items-center">
-                  <span className="w-32 flex justify-center">건물 크기</span>
-                  <Bl className="p-3">{props.area}평</Bl>
-                </div>
-              </Bt>
-              <Bt className="flex font-bold p-3">
-                <span>상세 설명</span>
-              </Bt>
-              <Bt className="flex flex-col w-full text-xs">
-                <div
-                  className="flex w-full p-7"
-                  style={{ whiteSpace: 'pre-wrap' }}
-                >
-                  {props.description}
-                </div>
-              </Bt>
-            </B>
-          </div>
-        </Center_Div>
-      </div> */}
-    </>
+          )}
+        </Info_Div1_B>
+        {room.parking && (
+          <Info_Div1_B>
+            <Info_Div_SubTitle>주차비</Info_Div_SubTitle>
+            <Info_Div2>{room.parking_fee} 만원</Info_Div2>
+          </Info_Div1_B>
+        )}
+        <Info_Div1_B>
+          <Info_Div_SubTitle>
+            한달 <br />
+            예상 주거비용
+          </Info_Div_SubTitle>
+          <Info_Div2>
+            <div>
+              {room.parking_fee + room.maintenance_fee + room.fee} 만원 + α
+            </div>
+            <div style={{ color: `${subColor_Dark}` }}>
+              ( 월세 + 관리비 + 주차비 )
+            </div>
+            <div style={{ color: `${subColor_medium}`, fontSize: '15px' }}>
+              별도 금액으로 부과되는 항목 제외
+            </div>
+          </Info_Div2>
+        </Info_Div1_B>
+      </Info_Div1_Col>
+      <Info_Div1_Col>
+        <Info_Div_Title>상세정보</Info_Div_Title>
+        <Info_Div1_B>
+          <Info_Div_SubTitle>방종류</Info_Div_SubTitle>
+          <Info_Div2>{CATEGORY_MAP[room.category_id - 1]}</Info_Div2>
+        </Info_Div1_B>
+        <Info_Div1_B>
+          <Info_Div_SubTitle>해당층/건물층</Info_Div_SubTitle>
+          <Info_Div2>
+            {room.floor}층 / {room.total_floor}층
+          </Info_Div2>
+        </Info_Div1_B>
+        <Info_Div1_B>
+          <Info_Div_SubTitle>공급면적</Info_Div_SubTitle>
+          <Info_Div2>{room.supply_area} 평</Info_Div2>
+        </Info_Div1_B>
+        <Info_Div1_B>
+          <Info_Div_SubTitle>전용면적</Info_Div_SubTitle>
+          <Info_Div2>{room.area} 평</Info_Div2>
+        </Info_Div1_B>
+      </Info_Div1_Col>
+    </Info_Div>
   )
 }
+const Img_Wrapper = styled.div`
+  width: 1000px;
+  margin: 30px 0 30px 0;
+  position: relative;
+`
+const StyledImage1 = styled(StyledImage)`
+  width: 492px;
+  height: 369px;
+  display: flex;
+  margin-right: 8px;
+`
+const Img_Btn = styled(Upload_Btn_Outline)`
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  background-color: ${subColor_lighter};
+`
+
+const Info_Div = styled.div`
+  margin: 30px 0 30px 0;
+  * {
+    color: ${mainColor};
+    font-size: 16px;
+  }
+`
+const Info_Div1 = styled.div`
+  width: 700px;
+  display: flex;
+`
+const Info_Div1_Col = styled(Info_Div1)`
+  flex-flow: column;
+  margin: 60px 0 60px 0;
+`
+const Info_Div1_B = styled(Info_Div1)`
+  border-bottom: 1px solid ${subColor_light};
+  padding: 15px 0 15px 0;
+`
+const Info_Div2 = styled.div`
+  display: flex;
+  width: 550px;
+  flex-flow: column;
+  * {
+    line-height: 180%;
+  }
+`
+const Info_Div2_B = styled(Info_Div2)`
+  border-bottom: 1px solid ${subColor_light};
+  padding: 0 0 15px 0;
+  margin: 0 0 15px 0;
+`
+const Info_Div_Title = styled(Center2_Div)`
+  font-weight: 700;
+  font-size: 25px;
+  margin: 0 0 20px 0;
+`
+const Info_Div_SubTitle = styled(Info_Div_Title)`
+  width: 150px;
+  margin-bottom: auto;
+  font-size: 17px;
+`
