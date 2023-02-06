@@ -63,7 +63,6 @@ export default function Map({
       <Center_Div>
         <div
           id="map"
-          className=" border border-zinc-500"
           style={{
             width: width,
             height: height,

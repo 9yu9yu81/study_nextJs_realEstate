@@ -321,12 +321,13 @@ export default function Upload() {
             },
             moreInfo: {
               maintenance_fee: Number(mFee),
-              maintenance_ids: mOption?.join(','),
+              maintenance_ids: mOption.length === 0 ? null : mOption.join(','),
               elevator: Boolean(Number(elevator)),
               parking: Boolean(Number(elevator)),
               parking_fee: Number(pFee),
-              option_ids: option?.join(','),
-              structure_ids: structure?.join(','),
+              option_ids: option.length === 0 ? null : option.join(','),
+              structure_ids:
+                structure.length === 0 ? null : structure.join(','),
             },
           })
     }
@@ -782,7 +783,7 @@ export default function Upload() {
                       styles={(theme) => chipStyles}
                       value={String(idx + 1)}
                     >
-                      {o}
+                      {o.value}
                     </Chip>
                   ))}
                 </Chip.Group>

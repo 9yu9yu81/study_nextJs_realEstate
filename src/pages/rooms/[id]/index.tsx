@@ -17,8 +17,10 @@ import {
   IconX,
 } from '@tabler/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import MapN from 'components/MapN'
 import {
   Center2_Div,
+  Center_Div,
   StyledImage,
   mainColor,
   subColor_Dark,
@@ -26,8 +28,16 @@ import {
   subColor_lighter,
   subColor_medium,
 } from 'components/styledComponent'
-import { CATEGORY_MAP, MAINTENENCE_MAP, YEAR_MONTH_MAP } from 'constants/const'
-import { format } from 'date-fns'
+import {
+  CATEGORY_MAP,
+  HEAT_MAP,
+  MAINTENENCE_MAP,
+  OPTION_MAP,
+  STRUCTURE_MAP,
+  TYPE_MAP,
+  YEAR_MONTH_MAP,
+} from 'constants/const'
+import { compareAsc, format } from 'date-fns'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -86,6 +96,19 @@ export default function RoomIndex(room: RoomAllData) {
     ))
   }
   const optionList: string[] | undefined = room.option_ids?.split(',')
+  const showOptionList = () => {
+    return optionList?.map((item, idx) => (
+      <Info_Div_Option key={idx}>
+        <Image
+          src={OPTION_MAP[Number(item) - 1].icon}
+          alt={OPTION_MAP[Number(item) - 1].value}
+          width={50}
+          height={50}
+        />
+        {OPTION_MAP[Number(item) - 1].value}
+      </Info_Div_Option>
+    ))
+  }
   const openModal = (idx: number) => {
     setModal(true)
     setImgIndex(idx)
@@ -328,6 +351,68 @@ export default function RoomIndex(room: RoomAllData) {
           <Info_Div_SubTitle>전용면적</Info_Div_SubTitle>
           <Info_Div2>{room.area} 평</Info_Div2>
         </Info_Div1_B>
+        <Info_Div1_B>
+          <Info_Div_SubTitle>난방종류</Info_Div_SubTitle>
+          <Info_Div2>{HEAT_MAP[room.heat_id - 1]}</Info_Div2>
+        </Info_Div1_B>
+        <Info_Div1_B>
+          <Info_Div_SubTitle>주차</Info_Div_SubTitle>
+          <Info_Div2>{room.parking ? '가능' : '불가능'}</Info_Div2>
+        </Info_Div1_B>
+        <Info_Div1_B>
+          <Info_Div_SubTitle>엘리베이터</Info_Div_SubTitle>
+          <Info_Div2>{room.elevator ? '있음' : '없음'}</Info_Div2>
+        </Info_Div1_B>
+        {room.structure_ids !== null && (
+          <Info_Div1_B>
+            <Info_Div_SubTitle>방 구조</Info_Div_SubTitle>
+            <Info_Div2>
+              {room.structure_ids.split(',').map((item, idx) => (
+                <div key={idx}>{STRUCTURE_MAP[Number(item)]}</div>
+              ))}
+            </Info_Div2>
+          </Info_Div1_B>
+        )}
+        <Info_Div1_B>
+          <Info_Div_SubTitle>입주가능일</Info_Div_SubTitle>
+          <Info_Div2>
+            {compareAsc(new Date(room.move_in), new Date()) === -1
+              ? '즉시 입주 가능'
+              : format(new Date(room.move_in), 'yyyy년 MM월 dd일')}
+          </Info_Div2>
+        </Info_Div1_B>
+        <Info_Div1_B>
+          <Info_Div_SubTitle>건물유형</Info_Div_SubTitle>
+          <Info_Div2>{TYPE_MAP[room.type_id - 1]}</Info_Div2>
+        </Info_Div1_B>
+        <Info_Div1_B>
+          <Info_Div_SubTitle>최초등록일</Info_Div_SubTitle>
+          <Info_Div2>
+            {format(new Date(room.updatedAt), 'yyyy년 MM월 dd일')}
+          </Info_Div2>
+        </Info_Div1_B>
+      </Info_Div1_Col>
+      {room.option_ids && optionList && (
+        <Info_Div1_Col>
+          <Info_Div_Title>옵션</Info_Div_Title>
+          <Info_Div1 style={{ flexWrap: 'wrap' }}>{showOptionList()}</Info_Div1>
+        </Info_Div1_Col>
+      )}
+      <Info_Div1_Col>
+        <Info_Div_Title>위치 및 주변시설</Info_Div_Title>
+        <div style={{ marginBottom: '30px' }}>
+          {room.doro} {room.detail}
+        </div>
+        <MapN width="700px" height="400px" address={room.doro} />
+      </Info_Div1_Col>
+      <Info_Div1_Col>
+        <Info_Div_Title>상세 설명</Info_Div_Title>
+        <Info_Div_Bg>
+          <div style={{ fontWeight: '700', marginBottom: '15px' }}>
+            {room.title}
+          </div>
+          <div>{room.description}</div>
+        </Info_Div_Bg>
       </Info_Div1_Col>
     </Info_Div>
   )
@@ -356,6 +441,8 @@ const Info_Div = styled.div`
     color: ${mainColor};
     font-size: 16px;
   }
+  width: 1000px;
+  position: relative;
 `
 const Info_Div1 = styled.div`
   width: 700px;
@@ -369,6 +456,14 @@ const Info_Div1_B = styled(Info_Div1)`
   border-bottom: 1px solid ${subColor_light};
   padding: 15px 0 15px 0;
 `
+const Info_Div_Bg = styled(Info_Div1)`
+  padding: 40px 20px 40px 20px;
+  background-color: ${subColor_lighter};
+  white-space: pre;
+  line-height: 180%;
+  flex-flow: column;
+`
+
 const Info_Div2 = styled.div`
   display: flex;
   width: 550px;
@@ -391,4 +486,9 @@ const Info_Div_SubTitle = styled(Info_Div_Title)`
   width: 150px;
   margin-bottom: auto;
   font-size: 17px;
+`
+const Info_Div_Option = styled(Center_Div)`
+  width: 70px;
+  flex-flow: column;
+  margin: 10px 20px 20px 0;
 `

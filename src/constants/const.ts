@@ -25,19 +25,19 @@ export const MAINTENENCE_MAP = [
 ]
 export const STRUCTURE_MAP = ['복층', '1.5룸/주방분리형']
 export const OPTION_MAP = [
-  '인덕션',
-  '전자레인지',
-  '에어컨',
-  '세탁기',
-  'TV',
-  '옷장',
-  '침대',
-  '책상',
-  '신발장',
-  '비데',
-  '가스레인지',
-  '냉장고',
-  '전자도어락',
+  { value: '인덕션', icon: '/../public/icons/induction.png' },
+  { value: '전자레인지', icon: '/../public/icons/microwave.png' },
+  { value: '에어컨', icon: '/../public/icons/airConditioner.png' },
+  { value: '세탁기', icon: '/../public/icons/washer.png' },
+  { value: 'TV', icon: '/../public/icons/TV.png' },
+  { value: '옷장', icon: '/../public/icons/closet.png' },
+  { value: '침대', icon: '/../public/icons/bed.png' },
+  { value: '책상', icon: '/../public/icons/desk.png' },
+  { value: '신발장', icon: '/../public/icons/shoerack.png' },
+  { value: '비데', icon: '/../public/icons/bidet.png' },
+  { value: '가스레인지', icon: '/../public/icons/gasStove.png' },
+  { value: '냉장고', icon: '/../public/icons/refridgiator.png' },
+  { value: '전자도어락', icon: '/../public/icons/doorLock.png' },
 ]
 
 export const WISHLIST_TAKE = 9
