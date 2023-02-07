@@ -884,6 +884,7 @@ export default function Upload() {
               {rooms.map((room, idx) => (
                 <Manage_Div key={idx}>
                   <Manage_Div_150>
+                    <Manage_Div_Id>매물번호 {room.id}</Manage_Div_Id>
                     <Manage_Div_idx>
                       {idx + 1 + (activePage - 1) * MANAGED_ROOMS_TAKE}
                     </Manage_Div_idx>
@@ -993,7 +994,7 @@ const Upload_Btn = styled.button`
 const Upload_Btn_Medium = styled.button`
   width: 100px;
   height: 40px;
-  font-size: ${fontsize - 2}px;
+  font-size: 12px;
 `
 const Upload_Btn_Dark = styled(Upload_Btn)`
   color: ${subColor_lighter};
@@ -1003,7 +1004,7 @@ const Upload_Btn_Bright = styled(Upload_Btn)`
   color: ${mainColor};
   background-color: ${subColor_lighter};
 `
-const Upload_Btn_Submit = styled(Upload_Btn_Medium)`
+export const Upload_Btn_Submit = styled(Upload_Btn_Medium)`
   color: ${subColor_lighter};
   background-color: ${mainColor};
 `
@@ -1222,4 +1223,13 @@ const Img_Hover_Div = styled(HoverDiv)`
   position: absolute;
   top: 5px;
   right: 5px;
+`
+
+export const Manage_Div_Id = styled.div`
+  border: 1px solid ${subColor_Dark};
+  font-size: 12px;
+  padding: 0 3px 0 3px;
+  border-radius: 2px;
+  margin-bottom: 30px;
+  color: ${subColor_Dark};
 `
