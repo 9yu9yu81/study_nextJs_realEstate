@@ -1,8 +1,9 @@
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { useSession, signIn } from 'next-auth/react'
 import { Button } from '@mantine/core'
-import { IconBrandGoogle, IconLogout } from '@tabler/icons'
+import { IconBrandGoogle } from '@tabler/icons'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
+import { Center_Div } from './styledComponent'
 
 export default function SignIn() {
   const { data: session } = useSession()
@@ -13,25 +14,39 @@ export default function SignIn() {
     }
   })
   return (
-    <div className="h-96 w-96 m-auto flex justify-center items-center  border border-zinc-200">
+    <Center_Div style={{ margin: '20vh 0 20vh 0 ' }}>
       {!session && (
-        <div>
-          <div className="font-bold text-3xl mb-10 pb-7  border-b border-zinc-200">
+        <Center_Div
+          style={{
+            width: '400px',
+            flexFlow: 'column',
+            height: '450px',
+            border: '0.5px solid black',
+          }}
+        >
+          <div
+            style={{
+              fontWeight: '700',
+              fontSize: '30px',
+              margin: '0 0 80px 0',
+              borderBottom: '0.5px solid black',
+              padding: '0 40px 10px 40px',
+            }}
+          >
             로그인
           </div>
-          <div className="font-bold text-xs mb-10">
+          <div className="font-bold mb-10">
             MySpot 서비스 이용을 위해 로그인 해주세요.
           </div>
           <Button
             variant="default"
             leftIcon={<IconBrandGoogle size={18} />}
-            onClick={() => signIn()}
+            onClick={() => signIn('google')}
           >
             구글로 로그인
           </Button>
-        </div>
+        </Center_Div>
       )}
-    </div>
+    </Center_Div>
   )
 }
-

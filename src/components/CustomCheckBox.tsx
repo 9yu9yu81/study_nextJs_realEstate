@@ -4,24 +4,27 @@ import { subColor_medium } from './styledComponent'
 
 export default function CustomCheckBox({
   label,
-  onclick,
+  onClick,
   checked,
   onChange,
 }: {
   label: string
-  onclick?: MouseEventHandler<HTMLInputElement>
+  onClick?: MouseEventHandler<HTMLInputElement>
   checked?: boolean
   onChange?: ChangeEventHandler<HTMLInputElement>
 }) {
   return (
     <Checkbox
-      color={'dark'}
+      color="dark"
       label={label}
-      onClick={onclick}
       checked={checked}
+      onClick={onClick}
       onChange={onChange}
       styles={(theme) => ({
-        root: { display: 'flex', alignItems: 'center' },
+        root: {
+          display: 'flex',
+          alignItems: 'center',
+        },
         inner: {
           display: 'flex',
           alignItems: 'center',
@@ -32,6 +35,9 @@ export default function CustomCheckBox({
           borderRadius: 0,
           border: `0.5px solid ${subColor_medium}`,
           backgroundColor: 'white !important',
+        },
+        icon: {
+          color: 'black !important',
         },
       })}
     />

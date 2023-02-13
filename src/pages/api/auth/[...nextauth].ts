@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
     strategy: 'database',
     maxAge: 1 * 24 * 60 * 60,
   },
-
+  pages: {},
   callbacks: {
     session: async ({ session, user }) => {
       session.user.id = user.id

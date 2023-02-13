@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Card, Modal } from '@mantine/core'
+import { Modal } from '@mantine/core'
 import {
   AddressInfo,
   BasicInfo,
@@ -8,7 +8,7 @@ import {
   SaleInfo,
 } from '@prisma/client'
 import { IconChevronLeft, IconChevronRight, IconHeart } from '@tabler/icons'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import MapN from 'components/MapN'
 import {
   Center2_Div,
@@ -33,13 +33,13 @@ import { compareAsc, format } from 'date-fns'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Image from 'next/image'
 import Carousel from 'nuka-carousel'
-import { Upload_Btn_Outline, Upload_Btn_Submit } from 'pages/upload'
+import { Upload_Btn_Outline } from 'pages/upload'
 import { useEffect, useState } from 'react'
 
 const carouselConfig = {
-  nextButtonText: <IconChevronRight color="black" size={40} stroke={1.5} />,
+  nextButtonText: <IconChevronRight color="black" size={40} stroke={2} />,
   nextButtonStyle: { background: 'rgba(0,0,0,0)' },
-  prevButtonText: <IconChevronLeft color="black" size={40} stroke={1.5} />,
+  prevButtonText: <IconChevronLeft color="black" size={40} stroke={2} />,
   prevButtonStyle: { background: 'rgba(0,0,0,0)' },
 }
 
@@ -68,6 +68,7 @@ type RoomAllData = Room &
 
 export default function RoomIndex(room: RoomAllData) {
   const [modal, setModal] = useState<boolean>(false)
+  const [cModal, setCModal] = useState<boolean>(false)
   const [imgIndex, setImgIndex] = useState<number>(0)
   const mList: number[] = [] //관리비 항목
   const noMList: number[] = [] //관리비 제외 항목
@@ -104,7 +105,6 @@ export default function RoomIndex(room: RoomAllData) {
     setModal(true)
     setImgIndex(idx)
   }
-
   const ROOM_QUERY_KEY = `/api/room/get-Room?id=${room.id}`
 
   const { mutate: increaseViews } = useMutation<
@@ -137,22 +137,19 @@ export default function RoomIndex(room: RoomAllData) {
     }
   )
   useEffect(() => {
-    //increase views
     increaseViews({ id: room.id, views: room.views + 1 })
   }, [])
 
-  // get Wished
-  // const { data: wished } = useQuery(
-  //   [`/api/room/get-Room-wished?id=${props.id}`],
-  //   () =>
-  //     fetch(`/api/room/get-Room-wished?id=${props.id}`)
-  //       .then((res) => res.json())
-  //       .then((data) => data.items)
-  // )
+  const { data: wished } = useQuery(
+    [`/api/room/get-Room-wished?id=${room.id}`],
+    () =>
+      fetch(`/api/room/get-Room-wished?id=${room.id}`)
+        .then((res) => res.json())
+        .then((data) => data.items)
+  )
 
-  // get isWished
-  // const { data: wishlist, isLoading } = useQuery([WISHLIST_QUERY_KEY], () =>
-  //   fetch(WISHLIST_QUERY_KEY)
+  // const { data: wishlist, isLoading } = useQuery([], () =>
+  //   fetch()
   //     .then((res) => res.json())
   //     .then((data) => data.items)
   // )
@@ -307,11 +304,13 @@ export default function RoomIndex(room: RoomAllData) {
                 </div>
               )}
             </Info_Div1_B>
-            {room.parking && (
+            {room.parking ? (
               <Info_Div1_B>
                 <Info_Div_SubTitle>주차비</Info_Div_SubTitle>
                 <Info_Div2>{room.parking_fee} 만원</Info_Div2>
               </Info_Div1_B>
+            ) : (
+              <></>
             )}
             <Info_Div1_B>
               <Info_Div_SubTitle>
@@ -368,7 +367,7 @@ export default function RoomIndex(room: RoomAllData) {
                 <Info_Div_SubTitle>방 구조</Info_Div_SubTitle>
                 <Info_Div2>
                   {room.structure_ids.split(',').map((item, idx) => (
-                    <div key={idx}>{STRUCTURE_MAP[Number(item)]}</div>
+                    <div key={idx}>{STRUCTURE_MAP[Number(item) - 1]}</div>
                   ))}
                 </Info_Div2>
               </Info_Div1_B>
@@ -465,9 +464,12 @@ export default function RoomIndex(room: RoomAllData) {
             </div>
           </div>
           <Center2_Div>
-            <Upload_Btn_Submit style={{ width: '130px', fontSize:'13px' }}>
+            <Dark_Btn
+              onClick={() => setCModal((prev) => !prev)}
+              style={{ width: '130px', fontSize: '13px', height: '40px' }}
+            >
               연락처 보기
-            </Upload_Btn_Submit>
+            </Dark_Btn>
             <Upload_Btn_Outline style={{ width: '80px', marginLeft: 'auto' }}>
               <Center_Div style={{ fontSize: '16px' }}>
                 <IconHeart
@@ -479,6 +481,10 @@ export default function RoomIndex(room: RoomAllData) {
               </Center_Div>
             </Upload_Btn_Outline>
           </Center2_Div>
+          {cModal && <div style={{ display: 'flex', marginTop: '10px' }}>
+              <div style={{ fontWeight: '700', minWidth: '60px' }}>연락처</div>
+              <div>{room.contact}</div>
+            </div>}
         </Info_Div_Card>
       </div>
     </Info_Div>
@@ -518,8 +524,6 @@ const Img_Btn = styled(Upload_Btn_Outline)`
   background-color: ${subColor_lighter};
   font-size: 13px;
 `
-const Card_Btn = styled(Upload_Btn_Outline)``
-
 const Info_Div = styled.div`
   margin: 30px 0 30px 0;
   * {
@@ -607,4 +611,8 @@ const Card_Img_Container = styled.div`
   grid-template-columns: repeat(2, 120px);
   grid-template-rows: repeat(2, 40px);
   margin: 15px 0 15px 0;
+`
+const Dark_Btn = styled.button`
+  color: ${subColor_lighter};
+  background-color: ${mainColor};
 `

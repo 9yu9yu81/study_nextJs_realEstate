@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { Chip, FileButton, Loader, Modal } from '@mantine/core'
-import { IconExclamationCircle, IconMapPin, IconX } from '@tabler/icons'
+import { IconExclamationCircle, IconMapPin } from '@tabler/icons'
 import Map from 'components/MapN'
 import {
   HoverDiv,
@@ -69,19 +69,19 @@ interface ManagedRoom extends Omit<Room, 'user_id' | 'description'> {
   detail: string
   area: number
 }
-
 export default function Upload() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
-
+  
   const [activePage, setActivePage] = useState(1) //page
   const MANAGED_ROOMS_TAKE: number = 10
   const MANAGED_ROOMS_COUNT_QUERY_KEY = 'api/room/get-ManagedRooms-Count'
   const MANAGED_ROOMS_QUERY_KEY = `api/room/get-ManagedRooms-Take?skip=${
     (activePage - 1) * MANAGED_ROOMS_TAKE
   }&take=${MANAGED_ROOMS_TAKE}`
-
+  const USER_CONTACT_QUERY_KEY = 'api/user/get-Contact'
+  
   const [isUploadPage, setIsUploadPage] = useState(true) //방 내놓기 or 내 방 관리
   useEffect(() => {
     //내 방 관리로 바로 이동
@@ -125,6 +125,8 @@ export default function Upload() {
   const [pFee, setPFee] = useState<string>('0') //주차비
   const [option, setOption] = useState<string[]>([]) //옵션항목
   const [structure, setStructure] = useState<string[]>([]) //방구조
+  const [contact, setContact] = useState<string>('')
+  const [cChecked, setCChecked] = useState<boolean>(false)
   //daum-postcode
   const [doro, setDoro] = useState<string>('')
   const [jibun, setJibun] = useState<string>('')
@@ -233,16 +235,15 @@ export default function Upload() {
         .then((data) => data.json())
         .then((res) => res.items),
     {
-      onMutate: () => {
-        queryClient.invalidateQueries([MANAGED_ROOMS_QUERY_KEY])
-      },
       onSuccess: async () => {
+        queryClient.invalidateQueries([MANAGED_ROOMS_QUERY_KEY])
         setCategory('1')
         setYm('1')
         setRoomType('1')
         setHeat('1')
         setMoveIn(new Date())
         setMChecked(false)
+        setCChecked(false)
         setMOption([])
         setMFee('0')
         setElevator('0')
@@ -261,6 +262,13 @@ export default function Upload() {
     mChecked && setMFee('0') //관리비 체킹
     parking === '0' && setPFee('0') //주차비 체킹
     ym === '1' && setFee('0')
+    if (cChecked === false && contact !== '' && contact !== userContact) {
+      if (confirm('해당 연락처를 기존 번호로 저장 하시겠습니까?')) {
+        updateContact(contact)
+      }
+    }
+    // if (contact.match(/^[0-9]/))
+    //todo
     if (type === 'submit') {
       addrRef.current?.value == ''
         ? alert('주소를 입력하세요.')
@@ -288,8 +296,10 @@ export default function Upload() {
         ? alert('제목을 입력하세요')
         : descriptionRef.current?.value == ''
         ? alert('상세 설명을 입력하세요.')
+        : contact === ''
+        ? alert('연락받을 번호를 입력해 주세요.')
         : images.length < 3 || images.length > 10
-        ? alert('최소 5장, 최대 10장 이미지를 첨부해주세요')
+        ? alert('최소 3장, 최대 10장 이미지를 첨부해주세요')
         : moveIn &&
           addRoom({
             room: {
@@ -298,6 +308,7 @@ export default function Upload() {
               title: String(titleRef.current?.value),
               description: String(descriptionRef.current?.value),
               images: images.join(','),
+              contact: contact,
             },
             saleInfo: {
               type_id: Number(ym),
@@ -333,6 +344,23 @@ export default function Upload() {
     }
   }
 
+  const { data: userContact } = useQuery<
+    { userContact: string },
+    unknown,
+    string
+  >(
+    [USER_CONTACT_QUERY_KEY],
+    () =>
+      fetch(USER_CONTACT_QUERY_KEY)
+        .then((res) => res.json())
+        .then((data) => data.items),
+    {
+      onSuccess: async (userContact) => {
+        userContact !== '' && (setCChecked(true), setContact(userContact))
+      },
+    }
+  )
+
   const { data: rooms, isLoading: roomsLoading } = useQuery<
     { rooms: ManagedRoom[] },
     unknown,
@@ -343,8 +371,8 @@ export default function Upload() {
       .then((data) => data.items)
   )
 
-  //get total page
   const { data: total } = useQuery(
+    // get total page
     [MANAGED_ROOMS_COUNT_QUERY_KEY],
     () =>
       fetch(MANAGED_ROOMS_COUNT_QUERY_KEY)
@@ -355,6 +383,16 @@ export default function Upload() {
         setActivePage(1)
       },
     }
+  )
+
+  const { mutate: updateContact } = useMutation<unknown, unknown, string, any>(
+    (contact) =>
+      fetch('/api/user/update-Contact', {
+        method: 'POST',
+        body: JSON.stringify(contact),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items)
   )
 
   const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
@@ -809,6 +847,39 @@ export default function Upload() {
             </Upload_Div_Bt>
           </Upload_Div_B>
           <Upload_Div_B>
+            <Upload_Div_Title>연락처 정보</Upload_Div_Title>
+            <Upload_Div_Bt>
+              <Upload_Div_Sub_Title>연락 가능한 번호</Upload_Div_Sub_Title>
+              <Upload_Div_Sub style={{ padding: '0 20px 0 20px' }}>
+                <CustomCheckBox
+                  label="기존 번호 사용"
+                  checked={cChecked}
+                  onChange={(e) =>
+                    cChecked === false && userContact === ''
+                      ? alert('등록된 번호가 없습니다.')
+                      : cChecked === false && userContact !== '' && userContact
+                      ? (setContact(userContact), setCChecked(e.target.checked))
+                      : setCChecked(e.target.checked)
+                  }
+                />
+                <Upload_Input
+                  type="number"
+                  disabled={cChecked}
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                  style={{
+                    width: '180px',
+                    marginLeft: '20px',
+                  }}
+                  placeholder=" '-' 를 생략하고 입력해주세요"
+                />
+                {contact.match(/[^0-9.]/) && (
+                  <Upload_Warning>숫자만 입력해주세요.</Upload_Warning>
+                )}
+              </Upload_Div_Sub>
+            </Upload_Div_Bt>
+          </Upload_Div_B>
+          <Upload_Div_B>
             <Upload_Div_Title>사진 등록</Upload_Div_Title>
             <UploadCaveats picture={true} />
             <div>
@@ -884,10 +955,10 @@ export default function Upload() {
               {rooms.map((room, idx) => (
                 <Manage_Div key={idx}>
                   <Manage_Div_150>
-                    <Manage_Div_Id>매물번호 {room.id}</Manage_Div_Id>
                     <Manage_Div_idx>
                       {idx + 1 + (activePage - 1) * MANAGED_ROOMS_TAKE}
                     </Manage_Div_idx>
+                    <Manage_Div_Id>매물번호 {room.id}</Manage_Div_Id>
                     <div>{STATUS_MAP[room.status_id - 1]}</div>
                     <div>
                       D-
@@ -911,7 +982,7 @@ export default function Upload() {
                     <Manage_Div_Bold>
                       {CATEGORY_MAP[room.category_id - 1]}{' '}
                       {YEAR_MONTH_MAP[room.type_id - 1]} {room.deposit}
-                      {room.fee !== null && `/${room.fee}`}
+                      {room.fee !== 0 && `/${room.fee}`}
                     </Manage_Div_Bold>
                     <div>{room.doro}</div>
                     <div>{room.detail}</div>
@@ -1063,22 +1134,6 @@ const Upload_Input4 = styled(Upload_Input)`
   width: 60px;
 `
 
-//text
-// const Upload_Text = styled.text`
-//   border: 0.5px solid ${subColor_medium};
-//   padding: 10px;
-//   font-size: 12px;
-//   color: ${subColor_medium};
-//   :hover {
-//     border: 0.5px solid ${mainColor};
-//   }
-//   :focus {
-//     outline: none !important;
-//     border: 1px solid ${mainColor};
-//   }
-//   margin: 10px;
-//   resize: none;
-// `
 //textarea
 const Upload_Textarea = styled.textarea`
   border: 0.5px solid ${subColor_medium};
@@ -1122,9 +1177,6 @@ const Upload_Div_B = styled.div`
   border: 0.5px solid ${subColor_medium};
   margin-top: 30px;
   min-width: 1000px;
-  * {
-    color: ${mainColor};
-  }
 `
 const Upload_Div_Absolute = styled.div`
   font-size: ${fontsize - 3}px;
@@ -1230,6 +1282,12 @@ export const Manage_Div_Id = styled.div`
   font-size: 12px;
   padding: 0 3px 0 3px;
   border-radius: 2px;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   color: ${subColor_Dark};
+`
+
+const Upload_Warning = styled.div`
+  font-size: 12px;
+  font-weight: 400;
+  color: red;
 `
