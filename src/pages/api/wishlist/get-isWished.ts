@@ -10,10 +10,9 @@ async function getIsWished(user_id: string, room_id: number) {
       select exists(
         select * from Wishlist as w
         where w.user_id = ${user_id} and w.room_id = ${room_id}
-      ) as isWished
-    `
+      ) as isWished`
 
-    // console.log(Boolean(response[0]))
+    console.log(response[0])
     return Boolean(response[0].isWished)
   } catch (error) {
     console.error(error)
@@ -32,7 +31,7 @@ export default async function handler(
   const session = await getSession({ req })
 
   if (session == null) {
-    res.status(400).json({ message: 'no Session' })
+    res.status(200).json({ message: 'no Session' })
     return
   }
 

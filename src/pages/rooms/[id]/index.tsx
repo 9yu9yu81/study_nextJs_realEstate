@@ -73,7 +73,7 @@ export default function RoomIndex(room: RoomAllData) {
   const ROOM_WISHED_QUERY_KEY = `/api/room/get-Room-Wished?id=${room.id}`
   const queryClient = useQueryClient()
   const router = useRouter()
-  const session = useSession()
+  const { data: session, status } = useSession()
 
   const [modal, setModal] = useState<boolean>(false)
   const [cModal, setCModal] = useState<boolean>(false)
@@ -443,14 +443,20 @@ export default function RoomIndex(room: RoomAllData) {
           </div>
           <Center2_Div>
             <Dark_Btn
-              onClick={() => setCModal((prev) => !prev)}
+              onClick={() =>
+                status === 'authenticated'
+                  ? setCModal((prev) => !prev)
+                  : router.push('../auth/login')
+              }
               style={{ width: '130px', fontSize: '13px', height: '40px' }}
             >
               연락처 보기
             </Dark_Btn>
             <Upload_Btn_Outline
               onClick={() =>
-                session ? updateIsWished(room.id) : router.push('/auth/login')
+                status === 'authenticated'
+                  ? updateIsWished(room.id)
+                  : router.push('../auth/login')
               }
               style={{ width: '80px', marginLeft: 'auto' }}
             >

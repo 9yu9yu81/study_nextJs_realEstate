@@ -23,6 +23,7 @@ async function updateIsWished(user_id: string, room_id: number) {
       update Room set wished = wished - 1 where id = ${room_id}`
       : await prisma.$queryRaw`
       update Room set wished = wished + 1 where id = ${room_id}`
+
     return
   } catch (error) {
     console.error(error)

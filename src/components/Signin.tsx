@@ -6,13 +6,13 @@ import { useEffect } from 'react'
 import { Center_Div } from './styledComponent'
 
 export default function SignIn() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   useEffect(() => {
-    if (session) {
-      router.push('/')
+    if (status === 'authenticated') {
+      router.back()
     }
-  })
+  }, [])
   return (
     <Center_Div style={{ margin: '20vh 0 20vh 0 ' }}>
       {!session && (
@@ -35,7 +35,7 @@ export default function SignIn() {
           >
             로그인
           </div>
-          <div className="font-bold mb-10">
+          <div className="font-bold mb-10" style={{ fontSize: '18px' }}>
             MySpot 서비스 이용을 위해 로그인 해주세요.
           </div>
           <Button
