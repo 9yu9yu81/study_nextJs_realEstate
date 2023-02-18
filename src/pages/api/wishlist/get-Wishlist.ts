@@ -4,11 +4,11 @@ import { getSession } from 'next-auth/react'
 
 const prisma = new PrismaClient()
 
-async function getWishlist(userId: string) {
+async function getWishlist(user_id: string) {
   try {
     const response = await prisma.wishlist.findUnique({
       where: {
-        userId: userId,
+        user_id: user_id,
       },
     })
     // console.log(response)

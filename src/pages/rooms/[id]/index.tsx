@@ -8,7 +8,7 @@ import {
   SaleInfo,
 } from '@prisma/client'
 import { IconChevronLeft, IconChevronRight, IconHeart } from '@tabler/icons'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import MapN from 'components/MapN'
 import {
   Center2_Div,
@@ -31,7 +31,9 @@ import {
 } from 'constants/const'
 import { compareAsc, format } from 'date-fns'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import Carousel from 'nuka-carousel'
 import { Upload_Btn_Outline } from 'pages/upload'
 import { useEffect, useState } from 'react'
@@ -67,6 +69,12 @@ type RoomAllData = Room &
   Omit<MoreInfo, 'id' | 'room_id'>
 
 export default function RoomIndex(room: RoomAllData) {
+  const ISWISHED_QUERY_KEY = `/api/wishlist/get-IsWished?room_id=${room.id}`
+  const ROOM_WISHED_QUERY_KEY = `/api/room/get-Room-Wished?id=${room.id}`
+  const queryClient = useQueryClient()
+  const router = useRouter()
+  const session = useSession()
+
   const [modal, setModal] = useState<boolean>(false)
   const [cModal, setCModal] = useState<boolean>(false)
   const [imgIndex, setImgIndex] = useState<number>(0)
@@ -105,105 +113,75 @@ export default function RoomIndex(room: RoomAllData) {
     setModal(true)
     setImgIndex(idx)
   }
-  const ROOM_QUERY_KEY = `/api/room/get-Room?id=${room.id}`
 
   const { mutate: increaseViews } = useMutation<
     unknown,
     unknown,
     Pick<Room, 'id' | 'views'>,
     any
-  >(
-    (items) =>
-      fetch('/api/room/update-Room-views', {
-        method: 'POST',
-        body: JSON.stringify(items),
-      })
-        .then((data) => data.json())
-        .then((res) => res.items),
-    {
-      // onMutate: async () => {
-      //   await queryClient.cancelQueries([ROOM_QUERY_KEY])
-      //   const previous = queryClient.getQueryData([ROOM_QUERY_KEY])
-      //   if (previous) {
-      //     queryClient.setQueryData<RoomAllData>([ROOM_QUERY_KEY], (old) =>
-      //       old ? { ...old, views: room.views + 1 } : undefined
-      //     )
-      //   }
-      //   return previous
-      // },
-      // onSuccess: async () => {
-      //   queryClient.invalidateQueries([ROOM_QUERY_KEY])
-      // },
-    }
+  >((items) =>
+    fetch('/api/room/update-Room-views', {
+      method: 'POST',
+      body: JSON.stringify(items),
+    })
+      .then((data) => data.json())
+      .then((res) => res.items)
   )
   useEffect(() => {
     increaseViews({ id: room.id, views: room.views + 1 })
   }, [])
 
-  const { data: wished } = useQuery(
-    [`/api/room/get-Room-wished?id=${room.id}`],
+  const { data: isWished } = useQuery<{ isWished: boolean }, unknown, boolean>(
+    [ISWISHED_QUERY_KEY],
     () =>
-      fetch(`/api/room/get-Room-wished?id=${room.id}`)
+      fetch(ISWISHED_QUERY_KEY)
+        .then((res) => res.json())
+        .then((data) => data.items)
+  )
+  const { data: wished } = useQuery<{ wished: number }, unknown, number>(
+    [ROOM_WISHED_QUERY_KEY],
+    () =>
+      fetch(ROOM_WISHED_QUERY_KEY)
         .then((res) => res.json())
         .then((data) => data.items)
   )
 
-  // const { data: wishlist, isLoading } = useQuery([], () =>
-  //   fetch()
-  //     .then((res) => res.json())
-  //     .then((data) => data.items)
-  // )
+  const { mutate: updateIsWished } = useMutation<unknown, unknown, number, any>(
+    (room_id) =>
+      fetch('/api/wishlist/update-IsWished', {
+        method: 'POST',
+        body: JSON.stringify(room_id),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: async () => {
+        await queryClient.cancelQueries({ queryKey: [ISWISHED_QUERY_KEY] })
+        const previous = queryClient.getQueryData([ISWISHED_QUERY_KEY])
+
+        queryClient.setQueryData<boolean>([ISWISHED_QUERY_KEY], (old) => !old)
+
+        await queryClient.cancelQueries({ queryKey: [ROOM_WISHED_QUERY_KEY] })
+        queryClient.setQueryData<number>([ROOM_WISHED_QUERY_KEY], (old) =>
+          old ? (isWished ? old - 1 : old + 1) : undefined
+        )
+
+        return previous
+      },
+      onError: (__, _, context) => {
+        queryClient.setQueryData([ISWISHED_QUERY_KEY], context.previous)
+      },
+      onSuccess: async () => {
+        queryClient.invalidateQueries([ISWISHED_QUERY_KEY])
+        queryClient.invalidateQueries([ROOM_WISHED_QUERY_KEY])
+      },
+    }
+  )
 
   // const isWished =
   //   wishlist != null && props.id != null
   //     ? wishlist.includes(String(props.id))
   //     : false
-
-  // update wishlist
-  // const { mutate: updateWishlist } = useMutation<unknown, unknown, number, any>(
-  //   (roomId) =>
-  //     fetch('/api/wishlist/update-Wishlist', {
-  //       method: 'POST',
-  //       body: JSON.stringify(roomId),
-  //     })
-  //       .then((data) => data.json())
-  //       .then((res) => res.items),
-  //   {
-  //     onMutate: async (roomId) => {
-  //       await queryClient.cancelQueries({ queryKey: [WISHLIST_QUERY_KEY] })
-  //       const previous = queryClient.getQueryData([WISHLIST_QUERY_KEY])
-
-  //       //wishlist
-  //       queryClient.setQueryData<string[]>([WISHLIST_QUERY_KEY], (old) =>
-  //         old
-  //           ? old.includes(String(roomId))
-  //             ? old.filter((id) => id !== String(roomId))
-  //             : old.concat(String(roomId))
-  //           : []
-  //       )
-
-  //       //wished
-  //       await queryClient.cancelQueries({
-  //         queryKey: [`/api/room/get-Room-wished?id=${roomId}`],
-  //       })
-  //       queryClient.setQueryData<number>(
-  //         [`/api/room/get-Room-wished?id=${roomId}`],
-  //         (old) => (old ? (wished ? old - 1 : old + 1) : 1)
-  //       )
-
-  //       return previous
-  //     },
-  //     onError: (__, _, context) => {
-  //       queryClient.setQueryData([WISHLIST_QUERY_KEY], context.previous)
-  //     },
-  //     onSuccess: async () => {
-  //       queryClient.invalidateQueries([
-  //         `/api/room/get-Room-wished?id=${props.id}`,
-  //       ])
-  //       queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
-  //     },
-  //   }
-  // )
 
   //delete Room
   // const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
@@ -442,15 +420,15 @@ export default function RoomIndex(room: RoomAllData) {
             </div>
             <Card_Img_Container>
               <Card_Img_Wrapper>
-                <Card_img src="/../public/icons/elevator.png" />
+                <Card_img src="/icons/elevator.png" />
                 {room.floor} 층
               </Card_Img_Wrapper>
               <Card_Img_Wrapper>
-                <Card_img src="/../public/icons/house-design.png" />
+                <Card_img src="/icons/house-design.png" />
                 {room.area} 평
               </Card_Img_Wrapper>
               <Card_Img_Wrapper>
-                <Card_img src="/../public/icons/bill.png" />
+                <Card_img src="/icons/bill.png" />
                 {room.maintenance_fee} 만 원
               </Card_Img_Wrapper>
             </Card_Img_Container>
@@ -470,21 +448,37 @@ export default function RoomIndex(room: RoomAllData) {
             >
               연락처 보기
             </Dark_Btn>
-            <Upload_Btn_Outline style={{ width: '80px', marginLeft: 'auto' }}>
+            <Upload_Btn_Outline
+              onClick={() =>
+                session ? updateIsWished(room.id) : router.push('/auth/login')
+              }
+              style={{ width: '80px', marginLeft: 'auto' }}
+            >
               <Center_Div style={{ fontSize: '16px' }}>
-                <IconHeart
-                  size={20}
-                  stroke={1.5}
-                  style={{ marginRight: '10px' }}
-                />
-                {room.wished}
+                {isWished ? (
+                  <IconHeart
+                    size={20}
+                    color="red"
+                    fill="red"
+                    style={{ marginRight: '10px' }}
+                  />
+                ) : (
+                  <IconHeart
+                    size={20}
+                    stroke={1.5}
+                    style={{ marginRight: '10px' }}
+                  />
+                )}
+                {wished}
               </Center_Div>
             </Upload_Btn_Outline>
           </Center2_Div>
-          {cModal && <div style={{ display: 'flex', marginTop: '10px' }}>
+          {cModal && (
+            <div style={{ display: 'flex', marginTop: '10px' }}>
               <div style={{ fontWeight: '700', minWidth: '60px' }}>연락처</div>
               <div>{room.contact}</div>
-            </div>}
+            </div>
+          )}
         </Info_Div_Card>
       </div>
     </Info_Div>
@@ -517,7 +511,10 @@ const StyledImage1 = styled(StyledImage)`
   display: flex;
   margin-right: 8px;
 `
-const Img_Btn = styled(Upload_Btn_Outline)`
+const Img_Btn = styled.button`
+  border-radius: 3px;
+  width: 100px;
+  height: 35px;
   position: absolute;
   right: 10px;
   bottom: 10px;
@@ -583,7 +580,7 @@ const Info_Div_Option = styled(Center_Div)`
 
 const Info_Div_Card = styled.div`
   width: 300px;
-  height: 400px;
+  height: 430px;
   padding: 30px;
   border: 0.5px solid ${subColor_light};
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.05);

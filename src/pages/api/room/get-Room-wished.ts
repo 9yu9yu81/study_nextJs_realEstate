@@ -1,29 +1,15 @@
-import { useState } from 'react'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient, Wishlist } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-//roomId 의 방을 몇명이 관심 목록에 등록 했는지를 업데이트하며 리턴한다
-//todo 지금은 불필요한 api같음.. 후에 이를 사용하는 부분은 대체 후 삭제 요망
-async function getRoomWished(roomId: string) {
+async function getRoomWished(room_id: string) {
   try {
-    const wishlists: Wishlist[] = await prisma.wishlist.findMany({})
-    let wished: number = 0
-    wishlists.forEach(
-      (wishlist) => wishlist.roomIds.split(',').includes(roomId) && wished++
-    )
-
-    const room = await prisma.room.update({
-      where: {
-        id: Number(roomId),
-      },
-      data: {
-        wished: wished,
-      },
-    })
-
-    return wished
+    const response: any = await prisma.$queryRaw`
+      select wished from Room where id = ${room_id}
+    `
+    console.log(response)
+    return response[0].wished
   } catch (error) {
     console.error(error)
   }
@@ -44,6 +30,7 @@ export default async function handler(
     res.status(400).json({ message: 'no id' })
     return
   }
+
   try {
     const products = await getRoomWished(String(id))
     res.status(200).json({ items: products, message: 'Success' })

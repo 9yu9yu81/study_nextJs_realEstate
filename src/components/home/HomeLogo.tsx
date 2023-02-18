@@ -15,7 +15,7 @@ export default function HomeLogo({
       <CHoverDiv onClick={() => router.push('/')}>
         <Image
           className="mr-1"
-          src="/../public/images/home.png"
+          src="/icons/home.png"
           alt="home"
           width={size * 1.3}
           height={size * 1.3}

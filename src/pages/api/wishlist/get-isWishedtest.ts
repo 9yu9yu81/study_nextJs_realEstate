@@ -4,7 +4,7 @@ import { getSession } from 'next-auth/react'
 
 const prisma = new PrismaClient()
 
-async function getWishlist(userId: string) {
+async function getIsWished(userId: string, roomId: number) {
   try {
     const wishlist = await prisma.wishlist.findUnique({
       where: {
@@ -12,21 +12,13 @@ async function getWishlist(userId: string) {
       },
     })
 
-    const wishlists = wishlist?.roomIds
-      .split(',')
-      .map((wishlist) => Number(wishlist))
+    const wishlists = wishlist
+      ? wishlist.roomIds.split(',').map((wishlist) => Number(wishlist))
+      : []
 
-    if (wishlists && wishlists.length > 0) {
-      const response = await prisma.room.findMany({
-        where: {
-          id: {
-            in: wishlists,
-          },
-        },
-      })
-      // console.log(response)
-      return response
-    }
+    const isWished = wishlists.includes(roomId)
+    console.log(isWished)
+    return { isWished }
   } catch (error) {
     console.error(error)
   }
@@ -42,13 +34,17 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   const session = await getSession({ req })
+  const { roomId } = req.query
 
   if (session == null) {
     res.status(400).json({ message: 'no Session' })
     return
   }
+  if (roomId == null) {
+    res.status(400).json({ message: 'no roomId' })
+  }
   try {
-    const products = await getWishlist(String(session.user?.id))
+    const products = await getIsWished(String(session.user?.id), Number(roomId))
     res.status(200).json({ items: products, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'Failed' })
