@@ -178,32 +178,6 @@ export default function RoomIndex(room: RoomAllData) {
     }
   )
 
-  // const isWished =
-  //   wishlist != null && props.id != null
-  //     ? wishlist.includes(String(props.id))
-  //     : false
-
-  //delete Room
-  // const { mutate: deleteRoom } = useMutation<unknown, unknown, number, any>(
-  //   (id) =>
-  //     fetch('/api/room/delete-Room', {
-  //       method: 'POST',
-  //       body: JSON.stringify(id),
-  //     })
-  //       .then((data) => data.json())
-  //       .then((res) => res.items),
-  //   {
-  //     onSuccess: async () => {
-  //       router.push('/upload?isManagePage=true')
-  //     },
-  //   }
-  // )
-  // const validate = (type: 'delete') => {
-  //   if (type === 'delete') {
-  //     deleteRoom(props.id)
-  //   }
-  // }
-
   return (
     <Info_Div>
       <Img_Wrapper>

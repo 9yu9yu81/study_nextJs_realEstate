@@ -73,7 +73,7 @@ export default function Upload() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
-  
+
   const [activePage, setActivePage] = useState(1) //page
   const MANAGED_ROOMS_TAKE: number = 10
   const MANAGED_ROOMS_COUNT_QUERY_KEY = 'api/room/get-ManagedRooms-Count'
@@ -81,7 +81,7 @@ export default function Upload() {
     (activePage - 1) * MANAGED_ROOMS_TAKE
   }&take=${MANAGED_ROOMS_TAKE}`
   const USER_CONTACT_QUERY_KEY = 'api/user/get-Contact'
-  
+
   const [isUploadPage, setIsUploadPage] = useState(true) //방 내놓기 or 내 방 관리
   useEffect(() => {
     //내 방 관리로 바로 이동
@@ -267,7 +267,6 @@ export default function Upload() {
         updateContact(contact)
       }
     }
-    // if (contact.match(/^[0-9]/))
     //todo
     if (type === 'submit') {
       addrRef.current?.value == ''
@@ -1005,29 +1004,48 @@ export default function Upload() {
                     </Manage_Div_160>
                     <Manage_Btn_Wrapper>
                       <Manage_Btn>수정</Manage_Btn>
-                      <Manage_Btn onClick={() => deleteRoom(room.id)}>
+                      <Manage_Btn
+                        onClick={() =>
+                          confirm('해당 매물을 정말 삭제하시겠습니까?') &&
+                          deleteRoom(room.id)
+                        }
+                      >
                         삭제
                       </Manage_Btn>
-                      <Manage_Btn
-                        onClick={() =>
-                          updateStatus({
-                            id: room.id,
-                            status_id: 4,
-                          })
-                        }
-                      >
-                        숨김
-                      </Manage_Btn>
-                      <Manage_Btn
-                        onClick={() =>
-                          updateStatus({
-                            id: room.id,
-                            status_id: 2,
-                          })
-                        }
-                      >
-                        거래완료
-                      </Manage_Btn>
+                      {room.status_id === 4 ? (
+                        <Manage_Btn_Dark
+                          onClick={() =>
+                            updateStatus({ id: room.id, status_id: 1 })
+                          }
+                        >
+                          숨김
+                        </Manage_Btn_Dark>
+                      ) : (
+                        <Manage_Btn
+                          onClick={() =>
+                            updateStatus({ id: room.id, status_id: 4 })
+                          }
+                        >
+                          숨김
+                        </Manage_Btn>
+                      )}
+                      {room.status_id === 2 ? (
+                        <Manage_Btn_Dark
+                          onClick={() =>
+                            updateStatus({ id: room.id, status_id: 1 })
+                          }
+                        >
+                          거래완료
+                        </Manage_Btn_Dark>
+                      ) : (
+                        <Manage_Btn
+                          onClick={() =>
+                            updateStatus({ id: room.id, status_id: 2 })
+                          }
+                        >
+                          거래완료
+                        </Manage_Btn>
+                      )}
                     </Manage_Btn_Wrapper>
                   </Manage_Div_200>
                 </Manage_Div>
@@ -1094,6 +1112,10 @@ const Manage_Btn = styled.button`
   background-color: ${subColor_lighter};
   color: ${subColor_Dark};
   font-size: 12px;
+`
+const Manage_Btn_Dark = styled(Manage_Btn)`
+  background-color: ${subColor_Dark};
+  color: ${subColor_lighter};
 `
 
 //input
