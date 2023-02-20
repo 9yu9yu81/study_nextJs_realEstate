@@ -118,7 +118,7 @@ const MoreInfoMockData: MoreInfo[] = []
 addrMockData.map((addr, idx) => {
   if (idx % 3 === 0) {
     RoomMockData.push({
-      contact: '010-1234-1234',
+      contact: '01012345678',
       id: idx + 1,
       category_id: getIntRandom(1, 5),
       user_id: 'cldvorksx0000qjfaj6j692g0',
@@ -182,7 +182,7 @@ addrMockData.map((addr, idx) => {
   }
   else if (idx % 3 === 1) {
     RoomMockData.push({
-      contact: '010-1234-1234',
+      contact: '01012345678',
       id: idx + 1,
       category_id: getIntRandom(1, 5),
       user_id: 'cldilnelw0002qjlmfyp5uwvk',
@@ -245,7 +245,7 @@ addrMockData.map((addr, idx) => {
     })
   } else {
     RoomMockData.push({
-      contact: '010-1234-1234',
+      contact: '01012345678',
       id: idx + 1,
       category_id: getIntRandom(1, 5),
       user_id: 'cldilr5110007qjlmky221jqq',

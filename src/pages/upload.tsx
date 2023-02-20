@@ -1003,7 +1003,11 @@ export default function Upload() {
                       </Manage_Div_75>
                     </Manage_Div_160>
                     <Manage_Btn_Wrapper>
-                      <Manage_Btn>수정</Manage_Btn>
+                      <Manage_Btn
+                        onClick={() => router.push(`rooms/${room.id}/edit`)}
+                      >
+                        수정
+                      </Manage_Btn>
                       <Manage_Btn
                         onClick={() =>
                           confirm('해당 매물을 정말 삭제하시겠습니까?') &&
