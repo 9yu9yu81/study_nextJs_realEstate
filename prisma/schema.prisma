@@ -119,7 +119,7 @@ model Room {
 model AddressInfo {
   id            Int      @id @default(autoincrement())
   room          Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
-  room_id       Int
+  room_id       Int      @unique
   doro          String
   jibun         String
   detail        String
@@ -130,7 +130,7 @@ model AddressInfo {
 model BasicInfo {
   id            Int      @id @default(autoincrement())
   room          Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
-  room_id       Int
+  room_id       Int      @unique
   supply_area   Int
   area          Int
   total_floor   Int        
@@ -143,7 +143,7 @@ model BasicInfo {
 model SaleInfo {
   id            Int      @id @default(autoincrement())
   room          Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
-  room_id       Int
+  room_id       Int      @unique
   type          SaleInfoType @relation(fields: [type_id], references: [id], onDelete: Cascade)
   type_id       Int
   deposit       Int
@@ -154,7 +154,7 @@ model SaleInfo {
 model MoreInfo {
   id              Int      @id @default(autoincrement())
   room            Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
-  room_id         Int
+  room_id         Int      @unique
   maintenance_fee Int
   maintenance_ids String?
   elevator        Boolean

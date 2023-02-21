@@ -258,9 +258,7 @@ export default function Upload() {
   )
 
   const validate = (type: 'submit') => {
-    //add room
-    mChecked && setMFee('0') //관리비 체킹
-    parking === '0' && setPFee('0') //주차비 체킹
+    mChecked && setMFee('0')
     ym === '1' && setFee('0')
     if (cChecked === false && contact !== '' && contact !== userContact) {
       if (confirm('해당 연락처를 기존 번호로 저장 하시겠습니까?')) {
@@ -333,8 +331,8 @@ export default function Upload() {
               maintenance_fee: Number(mFee),
               maintenance_ids: mOption.length === 0 ? null : mOption.join(','),
               elevator: Boolean(Number(elevator)),
-              parking: Boolean(Number(elevator)),
-              parking_fee: Number(pFee),
+              parking: Boolean(Number(parking)),
+              parking_fee: parking === '0' ? 0 : Number(pFee),
               option_ids: option.length === 0 ? null : option.join(','),
               structure_ids:
                 structure.length === 0 ? null : structure.join(','),

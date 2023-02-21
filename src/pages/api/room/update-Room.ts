@@ -1,21 +1,51 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient, Room } from '@prisma/client'
-
+import {
+  AddressInfo,
+  BasicInfo,
+  MoreInfo,
+  PrismaClient,
+  Room,
+  SaleInfo,
+} from '@prisma/client'
+import { getSession } from 'next-auth/react'
 
 const prisma = new PrismaClient()
 
-async function updateRoom(
-  room: Omit<Room, 'userId' | 'updatedAt' | 'status' | 'views' | 'wished'>
+async function addRoom(
+  user_id: string,
+  room: Omit<Room, 'user_id' | 'updatedAt' | 'status_id' | 'views' | 'wished'>,
+  saleInfo: Omit<SaleInfo, 'id' | 'room_id'>,
+  basicInfo: Omit<BasicInfo, 'id' | 'room_id'>,
+  addressInfo: Omit<AddressInfo, 'id' | 'room_id'>,
+  moreInfo: Omit<MoreInfo, 'id' | 'room_id'>
 ) {
   try {
-    const response = await prisma.room.update({
-      where: {
-        id: room.id,
-      },
-      data: { ...room },
-    })
-    // console.log(response)
-    return response
+    const user: any = await prisma.$queryRaw`
+      select user_id from Room as r where r.id = ${room.id}
+    `
+    if (user[0].user_id === user_id) {
+      const roomData = await prisma.room.update({
+        where: { id: room.id },
+        data: { ...room },
+      })
+      const saleInfoData = await prisma.saleInfo.update({
+        where: { room_id: room.id },
+        data: { ...saleInfo },
+      })
+      const basicInfoData = await prisma.basicInfo.update({
+        where: { room_id: room.id },
+        data: { ...basicInfo },
+      })
+      const addressInfoData = await prisma.addressInfo.update({
+        where: { room_id: room.id },
+        data: { ...addressInfo },
+      })
+      const moreInfoData = await prisma.moreInfo.update({
+        where: { room_id: room.id },
+        data: { ...moreInfo },
+      })
+      return { message: 'update success' }
+    } else return { message: 'update fail' }
   } catch (error) {
     console.error(error)
   }
@@ -30,12 +60,25 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const items = JSON.parse(req.body)
+  const session = await getSession({ req })
+  const roomAllData = JSON.parse(req.body)
+
+  if (session == null) {
+    res.status(200).json({ items: undefined, message: 'no Session' })
+    return
+  }
 
   try {
-    const room = await updateRoom(items)
-    res.status(200).json({ items: room, message: 'Success' })
+    const roomData = await addRoom(
+      String(session.user?.id),
+      roomAllData.room,
+      roomAllData.saleInfo,
+      roomAllData.basicInfo,
+      roomAllData.addressInfo,
+      roomAllData.moreInfo
+    )
+    res.status(200).json({ items: roomData, message: 'Success' })
   } catch (error) {
-    res.status(400).json({ message: 'add-Room Failed' })
+    res.status(400).json({ message: 'Failed' })
   }
 }

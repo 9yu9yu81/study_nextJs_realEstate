@@ -48,10 +48,7 @@ const DETAILADDR_PLACEHOLDER = `상세 주소
 예) e편한세상 101동 1101호`
 
 export interface RoomUploadData {
-  room: Omit<
-    Room,
-    'user_id' | 'id' | 'updatedAt' | 'status_id' | 'views' | 'wished'
-  >
+  room: Omit<Room, 'user_id' | 'updatedAt' | 'status_id' | 'views' | 'wished'>
   saleInfo: Omit<SaleInfo, 'id' | 'room_id'>
   basicInfo: Omit<BasicInfo, 'id' | 'room_id'>
   addressInfo: Omit<AddressInfo, 'id' | 'room_id'>
@@ -223,7 +220,7 @@ export default function RoomEdit(room: RoomAllData) {
     any
   >(
     (room) =>
-      fetch('/api/room/add-Room', {
+      fetch('/api/room/update-Room', {
         method: 'POST',
         body: JSON.stringify(room),
       })
@@ -231,16 +228,12 @@ export default function RoomEdit(room: RoomAllData) {
         .then((res) => res.items),
     {
       onSuccess: async () => {
-        router.push('/')
+        router.push(`rooms/${room.id}`)
       },
     }
   )
 
   const validate = (type: 'submit') => {
-    //add room
-    mChecked && setMFee('0') //관리비 체킹
-    parking === '0' && setPFee('0') //주차비 체킹
-    ym === '1' && setFee('0') //전세일때 fee 체킹
     if (cChecked === false && contact !== '' && contact !== userContact) {
       if (confirm('해당 연락처를 기존 번호로 저장 하시겠습니까?')) {
         updateContact(contact)
@@ -278,6 +271,7 @@ export default function RoomEdit(room: RoomAllData) {
         : moveIn &&
           updateRoom({
             room: {
+              id: room.id,
               category_id: Number(category),
               type_id: Number(roomType),
               title: title,
@@ -288,7 +282,7 @@ export default function RoomEdit(room: RoomAllData) {
             saleInfo: {
               type_id: Number(ym),
               deposit: Number(deposit),
-              fee: Number(fee),
+              fee: ym === '1' ? 0 : Number(fee),
             },
             basicInfo: {
               supply_area: Number(supArea),
@@ -306,12 +300,12 @@ export default function RoomEdit(room: RoomAllData) {
               lng: lng,
             },
             moreInfo: {
-              maintenance_fee: Number(mFee),
+              maintenance_fee: mChecked ? 0 : Number(mFee),
               maintenance_ids:
                 mOption && mOption.length !== 0 ? mOption.join(',') : null,
               elevator: Boolean(Number(elevator)),
-              parking: Boolean(Number(elevator)),
-              parking_fee: Number(pFee),
+              parking: Boolean(Number(parking)),
+              parking_fee: parking === '0' ? 0 : Number(pFee),
               option_ids:
                 option && option.length !== 0 ? option.join(',') : null,
               structure_ids:
@@ -356,7 +350,7 @@ export default function RoomEdit(room: RoomAllData) {
           alignItems: 'center',
           fontSize: '20px',
           margin: '120px 0 40px 0',
-          fontWeight: '600'
+          fontWeight: '600',
         }}
       >
         수정하기
@@ -818,13 +812,15 @@ export default function RoomEdit(room: RoomAllData) {
         className="space-x-5"
         style={{ minWidth: '1000px', margin: '30px 0 30px 0' }}
       >
-        <Upload_Btn_Outline>취소</Upload_Btn_Outline>
+        <Upload_Btn_Outline onClick={() => router.back()}>
+          취소
+        </Upload_Btn_Outline>
         <Upload_Btn_Submit
           onClick={() => {
             validate('submit')
           }}
         >
-          등록하기
+          수정하기
         </Upload_Btn_Submit>
       </Center_Div>
     </div>
