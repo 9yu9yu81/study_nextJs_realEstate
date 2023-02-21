@@ -19,7 +19,6 @@ export default function Map({
       const addrMarker = (address: string) => {
         // 주소로 좌표를 검색
         geocoder.addressSearch(address, (result: any, status: any) => {
-          console.log(address)
           if (status === window.kakao.maps.services.Status.OK) {
             // 정상적으로 검색이 완료됐으면
             var coords = new window.kakao.maps.LatLng(result[0].y, result[0].x)

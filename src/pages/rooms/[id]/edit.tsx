@@ -228,7 +228,7 @@ export default function RoomEdit(room: RoomAllData) {
         .then((res) => res.items),
     {
       onSuccess: async () => {
-        router.push(`rooms/${room.id}`)
+        router.push(`/rooms/${room.id}`)
       },
     }
   )

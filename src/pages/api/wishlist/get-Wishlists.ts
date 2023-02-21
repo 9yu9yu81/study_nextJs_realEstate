@@ -5,7 +5,7 @@ import { getSession } from 'next-auth/react'
 const prisma = new PrismaClient()
 //user_id wishl
 
-async function getManagedRooms(user_id: string) {
+async function getWishlists(user_id: string) {
   try {
     const response = await prisma.$queryRaw`
       select r.id, r.category_id, r.status_id,r.updatedAt, r.title, r.views, r.wished, r.images, 
@@ -40,7 +40,7 @@ export default async function handler(
     return
   }
   try {
-    const managedRooms = await getManagedRooms(String(session.user?.id))
+    const managedRooms = await getWishlists(String(session.user?.id))
     res.status(200).json({ items: managedRooms, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'Failed' })

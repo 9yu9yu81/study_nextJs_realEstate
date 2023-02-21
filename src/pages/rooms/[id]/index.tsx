@@ -60,7 +60,7 @@ export const getServerSideProps: GetServerSideProps = async (
   }
 }
 
-type RoomAllData = Room &
+export type RoomAllData = Room &
   Omit<SaleInfo, 'id' | 'room_id' | 'type_id'> & { sType_id: number } & Omit<
     BasicInfo,
     'id' | 'room_id'
@@ -161,9 +161,8 @@ export default function RoomIndex(room: RoomAllData) {
 
         queryClient.setQueryData<boolean>([ISWISHED_QUERY_KEY], (old) => !old)
 
-        await queryClient.cancelQueries({ queryKey: [ROOM_WISHED_QUERY_KEY] })
         queryClient.setQueryData<number>([ROOM_WISHED_QUERY_KEY], (old) =>
-          old ? (isWished ? old - 1 : old + 1) : undefined
+          old ? (isWished ? old - 1 : old + 1) : 1
         )
 
         return previous
@@ -418,7 +417,7 @@ export default function RoomIndex(room: RoomAllData) {
           <Center2_Div>
             <Dark_Btn
               onClick={() =>
-                status === 'authenticated'
+                session && status === 'authenticated'
                   ? setCModal((prev) => !prev)
                   : router.push('../auth/login')
               }
@@ -428,7 +427,7 @@ export default function RoomIndex(room: RoomAllData) {
             </Dark_Btn>
             <Upload_Btn_Outline
               onClick={() =>
-                status === 'authenticated'
+                session && status === 'authenticated'
                   ? updateIsWished(room.id)
                   : router.push('../auth/login')
               }
