@@ -6,7 +6,7 @@ import {
   mainColor,
   subColor_light,
 } from 'components/styledComponent'
-import { CATEGORY_MAP, YEAR_MONTH_MAP, WISHLIST_TAKE } from 'constants/const'
+import { CATEGORY_MAP, YEAR_MONTH_MAP } from 'constants/const'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import Image from 'next/image'
@@ -15,30 +15,40 @@ import { useSession } from 'next-auth/react'
 import { RoomAllData } from './rooms/[id]'
 import styled from '@emotion/styled'
 
-//todo 하트 -> 관심 목록 추가 제거
+interface WishedRoom {
+  id: number
+  category_id: number
+  sType_id: number
+  deposit: number
+  fee: number
+  doro: string
+  title: string
+  images: string
+}
+
+const scStyles = (themes: any) => ({
+  root: {
+    backgroundColor: 'white',
+  },
+  label: {
+    marginRight: '10px',
+    marginLeft: '10px',
+    backgroundColor: `${subColor_light}`,
+  },
+  labelActive: {
+    marginRight: '10px',
+    marginLeft: '10px',
+    color: `${subColor_light} !important`,
+    backgroundColor: `${mainColor}`,
+  },
+  active: {
+    marginRight: '10px',
+    marginLeft: '10px',
+  },
+  control: { borderWidth: '0px !important' },
+})
 
 export default function wishlist() {
-  const scStyles = (themes: any) => ({
-    root: {
-      backgroundColor: 'white',
-    },
-    label: {
-      marginRight: '10px',
-      marginLeft: '10px',
-      backgroundColor: `${subColor_light}`,
-    },
-    labelActive: {
-      marginRight: '10px',
-      marginLeft: '10px',
-      color: `${subColor_light} !important`,
-      backgroundColor: `${mainColor}`,
-    },
-    active: {
-      marginRight: '10px',
-      marginLeft: '10px',
-    },
-    control: { borderWidth: '0px !important' },
-  })
   const WISHLIST_QUERY_KEY = `api/wishlist/get-Wishlists`
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -48,7 +58,7 @@ export default function wishlist() {
   const [category, setCategory] = useState<string>('-1')
 
   const { data: wishlists, isLoading } = useQuery<
-    { wishlists: RoomAllData[] },
+    { wishlists: WishedRoom[] },
     unknown,
     RoomAllData[]
   >([WISHLIST_QUERY_KEY], () =>
@@ -150,7 +160,7 @@ export default function wishlist() {
         개
       </div>
       <div
-        style={{ display: 'flex', flexFlow: 'column', margin: '0 0 20px 0' }}
+        style={{ display: 'flex', flexFlow: 'column', margin: '0 0 30px 0' }}
       >
         <SegmentedControl
           value={category}
@@ -186,7 +196,9 @@ export default function wishlist() {
         />
       </div>
       {isLoading ? (
-        <Loader />
+        <Center_Div style={{ margin: '100px 0 100px 0' }}>
+          <Loader color="dark" />
+        </Center_Div>
       ) : wishlists ? (
         <WishContainer>
           {wishlists.map((wishlist, idx) => (
@@ -199,7 +211,16 @@ export default function wishlist() {
                   fill
                 />
               </StyledImage>
-              <div style={{ margin: '10px 10px 0 10px' }}>test</div>
+              <div className="main">
+                {CATEGORY_MAP[wishlist.category_id - 1]}{' '}
+                {YEAR_MONTH_MAP[wishlist.sType_id - 1]} {wishlist.deposit}
+                {wishlist.sType_id !== 1 && '/' + wishlist.fee}
+                <div className="heart">
+                  <IconHeart color="red" fill="red" />
+                </div>
+              </div>
+              <div>{wishlist.doro}</div>
+              <div>{wishlist.title}</div>
             </WishWrapper>
           ))}
         </WishContainer>
@@ -226,5 +247,28 @@ const WishContainer = styled.div`
 const WishWrapper = styled.div`
   display: flex;
   flex-flow: column;
-  height: 350px;
+  width: 313px;
+  height: 330px;
+  div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .main {
+    margin: 10px 5px 0 5px;
+    display: flex;
+    font-size: 20px;
+    font-weight: 700;
+    align-items: center;
+  }
+  .sub {
+    display: flex;
+    flex-flow: column;
+  }
+  .heart {
+    margin-left: auto;
+    :hover {
+      cursor: pointer;
+    }
+  }
 `

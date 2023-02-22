@@ -75,7 +75,7 @@ export default function Upload() {
   const { data: session } = useSession()
 
   const [activePage, setActivePage] = useState(1) //page
-  const MANAGED_ROOMS_TAKE: number = 10
+  const MANAGED_ROOMS_TAKE: number = 5
   const MANAGED_ROOMS_COUNT_QUERY_KEY = 'api/room/get-ManagedRooms-Count'
   const MANAGED_ROOMS_QUERY_KEY = `api/room/get-ManagedRooms-Take?skip=${
     (activePage - 1) * MANAGED_ROOMS_TAKE
@@ -374,7 +374,9 @@ export default function Upload() {
     () =>
       fetch(MANAGED_ROOMS_COUNT_QUERY_KEY)
         .then((res) => res.json())
-        .then((data) => (data.items === 0 ? 1 : Math.ceil(data.items / 10))),
+        .then((data) =>
+          data.items === 0 ? 1 : Math.ceil(data.items / MANAGED_ROOMS_TAKE)
+        ),
     {
       onSuccess: async () => {
         setActivePage(1)

@@ -3,19 +3,27 @@ import { PrismaClient } from '@prisma/client'
 import { getSession } from 'next-auth/react'
 
 const prisma = new PrismaClient()
-//user_id wishl
+
+interface WishedRoom {
+  id: number
+  category_id: number
+  type_id: number
+  deposit: number
+  fee: number
+  doro: string
+  title: string
+  images: string
+}
 
 async function getWishlists(user_id: string) {
   try {
     const response = await prisma.$queryRaw`
-      select r.id, r.category_id, r.status_id,r.updatedAt, r.title, r.views, r.wished, r.images, 
-            s.type_id, s.deposit, s.fee,
-            a.doro, a.detail,
-            b.area
-            from Room as r, SaleInfo as s, AddressInfo as a, BasicInfo as b, Wishlist as w
+      select r.id, r.category_id, r.images, r.title,
+            s.type_id as sType_id, s.deposit, s.fee,
+            a.doro
+            from Room as r, SaleInfo as s, AddressInfo as a, Wishlist as w
             where r.id=s.room_id 
               and r.id=a.room_id
-              and r.id=b.room_id
               and r.id=w.room_id
               and w.user_id=${user_id}`
 
