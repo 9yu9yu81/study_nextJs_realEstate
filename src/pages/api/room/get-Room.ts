@@ -40,8 +40,8 @@ export default async function handler(
     return
   }
   try {
-    const products = await getRoom(Number(id))
-    res.status(200).json({ items: products, message: 'Success' })
+    const items = await getRoom(Number(id))
+    res.status(200).json({ items: items, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'Failed' })
   }

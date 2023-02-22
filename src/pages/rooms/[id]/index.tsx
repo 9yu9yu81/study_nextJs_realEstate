@@ -120,7 +120,7 @@ export default function RoomIndex(room: RoomAllData) {
     Pick<Room, 'id' | 'views'>,
     any
   >((items) =>
-    fetch('/api/room/update-Room-views', {
+    fetch('/api/room/update-Room-Views', {
       method: 'POST',
       body: JSON.stringify(items),
     })

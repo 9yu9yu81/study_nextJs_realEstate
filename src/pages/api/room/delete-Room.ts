@@ -34,8 +34,8 @@ export default async function handler(
   }
   const id = JSON.parse(req.body)
   try {
-    const room = await deleteRoom(String(session.user?.id), Number(id))
-    res.status(200).json({ items: room, message: 'Success' })
+    const items = await deleteRoom(String(session.user?.id), Number(id))
+    res.status(200).json({ items: items, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'Failed' })
   }

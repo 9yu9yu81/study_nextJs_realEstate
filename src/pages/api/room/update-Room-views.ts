@@ -27,11 +27,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const items = JSON.parse(req.body)
+  const item = JSON.parse(req.body)
 
   try {
-    const room = await updateView(Number(items.id), Number(items.views))
-    res.status(200).json({ items: room, message: 'Success' })
+    const items = await updateView(Number(item.id), Number(item.views))
+    res.status(200).json({ items: items, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'add-Room Failed' })
   }

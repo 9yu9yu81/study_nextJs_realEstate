@@ -39,12 +39,12 @@ export default async function handler(
   }
   const { skip, take } = req.query
   try {
-    const managedRooms = await getManagedRooms(
+    const items = await getManagedRooms(
       String(session.user?.id),
       Number(skip),
       Number(take)
     )
-    res.status(200).json({ items: managedRooms, message: 'Success' })
+    res.status(200).json({ items: items, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'Failed' })
   }

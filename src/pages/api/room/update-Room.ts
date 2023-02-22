@@ -69,7 +69,7 @@ export default async function handler(
   }
 
   try {
-    const roomData = await addRoom(
+    const items = await addRoom(
       String(session.user?.id),
       roomAllData.room,
       roomAllData.saleInfo,
@@ -77,7 +77,7 @@ export default async function handler(
       roomAllData.addressInfo,
       roomAllData.moreInfo
     )
-    res.status(200).json({ items: roomData, message: 'Success' })
+    res.status(200).json({ items: items, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'Failed' })
   }

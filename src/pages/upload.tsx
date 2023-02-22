@@ -76,7 +76,7 @@ export default function Upload() {
 
   const [activePage, setActivePage] = useState(1) //page
   const MANAGED_ROOMS_TAKE: number = 5
-  const MANAGED_ROOMS_COUNT_QUERY_KEY = 'api/room/get-ManagedRooms-Count'
+  const MANAGED_ROOMS_COUNT_QUERY_KEY = 'api/room/get-ManagedRooms-Total'
   const MANAGED_ROOMS_QUERY_KEY = `api/room/get-ManagedRooms-Take?skip=${
     (activePage - 1) * MANAGED_ROOMS_TAKE
   }&take=${MANAGED_ROOMS_TAKE}`
@@ -432,7 +432,7 @@ export default function Upload() {
     any
   >(
     (items) =>
-      fetch('/api/room/update-Room-status', {
+      fetch('/api/room/update-Room-Status', {
         method: 'POST',
         body: JSON.stringify(items),
       })

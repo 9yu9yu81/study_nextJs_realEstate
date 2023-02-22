@@ -40,10 +40,6 @@ export const OPTION_MAP = [
   { value: '전자도어락', icon: '/icons/doorLock.png' },
 ]
 
-export const WISHLIST_TAKE = 9
-export const HOME_TAKE = 3
-export const ROOM_TAKE = 8
-
 export const FILTERS = [
   { label: '최신순', value: 'latest' },
   { label: '가격 높은 순', value: 'expensive' },

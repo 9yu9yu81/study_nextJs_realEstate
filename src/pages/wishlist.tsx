@@ -7,13 +7,13 @@ import {
   subColor_light,
 } from 'components/styledComponent'
 import { CATEGORY_MAP, YEAR_MONTH_MAP } from 'constants/const'
-import { useRouter } from 'next/router'
 import { useState } from 'react'
 import Image from 'next/image'
 import { IconHeart } from '@tabler/icons'
 import { useSession } from 'next-auth/react'
 import { RoomAllData } from './rooms/[id]'
 import styled from '@emotion/styled'
+import CustomPagination from 'components/CustomPagination'
 
 interface WishedRoom {
   id: number
@@ -49,13 +49,18 @@ const scStyles = (themes: any) => ({
 })
 
 export default function wishlist() {
-  const WISHLIST_QUERY_KEY = `api/wishlist/get-Wishlists`
-  const router = useRouter()
+  const WISHLIST_TAKE = 9
   const queryClient = useQueryClient()
   const { status } = useSession()
-  // const [activePage, setActivePage] = useState(1)
+  const [activePage, setActivePage] = useState<number>(1)
   const [ym, setYm] = useState<string>('-1')
   const [category, setCategory] = useState<string>('-1')
+
+  const WISHLIST_QUERY_KEY = `api/wishlist/get-Wishlists-Take?skip=${
+    (activePage - 1) * WISHLIST_TAKE
+  }&take=${WISHLIST_TAKE}`
+  const WISHLIST_COUNT_QUERY_KEY = `api/wishlist/get-Wishlists-Count`
+  const WISHLIST_TOTAL_QUERY_KEY = `api/wishlist/get-Wishlists-Total`
 
   const { data: wishlists, isLoading } = useQuery<
     { wishlists: WishedRoom[] },
@@ -66,41 +71,25 @@ export default function wishlist() {
       .then((res) => res.json())
       .then((data) => data.items)
   )
-
-  // const { data: wishlists, isLoading } = useQuery<
-  //   { wishlists: Room[] },
-  //   unknown,
-  //   Room[]
-  // >(
-  //   [
-  //     `api/wishlist/get-Wishlists-take?skip=${
-  //       (activePage - 1) * WISHLIST_TAKE
-  //     }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`,
-  //   ],
-  //   () =>
-  //     fetch(
-  //       `api/wishlist/get-Wishlists-take?skip=${
-  //         (activePage - 1) * WISHLIST_TAKE
-  //       }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`
-  //     )
-  //       .then((res) => res.json())
-  //       .then((data) => data.items)
-  // )
-  // const { data: total } = useQuery(
-  //   [`api/wishlist/get-Wishlists-count?category=${category}&ym=${ym}`],
-  //   () =>
-  //     fetch(`api/wishlist/get-Wishlists-count?category=${category}&ym=${ym}`)
-  //       .then((res) => res.json())
-  //       .then((data) =>
-  //         data.items === 0 ? 1 : Math.ceil(data.items / WISHLIST_TAKE)
-  //       ),
-  //   {
-  //     onSuccess: async () => {
-  //       setActivePage(1)
-  //     },
-  //   }
-  // )
-
+  const { data: count } = useQuery<{ count: number }, unknown, number>(
+    [WISHLIST_COUNT_QUERY_KEY],
+    () =>
+      fetch(WISHLIST_COUNT_QUERY_KEY)
+        .then((res) => res.json())
+        .then((data) => data.items)
+  )
+  const { data: total } = useQuery<{ total: number }, unknown, number>(
+    [WISHLIST_TOTAL_QUERY_KEY],
+    () =>
+      fetch(WISHLIST_TOTAL_QUERY_KEY)
+        .then((res) => res.json())
+        .then((data) => data.items),
+    {
+      onSuccess: async () => {
+        setActivePage(1)
+      },
+    }
+  )
   //delete wishlist
   // const { mutate: updateWishlist } = useMutation<unknown, unknown, number, any>(
   //   (roomId) =>
@@ -154,7 +143,7 @@ export default function wishlist() {
           </Center_Div>
         ) : (
           <div style={{ fontWeight: '700', margin: '0 10px 0 10px' }}>
-            {wishlists?.length}
+            {count}
           </div>
         )}
         개
@@ -200,30 +189,41 @@ export default function wishlist() {
           <Loader color="dark" />
         </Center_Div>
       ) : wishlists ? (
-        <WishContainer>
-          {wishlists.map((wishlist, idx) => (
-            <WishWrapper key={idx}>
-              <StyledImage style={{ width: '313px', height: '234px' }}>
-                <Image
-                  className="styled"
-                  alt="img"
-                  src={wishlist.images.split(',')[0]}
-                  fill
-                />
-              </StyledImage>
-              <div className="main">
-                {CATEGORY_MAP[wishlist.category_id - 1]}{' '}
-                {YEAR_MONTH_MAP[wishlist.sType_id - 1]} {wishlist.deposit}
-                {wishlist.sType_id !== 1 && '/' + wishlist.fee}
-                <div className="heart">
-                  <IconHeart color="red" fill="red" />
+        <div>
+          <WishContainer>
+            {wishlists.map((wishlist, idx) => (
+              <WishWrapper key={idx}>
+                <StyledImage style={{ width: '313px', height: '234px' }}>
+                  <Image
+                    className="styled"
+                    alt="img"
+                    src={wishlist.images.split(',')[0]}
+                    fill
+                  />
+                </StyledImage>
+                <div className="main">
+                  {CATEGORY_MAP[wishlist.category_id - 1]}{' '}
+                  {YEAR_MONTH_MAP[wishlist.sType_id - 1]} {wishlist.deposit}
+                  {wishlist.sType_id !== 1 && '/' + wishlist.fee}
+                  <div className="heart">
+                    <IconHeart color="red" fill="red" />
+                  </div>
                 </div>
-              </div>
-              <div>{wishlist.doro}</div>
-              <div>{wishlist.title}</div>
-            </WishWrapper>
-          ))}
-        </WishContainer>
+                <div>{wishlist.doro}</div>
+                <div>{wishlist.title}</div>
+              </WishWrapper>
+            ))}
+          </WishContainer>
+          {total && (
+            <Center_Div style={{ margin: '30px 0 30px 0' }}>
+              <CustomPagination
+                page={activePage}
+                onChange={setActivePage}
+                total={total === 0 ? 1 : Math.ceil(total / WISHLIST_TAKE)}
+              />
+            </Center_Div>
+          )}
+        </div>
       ) : (
         <Center_Div>관심 목록이 비어있습니다.</Center_Div>
       )}

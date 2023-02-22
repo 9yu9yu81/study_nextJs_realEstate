@@ -4,41 +4,20 @@ import { getSession } from 'next-auth/react'
 
 const prisma = new PrismaClient()
 
-async function getWishlistPage(
-  userId: string,
-  skip: number,
-  take: number,
-  category: string,
-  ym: string
-) {
+async function getWishlistsTake(user_id: string, skip: number, take: number) {
   try {
-    const wishlist = await prisma.wishlist.findUnique({
-      where: {
-        userId: userId,
-      },
-    })
-
-    const wishlists = wishlist?.roomIds
-      .split(',')
-      .map((wishlist) => Number(wishlist))
-
-    const validCategory = category && category !== '-1' ? category : undefined
-    const validYm = ym && ym !== '-1' ? ym : undefined
-
-    if (wishlists && wishlists.length > 0) {
-      const response = await prisma.room.findMany({
-        skip: skip,
-        take: take,
-        where: {
-          id: {
-            in: wishlists,
-          },
-          categoryId: validCategory,
-          ym: validYm,
-        },
-      })
-      return response
-    }
+    const response = await prisma.$queryRaw` 
+      select r.id, r.category_id, r.images, r.title,
+            s.type_id as sType_id, s.deposit, s.fee,
+            a.doro
+            from Room as r, SaleInfo as s, AddressInfo as a, Wishlist as w
+            where r.id=s.room_id 
+              and r.id=a.room_id
+              and r.id=w.room_id
+              and w.user_id=${user_id}
+              limit ${skip},${take}`
+    console.log(response)
+    return response
   } catch (error) {
     console.error(error)
   }
@@ -48,29 +27,23 @@ type Data = {
   items?: any
   message: string
 }
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
   const session = await getSession({ req })
-
-  const { skip, take, category, ym } = req.query
-
   if (session == null) {
-    res.status(400).json({ message: 'no session' })
+    res.status(200).json({ items: undefined, message: 'no Session' })
     return
   }
-
+  const { skip, take } = req.query
   try {
-    const products = await getWishlistPage(
+    const items = await getWishlistsTake(
       String(session.user?.id),
       Number(skip),
-      Number(take),
-      String(category),
-      String(ym)
+      Number(take)
     )
-    res.status(200).json({ items: products, message: 'Success' })
+    res.status(200).json({ items: items, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'Failed' })
   }
