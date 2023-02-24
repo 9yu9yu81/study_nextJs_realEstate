@@ -4,8 +4,17 @@ import { getSession } from 'next-auth/react'
 
 const prisma = new PrismaClient()
 
-async function getWishlistsTake(user_id: string, skip: number, take: number) {
+async function getWishlistsTake(
+  user_id: string,
+  skip: number,
+  take: number,
+  category_id: number,
+  sType_id: number
+) {
   try {
+    const validCategory = category_id === 0 ? '%' : category_id
+    const validSType = sType_id === 0 ? '%' : sType_id
+
     const response = await prisma.$queryRaw` 
       select r.id, r.category_id, r.images, r.title,
             s.type_id as sType_id, s.deposit, s.fee,
@@ -15,6 +24,8 @@ async function getWishlistsTake(user_id: string, skip: number, take: number) {
               and r.id=a.room_id
               and r.id=w.room_id
               and w.user_id=${user_id}
+              and r.category_id like ${validCategory}
+              and s.type_id like ${validSType}
               limit ${skip},${take}`
     console.log(response)
     return response
@@ -36,12 +47,14 @@ export default async function handler(
     res.status(200).json({ items: undefined, message: 'no Session' })
     return
   }
-  const { skip, take } = req.query
+  const { skip, take, category_id, sType_id } = req.query
   try {
     const items = await getWishlistsTake(
       String(session.user?.id),
       Number(skip),
-      Number(take)
+      Number(take),
+      Number(category_id),
+      Number(sType_id)
     )
     res.status(200).json({ items: items, message: 'Success' })
   } catch (error) {

@@ -53,14 +53,14 @@ export default function wishlist() {
   const queryClient = useQueryClient()
   const { status } = useSession()
   const [activePage, setActivePage] = useState<number>(1)
-  const [ym, setYm] = useState<string>('-1')
-  const [category, setCategory] = useState<string>('-1')
+  const [ym, setYm] = useState<string>('0')
+  const [category, setCategory] = useState<string>('0')
 
   const WISHLIST_QUERY_KEY = `api/wishlist/get-Wishlists-Take?skip=${
     (activePage - 1) * WISHLIST_TAKE
-  }&take=${WISHLIST_TAKE}`
+  }&take=${WISHLIST_TAKE}&category_id=${category}&sType_id=${ym}`
   const WISHLIST_COUNT_QUERY_KEY = `api/wishlist/get-Wishlists-Count`
-  const WISHLIST_TOTAL_QUERY_KEY = `api/wishlist/get-Wishlists-Total`
+  const WISHLIST_TOTAL_QUERY_KEY = `api/wishlist/get-Wishlists-Total?category_id=${category}&sType_id=${ym}`
 
   const { data: wishlists, isLoading } = useQuery<
     { wishlists: WishedRoom[] },
@@ -71,19 +71,21 @@ export default function wishlist() {
       .then((res) => res.json())
       .then((data) => data.items)
   )
-  const { data: count } = useQuery<{ count: number }, unknown, number>(
-    [WISHLIST_COUNT_QUERY_KEY],
-    () =>
-      fetch(WISHLIST_COUNT_QUERY_KEY)
-        .then((res) => res.json())
-        .then((data) => data.items)
+  const { data: count, isLoading: countLoading } = useQuery<
+    { count: number },
+    unknown,
+    number
+  >([WISHLIST_COUNT_QUERY_KEY], () =>
+    fetch(WISHLIST_COUNT_QUERY_KEY)
+      .then((res) => res.json())
+      .then((data) => data.items)
   )
   const { data: total } = useQuery<{ total: number }, unknown, number>(
     [WISHLIST_TOTAL_QUERY_KEY],
     () =>
       fetch(WISHLIST_TOTAL_QUERY_KEY)
         .then((res) => res.json())
-        .then((data) => data.items),
+        .then((data) => (data.items === 0 ? 1 : data.items)),
     {
       onSuccess: async () => {
         setActivePage(1)
@@ -137,7 +139,7 @@ export default function wishlist() {
         style={{ margin: '40px 0 20px 0', fontSize: '17px', display: 'flex' }}
       >
         관심 매물
-        {isLoading ? (
+        {countLoading ? (
           <Center_Div style={{ margin: '0 10px 0 10px' }}>
             <Loader color="dark" size={15} />
           </Center_Div>
@@ -159,11 +161,11 @@ export default function wishlist() {
           data={[
             {
               label: '전체',
-              value: '-1',
+              value: '0',
             },
             ...CATEGORY_MAP.map((label, id) => ({
               label: label,
-              value: String(id),
+              value: String(id + 1),
             })),
           ]}
         />
@@ -175,11 +177,11 @@ export default function wishlist() {
           data={[
             {
               label: '전체',
-              value: '-1',
+              value: '0',
             },
             ...YEAR_MONTH_MAP.map((label, id) => ({
               label: label,
-              value: String(id),
+              value: String(id + 1),
             })),
           ]}
         />
