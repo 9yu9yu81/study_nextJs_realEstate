@@ -5,10 +5,11 @@ import Header from 'components/Header'
 import Footer from 'components/Footer'
 import { SessionProvider, useSession } from 'next-auth/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import Script from 'next/script'
-import { KAKAOMAP_KEY } from 'constants/googleAuth'
 import { Loader } from '@mantine/core'
 import { Center_Div } from 'components/styledComponent'
+import schedule from 'node-schedule'
+import { useEffect } from 'react'
+import { scheduleJob } from 'node-schedule'
 
 export default function App({
   Component,
@@ -18,6 +19,9 @@ export default function App({
     defaultOptions: {
       queries: { staleTime: Infinity },
     },
+  })
+  const checkExpiredRoom = scheduleJob('0 0 * * *', function () {
+    console.log(new Date())
   })
   return (
     <SessionProvider session={session}>

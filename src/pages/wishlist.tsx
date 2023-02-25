@@ -14,6 +14,7 @@ import { useSession } from 'next-auth/react'
 import { RoomAllData } from './rooms/[id]'
 import styled from '@emotion/styled'
 import CustomPagination from 'components/CustomPagination'
+import { useRouter } from 'next/router'
 
 interface WishedRoom {
   id: number
@@ -49,9 +50,11 @@ const scStyles = (themes: any) => ({
 })
 
 export default function wishlist() {
-  const WISHLIST_TAKE = 9
   const queryClient = useQueryClient()
   const { status } = useSession()
+  const router = useRouter()
+
+  const WISHLIST_TAKE = 9
   const [activePage, setActivePage] = useState<number>(1)
   const [ym, setYm] = useState<string>('0')
   const [category, setCategory] = useState<string>('0')
@@ -92,46 +95,47 @@ export default function wishlist() {
       },
     }
   )
-  //delete wishlist
-  // const { mutate: updateWishlist } = useMutation<unknown, unknown, number, any>(
-  //   (roomId) =>
-  //     fetch('/api/wishlist/update-Wishlist', {
-  //       method: 'POST',
-  //       body: JSON.stringify(roomId),
-  //     })
-  //       .then((data) => data.json())
-  //       .then((res) => res.items),
-  //   {
-  //     onMutate: async (roomId) => {
-  //       await queryClient.cancelQueries({ queryKey: [WISHLISTS_QUERY_KEY] })
-  //       const previous = queryClient.getQueryData([WISHLISTS_QUERY_KEY])
 
-  //       queryClient.setQueryData<Room[]>(
-  //         [
-  //           `api/wishlist/get-Wishlists-take?skip=${
-  //             (activePage - 1) * WISHLIST_TAKE
-  //           }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`,
-  //         ],
-  //         (olds) => olds?.filter((f) => f.id !== roomId)
-  //       )
+  const { mutate: updateIsWished } = useMutation<unknown, unknown, number, any>(
+    (room_id) =>
+      fetch('api/wishlist/update-IsWished', {
+        method: 'POST',
+        body: JSON.stringify(room_id),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: async (room_id) => {
+        await queryClient.cancelQueries({ queryKey: [WISHLIST_QUERY_KEY] })
+        const previous = queryClient.getQueryData([WISHLIST_QUERY_KEY])
 
-  //       return previous
-  //     },
-  //     onError: (__, _, context) => {
-  //       queryClient.setQueryData([WISHLISTS_QUERY_KEY], context.previous)
-  //     },
-  //     onSuccess: async () => {
-  //       queryClient.invalidateQueries([
-  //         `api/wishlist/get-Wishlists-take?skip=${
-  //           (activePage - 1) * WISHLIST_TAKE
-  //         }&take=${WISHLIST_TAKE}&category=${category}&ym=${ym}`,
-  //       ])
-  //       queryClient.invalidateQueries([
-  //         `api/wishlist/get-Wishlists-count?category=${category}&ym=${ym}`,
-  //       ])
-  //     },
-  //   }
-  // )
+        queryClient.setQueryData<WishedRoom[]>([WISHLIST_QUERY_KEY], (olds) =>
+          olds?.filter((f) => f.id !== room_id)
+        )
+        queryClient.setQueryData<number>([WISHLIST_TOTAL_QUERY_KEY], (old) =>
+          old ? old - 1 : undefined
+        )
+        queryClient.setQueryData<number>([WISHLIST_COUNT_QUERY_KEY], (old) =>
+          old ? old - 1 : undefined
+        )
+        return previous
+      },
+      onError: (__, _, context) => {
+        queryClient.setQueryData([WISHLIST_QUERY_KEY], context.previous)
+      },
+      onSuccess: async () => {
+        queryClient.invalidateQueries([WISHLIST_QUERY_KEY])
+        queryClient.invalidateQueries([WISHLIST_TOTAL_QUERY_KEY])
+        queryClient.invalidateQueries([WISHLIST_COUNT_QUERY_KEY])
+      },
+    }
+  )
+
+  const delWishlist = (room_id: number) => {
+    if (confirm('해당 매물을 관심목록에서 삭제하시겠습니까?')) {
+      updateIsWished(room_id)
+    }
+  }
 
   return status === 'authenticated' ? (
     <div style={{ width: '1000px' }}>
@@ -201,6 +205,7 @@ export default function wishlist() {
                     alt="img"
                     src={wishlist.images.split(',')[0]}
                     fill
+                    onClick={() => router.push(`/rooms/${wishlist.id}`)}
                   />
                 </StyledImage>
                 <div className="main">
@@ -208,7 +213,11 @@ export default function wishlist() {
                   {YEAR_MONTH_MAP[wishlist.sType_id - 1]} {wishlist.deposit}
                   {wishlist.sType_id !== 1 && '/' + wishlist.fee}
                   <div className="heart">
-                    <IconHeart color="red" fill="red" />
+                    <IconHeart
+                      color="red"
+                      fill="red"
+                      onClick={() => delWishlist(wishlist.id)}
+                    />
                   </div>
                 </div>
                 <div>{wishlist.doro}</div>

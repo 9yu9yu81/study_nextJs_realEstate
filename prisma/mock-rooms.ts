@@ -17,9 +17,13 @@ const getRandom = (min: number, max: number) => {
   return Math.random() * (max - min + 1) + min
 }
 
-const addrMockData = [
-  '전북 전주시 덕진구 기린대로 458-10',
-  '전북 전주시 덕진구 명륜3길 9',
+const addrMockData: { addr: string; lat: number; lng: number }[] = [
+  {
+    addr: '전북 전주시 덕진구 기린대로 458-10',
+    lat: 127.127645,
+    lng: 35.8417894,
+  },
+  { addr: '전북 전주시 덕진구 명륜3길 9', lat: 127.127159, lng: 35.8422406 },
   '전북 전주시 덕진구 삼송1길 14',
   '전북 전주시 덕진구 삼송1길 29 한별드림',
   '전북 전주시 덕진구 삼송3길 30-7',
@@ -159,7 +163,7 @@ addrMockData.map((addr, idx) => {
       total_floor: getIntRandom(6, 10),
       floor: getIntRandom(1, 6),
       move_in: new Date(),
-      heat_id: getIntRandom(0, 2),
+      heat_id: getIntRandom(1, 3),
     })
     SaleInfoMockData.push({
       id: idx + 1,
@@ -223,7 +227,7 @@ addrMockData.map((addr, idx) => {
       total_floor: getIntRandom(6, 10),
       floor: getIntRandom(1, 6),
       move_in: new Date(),
-      heat_id: getIntRandom(0, 2),
+      heat_id: getIntRandom(1, 3),
     })
     SaleInfoMockData.push({
       id: idx + 1,
@@ -286,7 +290,7 @@ addrMockData.map((addr, idx) => {
       total_floor: getIntRandom(6, 10),
       floor: getIntRandom(1, 6),
       move_in: new Date(),
-      heat_id: getIntRandom(0, 2),
+      heat_id: getIntRandom(1, 3),
     })
     SaleInfoMockData.push({
       id: idx + 1,

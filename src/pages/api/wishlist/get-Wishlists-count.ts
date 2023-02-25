@@ -11,8 +11,7 @@ async function getWishlistsCount(user_id: string) {
             from Wishlist as w, Room as r
               where r.id=w.room_id
               and w.user_id=${user_id}`
-    console.log(Number(response[0].count))
-
+    // console.log(Number(response[0].count))
     return Number(response[0].count)
   } catch (error) {
     console.error(error)

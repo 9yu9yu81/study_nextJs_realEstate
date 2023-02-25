@@ -265,7 +265,7 @@ export default function Upload() {
         updateContact(contact)
       }
     }
-    //todo
+
     if (type === 'submit') {
       addrRef.current?.value == ''
         ? alert('주소를 입력하세요.')
@@ -947,7 +947,7 @@ export default function Upload() {
           <UploadCaveats manage={true} />
           {roomsLoading ? (
             <Center_Div className="m-72">
-              <Loader />
+              <Loader color="dark" />
             </Center_Div>
           ) : rooms ? (
             <>
@@ -1263,6 +1263,11 @@ const FlexCol_Div = styled.div`
 const Manage_Div_350 = styled(FlexCol_Div)`
   width: 350px;
   padding: 30px 0 30px 30px;
+  div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `
 const Manage_Div_200 = styled(FlexCol_Div)`
   width: 200px;

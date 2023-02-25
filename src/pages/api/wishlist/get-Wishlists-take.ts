@@ -27,7 +27,7 @@ async function getWishlistsTake(
               and r.category_id like ${validCategory}
               and s.type_id like ${validSType}
               limit ${skip},${take}`
-    console.log(response)
+    // console.log(response)
     return response
   } catch (error) {
     console.error(error)

@@ -17,16 +17,25 @@ import {
   Cstyled,
   StyledImage,
 } from 'components/styledComponent'
-import { HOME_TAKE, CATEGORY_MAP, YEAR_MONTH_MAP } from 'constants/const'
+import { CATEGORY_MAP, YEAR_MONTH_MAP } from 'constants/const'
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import useDebounce from 'hooks/useDebounce'
+import schedule from 'node-schedule'
 
 //todo myspot analytics 에 어떤 내용 들어갈지도 생각 해봐야함
 
-export default function home() {
+export default function Home() {
+  const queryClient = useQueryClient()
+
+  const test = () => {
+    fetch('/api/room/update-ExpiredRooms')
+      .then((res) => res.json())
+      .then((data) => data.items)
+  }
+
   //change expired room status
   // useEffect(() => {
   //   fetch('/api/room/update-Rooms-status')
@@ -34,7 +43,6 @@ export default function home() {
   //     .then((data) => data.items)
   // }, [])
 
-  // const queryClient = useQueryClient()
   // const { data: session } = useSession()
   // const router = useRouter()
   // const [category, setCategory] = useState<string>('-1')
@@ -143,7 +151,17 @@ export default function home() {
   // )
 
   return (
-    <div>temp</div>
+    <button
+      onClick={() => test()}
+      style={{
+        width: '100px',
+        height: '100px',
+        backgroundColor: 'black',
+        color: 'white',
+      }}
+    >
+      btn
+    </button>
     // <div className="text-zinc-600 mt-20">
     //   <Bb className="h-72 flex mb-10">
     //     <div className="p-10 w-full space-y-5">
