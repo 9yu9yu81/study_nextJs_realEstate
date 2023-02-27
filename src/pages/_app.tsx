@@ -7,8 +7,6 @@ import { SessionProvider, useSession } from 'next-auth/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Loader } from '@mantine/core'
 import { Center_Div } from 'components/styledComponent'
-import schedule from 'node-schedule'
-import { useEffect } from 'react'
 import { scheduleJob } from 'node-schedule'
 
 export default function App({
@@ -21,6 +19,9 @@ export default function App({
     },
   })
   const checkExpiredRoom = scheduleJob('0 0 * * *', function () {
+    fetch('/api/room/update-ExpiredRooms')
+      .then((res) => res.json())
+      .then((data) => data.items)
     console.log(new Date())
   })
   return (

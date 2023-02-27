@@ -39,7 +39,6 @@ export const OPTION_MAP = [
   { value: '냉장고', icon: '/icons/refridgiator.png' },
   { value: '전자도어락', icon: '/icons/doorLock.png' },
 ]
-
 export const FILTERS = [
   { label: '최신순', value: 'latest' },
   { label: '가격 높은 순', value: 'expensive' },

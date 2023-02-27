@@ -61,9 +61,9 @@ addrMockData.map((addr, idx) => {
     id: idx + 1,
     category_id: getIntRandom(1, 5),
     user_id: 'cldvorksx0000qjfaj6j692g0',
-    status_id: 1,
+    status_id: 3,
     type_id: getIntRandom(1, 4),
-    updatedAt: new Date('2023-1-1T03:24:00'),
+    updatedAt: new Date(2023, 0, 2),
     title: `전주 살기 좋은 집. 9yu9yu81의 ${Math.ceil((idx + 1) / 3)}번째 매물`,
     description:
       `전주 살기 좋은 집. 9yu9yu81의 ${Math.ceil((idx + 1) / 3)}번째 매물` +

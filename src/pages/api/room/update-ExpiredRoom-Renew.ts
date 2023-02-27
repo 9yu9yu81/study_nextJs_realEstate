@@ -1,15 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { PrismaClient } from '@prisma/client'
-import sub from 'date-fns/sub'
 
 const prisma = new PrismaClient()
 
-async function updateExpiredRooms() {
+async function updateExpiredRoomRenew(id: number) {
   try {
-    const ExpiredDate = sub(new Date(), { days: 30 }) // today - 30days
-    const response: any = await prisma.$queryRaw`
-      update Room set status_id = 3 where updatedAt < ${ExpiredDate} and status_id != 2
-    `
+    const response = await prisma.room.update({
+      where: {
+        id: id,
+      },
+      data: { updatedAt: new Date(), status_id: 1 },
+    })
     console.log(response)
     return response
   } catch (error) {
@@ -21,13 +22,16 @@ type Data = {
   items?: any
   message: string
 }
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
+  const item = JSON.parse(req.body)
+
   try {
-    const rooms = await updateExpiredRooms()
-    res.status(200).json({ items: rooms, message: 'Success' })
+    const items = await updateExpiredRoomRenew(Number(item))
+    res.status(200).json({ items: items, message: 'Success' })
   } catch (error) {
     res.status(400).json({ message: 'add-Room Failed' })
   }

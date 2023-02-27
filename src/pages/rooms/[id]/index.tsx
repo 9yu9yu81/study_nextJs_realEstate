@@ -25,6 +25,7 @@ import {
   HEAT_MAP,
   MAINTENENCE_MAP,
   OPTION_MAP,
+  STATUS_MAP,
   STRUCTURE_MAP,
   TYPE_MAP,
   YEAR_MONTH_MAP,
@@ -40,9 +41,9 @@ import { useEffect, useState } from 'react'
 
 const carouselConfig = {
   nextButtonText: <IconChevronRight color="black" size={40} stroke={2} />,
-  nextButtonStyle: { background: 'rgba(0,0,0,0)' },
+  nextButtonStyle: { background: 'rgba(0,0,0,0)'},
   prevButtonText: <IconChevronLeft color="black" size={40} stroke={2} />,
-  prevButtonStyle: { background: 'rgba(0,0,0,0)' },
+  prevButtonStyle: {background: 'rgba(0,0,0,0)'},
 }
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -414,48 +415,70 @@ export default function RoomIndex(room: RoomAllData) {
               <div>{room.doro}</div>
             </div>
           </div>
-          <Center2_Div>
-            <Dark_Btn
-              onClick={() =>
-                session && status === 'authenticated'
-                  ? setCModal((prev) => !prev)
-                  : router.push('../auth/login')
-              }
-              style={{ width: '130px', fontSize: '13px', height: '40px' }}
+          {room.status_id === 1 ? (
+            <>
+              <Center2_Div>
+                <Dark_Btn
+                  onClick={() =>
+                    session && status === 'authenticated'
+                      ? setCModal((prev) => !prev)
+                      : router.push('../auth/login')
+                  }
+                  style={{ width: '130px', fontSize: '13px', height: '40px' }}
+                >
+                  연락처 보기
+                </Dark_Btn>
+                <Upload_Btn_Outline
+                  onClick={() =>
+                    session && status === 'authenticated'
+                      ? updateIsWished(room.id)
+                      : router.push('../auth/login')
+                  }
+                  style={{ width: '80px', marginLeft: 'auto' }}
+                >
+                  <Center_Div style={{ fontSize: '16px' }}>
+                    {isWished ? (
+                      <IconHeart
+                        size={20}
+                        color="red"
+                        fill="red"
+                        style={{ marginRight: '10px' }}
+                      />
+                    ) : (
+                      <IconHeart
+                        size={20}
+                        stroke={1.5}
+                        style={{ marginRight: '10px' }}
+                      />
+                    )}
+                    {wished}
+                  </Center_Div>
+                </Upload_Btn_Outline>
+              </Center2_Div>
+              {cModal && (
+                <div style={{ display: 'flex', marginTop: '10px' }}>
+                  <div style={{ fontWeight: '700', minWidth: '60px' }}>
+                    연락처
+                  </div>
+                  <div>{room.contact}</div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div
+              style={{
+                width: '240px',
+                height: '80px',
+                display: 'flex',
+                backgroundColor: `${mainColor}`,
+                color: `${subColor_light}`,
+                fontSize: '20px',
+                fontWeight: '700',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
             >
-              연락처 보기
-            </Dark_Btn>
-            <Upload_Btn_Outline
-              onClick={() =>
-                session && status === 'authenticated'
-                  ? updateIsWished(room.id)
-                  : router.push('../auth/login')
-              }
-              style={{ width: '80px', marginLeft: 'auto' }}
-            >
-              <Center_Div style={{ fontSize: '16px' }}>
-                {isWished ? (
-                  <IconHeart
-                    size={20}
-                    color="red"
-                    fill="red"
-                    style={{ marginRight: '10px' }}
-                  />
-                ) : (
-                  <IconHeart
-                    size={20}
-                    stroke={1.5}
-                    style={{ marginRight: '10px' }}
-                  />
-                )}
-                {wished}
-              </Center_Div>
-            </Upload_Btn_Outline>
-          </Center2_Div>
-          {cModal && (
-            <div style={{ display: 'flex', marginTop: '10px' }}>
-              <div style={{ fontWeight: '700', minWidth: '60px' }}>연락처</div>
-              <div>{room.contact}</div>
+              {STATUS_MAP[room.status_id - 1]}
             </div>
           )}
         </Info_Div_Card>

@@ -39,7 +39,7 @@ import CustomSegmentedControl from 'components/CustomSegmentedControl'
 import styled from '@emotion/styled'
 import { Calendar } from '@mantine/dates'
 import CustomCheckBox from 'components/CustomCheckBox'
-import { add, differenceInDays } from 'date-fns'
+import { add, differenceInDays, sub } from 'date-fns'
 import CustomPagination from 'components/CustomPagination'
 
 const DESCRIPTION_PLACEHOLDER = `[상세설명 작성 주의사항]
@@ -61,7 +61,7 @@ export interface RoomUploadData {
   addressInfo: Omit<AddressInfo, 'id' | 'room_id'>
   moreInfo: Omit<MoreInfo, 'id' | 'room_id'>
 }
-interface ManagedRoom extends Omit<Room, 'user_id' | 'description'> {
+export interface ManagedRoom extends Omit<Room, 'user_id' | 'description'> {
   type_id: number //전월세
   deposit: number
   fee: number
@@ -466,7 +466,49 @@ export default function Upload() {
       },
     }
   )
+  const updateStatus1 = (room_id: number, room_updatedAt: Date) => {
+    const ExpiredDate = sub(new Date(), { days: 30 })
+    if (new Date(room_updatedAt) < ExpiredDate) {
+      updateStatus({ id: room_id, status_id: 3 })
+    } else updateStatus({ id: room_id, status_id: 1 })
+  }
 
+  const { mutate: updateRenew } = useMutation<unknown, unknown, number, any>(
+    (item) =>
+      fetch('/api/room/update-ExpiredRoom-Renew', {
+        method: 'POST',
+        body: JSON.stringify(item),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: async (item) => {
+        await queryClient.cancelQueries([MANAGED_ROOMS_QUERY_KEY])
+
+        const previous = queryClient.getQueryData([MANAGED_ROOMS_QUERY_KEY])
+
+        if (previous) {
+          queryClient.setQueryData<ManagedRoom[]>(
+            [MANAGED_ROOMS_QUERY_KEY],
+            (olds) =>
+              olds &&
+              olds.map((old) =>
+                old.id === item
+                  ? { ...old, status_id: 1, updatedAt: new Date() }
+                  : { ...old }
+              )
+          )
+        }
+        return { previous }
+      },
+      onError: (__, _, context) => {
+        queryClient.setQueryData([MANAGED_ROOMS_QUERY_KEY], context.previous)
+      },
+      onSuccess: async () => {
+        queryClient.invalidateQueries([MANAGED_ROOMS_QUERY_KEY])
+      },
+    }
+  )
   return session ? (
     <div>
       <HomeLogo size={50} margin={100} />
@@ -958,15 +1000,23 @@ export default function Upload() {
                       {idx + 1 + (activePage - 1) * MANAGED_ROOMS_TAKE}
                     </Manage_Div_idx>
                     <Manage_Div_Id>매물번호 {room.id}</Manage_Div_Id>
-                    <div>{STATUS_MAP[room.status_id - 1]}</div>
-                    <div>
-                      D-
-                      {differenceInDays(
-                        add(new Date(room.updatedAt), { days: 30 }),
-                        new Date()
-                      )}{' '}
-                      일
-                    </div>
+                    {room.status_id === 3 ? (
+                      <div style={{ color: 'red' }}>
+                        {STATUS_MAP[room.status_id - 1]}
+                      </div>
+                    ) : (
+                      <div>{STATUS_MAP[room.status_id - 1]}</div>
+                    )}
+                    {room.status_id === 1 && (
+                      <div>
+                        D-
+                        {differenceInDays(
+                          add(new Date(room.updatedAt), { days: 30 }),
+                          new Date()
+                        )}{' '}
+                        일
+                      </div>
+                    )}
                   </Manage_Div_150>
                   <StyledImage style={{ width: '300px', height: '225px' }}>
                     <Image
@@ -1002,6 +1052,7 @@ export default function Upload() {
                         찜: {room.wished}
                       </Manage_Div_75>
                     </Manage_Div_160>
+
                     <Manage_Btn_Wrapper>
                       <Manage_Btn
                         onClick={() => router.push(`rooms/${room.id}/edit`)}
@@ -1018,9 +1069,7 @@ export default function Upload() {
                       </Manage_Btn>
                       {room.status_id === 4 ? (
                         <Manage_Btn_Dark
-                          onClick={() =>
-                            updateStatus({ id: room.id, status_id: 1 })
-                          }
+                          onClick={() => updateStatus1(room.id, room.updatedAt)}
                         >
                           숨김
                         </Manage_Btn_Dark>
@@ -1033,7 +1082,12 @@ export default function Upload() {
                           숨김
                         </Manage_Btn>
                       )}
-                      {room.status_id === 2 ? (
+                      {new Date(room.updatedAt) <
+                      sub(new Date(), { days: 30 }) ? (
+                        <Manage_Btn_Main onClick={() => updateRenew(room.id)}>
+                          갱신하기
+                        </Manage_Btn_Main>
+                      ) : room.status_id === 2 ? (
                         <Manage_Btn_Dark
                           onClick={() =>
                             updateStatus({ id: room.id, status_id: 1 })
@@ -1120,6 +1174,10 @@ const Manage_Btn = styled.button`
 const Manage_Btn_Dark = styled(Manage_Btn)`
   background-color: ${subColor_Dark};
   color: ${subColor_lighter};
+`
+const Manage_Btn_Main = styled(Manage_Btn)`
+  background-color: ${mainColor};
+  color: ${subColor_light};
 `
 
 //input
