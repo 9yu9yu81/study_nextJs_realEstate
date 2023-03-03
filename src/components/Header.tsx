@@ -106,9 +106,9 @@ export const Header_Div = styled.div`
   background-color: ${subColor_lighter};
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 18px;
   * {
-    font-size: 14px;
+    font-size: 15px;
     color: ${mainColor};
     background-color: ${subColor_lighter};
   }

@@ -52,7 +52,7 @@ export default function Footer() {
 
 const Footer_Div = styled.div`
   min-width: 1000px;
-  font-size: 14px;
+  font-size: 15px;
   color: ${mainColor};
   font-weight: 300;
 `

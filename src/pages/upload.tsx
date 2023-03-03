@@ -62,7 +62,7 @@ export interface RoomUploadData {
   moreInfo: Omit<MoreInfo, 'id' | 'room_id'>
 }
 export interface ManagedRoom extends Omit<Room, 'user_id' | 'description'> {
-  type_id: number //전월세
+  sType_id: number //전월세
   deposit: number
   fee: number
   doro: string
@@ -1030,7 +1030,7 @@ export default function Upload() {
                   <Manage_Div_350>
                     <Manage_Div_Bold>
                       {CATEGORY_MAP[room.category_id - 1]}{' '}
-                      {YEAR_MONTH_MAP[room.type_id - 1]} {room.deposit}
+                      {YEAR_MONTH_MAP[room.sType_id - 1]} {room.deposit}
                       {room.fee !== 0 && `/${room.fee}`}
                     </Manage_Div_Bold>
                     <div>{room.doro}</div>
