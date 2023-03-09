@@ -120,14 +120,13 @@ export default function Home() {
         <div style={{ fontSize: '40px', fontWeight: '700' }}>
           어떤 스팟을 찾으세요?
         </div>
-        <Home_Search_Div>
+        <Home_Search_Div style={{ margin: '30px 0 0 0' }}>
           <IconSearch size={21} />
           <Home_Input
-            className="test"
             style={{ fontSize: '18px' }}
             value={keyword}
             onChange={handleChange}
-            placeholder="지역을 입력하세요"
+            placeholder="주소나 건물명을 입력하세요"
             onKeyUp={handleEnterKeypress}
           />
         </Home_Search_Div>
@@ -149,7 +148,6 @@ export default function Home() {
                   <div key={idx}>
                     <Center_Div>
                       <StyledImage
-                        onClick={() => router.push(`rooms/${room.id}`)}
                         style={{
                           width: '300px',
                           height: '225px',
@@ -160,6 +158,7 @@ export default function Home() {
                           src={room.images.split(',')[0]}
                           alt={'thumbnail'}
                           fill
+                          onClick={() => router.push(`rooms/${room.id}`)}
                         />
                       </StyledImage>
                     </Center_Div>
@@ -234,26 +233,10 @@ export const Home_Search_Div = styled(Center2_Div)`
   }
   border: 0.5px solid ${subColor_medium};
   padding: 10px;
-  margin: 30px 0 0 0;
 `
 
 const Home_Recommend_Div = styled.div`
   font-size: 16px;
-  .main {
-    display: flex;
-    font-size: 20px;
-    font-weight: 700;
-    align-items: center;
-  }
-  .heart {
-    margin-left: auto;
-    :hover {
-      cursor: pointer;
-    }
-  }
-  .description {
-    margin: 10px 7px 0 7px;
-  }
   div {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -274,7 +257,6 @@ const Home_Recommend_Div = styled.div`
     }
   }
 `
-
 const Grid_Container = styled.div`
   width: 1000px;
   display: grid;
@@ -283,5 +265,20 @@ const Grid_Container = styled.div`
   grid-column-gap: 30px;
   * {
     font-size: 15px;
+  }
+  .main {
+    display: flex;
+    font-size: 18px;
+    font-weight: 700;
+    align-items: center;
+  }
+  .heart {
+    margin-left: auto;
+    :hover {
+      cursor: pointer;
+    }
+  }
+  .description {
+    margin: 10px 7px 0 7px;
   }
 `

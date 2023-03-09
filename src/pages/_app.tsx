@@ -19,10 +19,10 @@ export default function App({
     },
   })
   const checkExpiredRoom = scheduleJob('0 0 * * *', function () {
-    fetch('/api/room/update-ExpiredRooms')
+    fetch(`http://localhost:3000/api/room/update-ExpiredRooms`)
       .then((res) => res.json())
       .then((data) => data.items)
-    console.log(new Date())
+    console.log('expired room checking...')
   })
   return (
     <SessionProvider session={session}>

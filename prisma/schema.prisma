@@ -120,6 +120,7 @@ model AddressInfo {
   id            Int      @id @default(autoincrement())
   room          Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
   room_id       Int      @unique
+  name          String
   doro          String
   jibun         String
   detail        String

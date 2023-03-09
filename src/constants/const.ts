@@ -41,8 +41,8 @@ export const OPTION_MAP = [
 ]
 export const FILTERS = [
   { label: '최신순', value: 'latest' },
-  { label: '가격 높은 순', value: 'expensive' },
-  { label: '가격 낮은 순', value: 'cheap' },
+  { label: '월세 높은 순', value: 'expensive' },
+  { label: '월세 낮은 순', value: 'cheap' },
   { label: '조회수 순', value: 'mostViewed' },
   { label: '좋아요 순', value: 'mostWished' },
 ]

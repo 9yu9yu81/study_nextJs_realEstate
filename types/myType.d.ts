@@ -17,7 +17,7 @@ declare global {
     interface ProcessEnv extends ProcessEnv {
       GOOGLE_CLIENT_SECRET: string
       GOOGLE_CLIENT_ID: string
-      KAKAOMAP_KEY: string
+      NEXT_PUBLIC_KAKAOMAP_APPKEY: string
     }
   }
 }

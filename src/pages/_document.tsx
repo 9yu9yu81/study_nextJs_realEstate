@@ -1,4 +1,3 @@
-import { KAKAOMAP_KEY } from 'constants/googleAuth'
 import { Html, Head, Main, NextScript } from 'next/document'
 import Script from 'next/script'
 
@@ -9,7 +8,7 @@ export default function Document() {
       <body>
         <Script
           strategy="beforeInteractive"
-          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAOMAP_KEY}&autoload=false&libraries=services,clusterer,drawing`}
+          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAOMAP_APPKEY}&autoload=false&libraries=services,clusterer,drawing`}
         />
         <Script
           strategy="beforeInteractive"

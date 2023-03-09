@@ -7,11 +7,10 @@ const prisma = new PrismaClient()
 async function updateExpiredRooms() {
   try {
     const ExpiredDate = sub(new Date(), { days: 30 }) // today - 30days
-    const response: any = await prisma.$queryRaw`
+    const response = await prisma.$queryRaw`
       update Room set status_id = 3 where updatedAt < ${ExpiredDate} and status_id != 2
     `
-    console.log(response)
-    return response
+    return
   } catch (error) {
     console.error(error)
   }

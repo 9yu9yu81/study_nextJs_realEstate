@@ -128,8 +128,9 @@ export default function Upload() {
   const [contact, setContact] = useState<string>('')
   const [cChecked, setCChecked] = useState<boolean>(false)
   //daum-postcode
-  const [doro, setDoro] = useState<string>('')
-  const [jibun, setJibun] = useState<string>('')
+  const [name, setName] = useState<string>('') //건물명
+  const [doro, setDoro] = useState<string>('') //도로주소
+  const [jibun, setJibun] = useState<string>('') //지번주소
   const [lat, setLat] = useState<number>(0)
   const [lng, setLng] = useState<number>(0)
   const addrRef = useRef<HTMLInputElement | null>(null)
@@ -152,6 +153,7 @@ export default function Upload() {
               addrRef.current.value = data.jibunAddress
             }
           }
+          setName(data.buildingName)
           setDoro(data.roadAddress)
           setJibun(data.jibunAddress)
           setAddrSearchComplete(true) //주소 검색이 되었는지 확인
@@ -321,6 +323,7 @@ export default function Upload() {
               heat_id: Number(heat),
             },
             addressInfo: {
+              name: name,
               doro: doro,
               jibun: jibun,
               detail: String(detailAddrRef.current?.value),
