@@ -20,7 +20,7 @@ export default function mainMap() {
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  const ROOMS_QUERY_KEY = `api/room/get-Rooms`
+  const ROOMS_QUERY_KEY = `api/room/get-Rooms-Take`
   const WISHLISTS_QUERY_KEY = 'api/wishlist/get-Wishlists-Id'
 
   const [level, setLevel] = useState<number>(6)

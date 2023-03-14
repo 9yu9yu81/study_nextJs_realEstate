@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   CustomOverlayMap,
   Map,
@@ -14,12 +14,12 @@ import {
   Center2_Div,
   Center_Div,
   StyledImage,
+  mainColor,
   subColor_light,
 } from 'components/styledComponent'
 import { CATEGORY_MAP, FILTERS, YEAR_MONTH_MAP } from 'constants/const'
 import {
   IconArrowDown,
-  IconCheckbox,
   IconHeart,
   IconSearch,
   IconSortDescending,
@@ -29,12 +29,15 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { Home_Input, Home_Search_Div } from 'pages'
 import { Loader, Menu } from '@mantine/core'
+import CustomPagination from 'components/CustomPagination'
 
 export default function Rooms() {
   const { status } = useSession()
   const router = useRouter()
   const queryClient = useQueryClient()
 
+  const ROOM_TAKE = 9
+  const [activePage, setActivePage] = useState<number>(1)
   const [category, setCategory] = useState<string>('0')
   const [ym, setYm] = useState<string>('0')
   const [filter, setFilter] = useState<string>(FILTERS[0].value)
@@ -44,21 +47,19 @@ export default function Rooms() {
     setKeyword(e.target.value)
   }
   const handleEnterKeypress = (e: React.KeyboardEvent) => {
-    //enter 검색
     if (e.key == 'Enter') {
       setSearch(keyword)
-      router.replace(`/rooms?keyword=${keyword}`, `/rooms?keyword=${keyword}`, {
+      router.replace(`/rooms?keyword=${search}`, `/rooms?keyword=${search}`, {
         shallow: true,
       })
     }
   }
 
-  const [map, setMap] = useState<any>()
-  const [bound, setBound] = useState<{
-    sw: { lat: number; lng: number }
-    ne: { lat: number; lng: number }
-  }>()
-  const [level, setLevel] = useState<number>(6)
+  const [map, setMap] = useState<kakao.maps.Map | undefined>()
+  const [s, setS] = useState<number>(0)
+  const [w, setW] = useState<number>(0)
+  const [n, setN] = useState<number>(0)
+  const [e, setE] = useState<number>(0)
   const [overlay, setOverlay] = useState<{
     id: number | undefined
     isOpened: boolean
@@ -66,15 +67,15 @@ export default function Rooms() {
     id: undefined,
     isOpened: false,
   })
-  const [isPanto, setIsPanto] = useState<boolean>(false)
   const [center, setCenter] = useState<{
     lat: number
     lng: number
   }>({ lat: 35.824171, lng: 127.14805 })
 
-  const ROOMS_QUERY_KEY = `api/room/get-Rooms?keyword=&category_id=${category}&sType_id=${ym}&orderBy=${filter}`
-  const WISHLISTS_QUERY_KEY = 'api/wishlist/get-Wishlists-Id'
-  const { data: rooms, isLoading } = useQuery<
+  const ROOMS_QUERY_KEY = `api/room/get-Rooms-Take?keyword=&category_id=${category}&sType_id=${ym}&orderBy=${filter}&s=${s}&w=${w}&n=${n}&e=${e}&take=${ROOM_TAKE}&skip=${
+    (activePage - 1) * ROOM_TAKE
+  }`
+  const { data: rooms, isLoading: roomsLoading } = useQuery<
     { rooms: RoomAllData[] },
     unknown,
     RoomAllData[]
@@ -84,23 +85,32 @@ export default function Rooms() {
       .then((data) => data.items)
   )
 
-  useEffect(() => {
-    if (!map) return
-    if (!search) return
-    kakao.maps.load(() => {
-      const ps = new kakao.maps.services.Places()
-      const bounds = new kakao.maps.LatLngBounds()
+  const ROOMS_TOTAL_QUERY_KEY = `api/room/get-Rooms-Total?keyword=&category_id=${category}&sType_id=${ym}&orderBy=${filter}&s=${s}&w=${w}&n=${n}&e=${e}`
+  const { data: total } = useQuery<{ total: number }, unknown, number>(
+    [ROOMS_TOTAL_QUERY_KEY],
+    () =>
+      fetch(ROOMS_TOTAL_QUERY_KEY)
+        .then((res) => res.json())
+        .then((data) => (data.items === 0 ? 1 : data.items)),
+    {
+      onSuccess: async () => {
+        setActivePage(1)
+      },
+    }
+  )
 
-      ps.keywordSearch(search, (data, status, _pagination) => {
-        if (status === kakao.maps.services.Status.OK) {
-          const b = new kakao.maps.LatLngBounds()
-          setCenter({ lat: Number(data[0].y), lng: Number(data[0].x) }) //가장 연관된 keyword 주소를 센터로
-        }
-      })
-    })
-    console.log(bound)
-  }, [search, map])
+  const ROOMS_ON_MAP_QUERY_KEY = `api/room/get-Rooms-OnMap?keyword=&category_id=${category}&sType_id=${ym}`
+  const { data: markers } = useQuery<
+    { markers: RoomAllData[] },
+    unknown,
+    RoomAllData[]
+  >([ROOMS_ON_MAP_QUERY_KEY], () =>
+    fetch(ROOMS_ON_MAP_QUERY_KEY)
+      .then((res) => res.json())
+      .then((data) => data.items)
+  )
 
+  const WISHLISTS_QUERY_KEY = 'api/wishlist/get-Wishlists-Id'
   const { data: wishlists } = useQuery<
     { wishlists: number[] },
     unknown,
@@ -110,6 +120,20 @@ export default function Rooms() {
       .then((res) => res.json())
       .then((data) => data.items)
   )
+
+  useEffect(() => {
+    if (!rooms || !search || !map) return
+
+    const ps = new kakao.maps.services.Places()
+
+    ps.keywordSearch(search, (data, status, _pagination) => {
+      if (status === kakao.maps.services.Status.OK) {
+        setOverlay({ id: undefined, isOpened: false })
+        setCenter({ lat: Number(data[0].y), lng: Number(data[0].x) }) //가장 연관된 keyword 주소를 센터로
+        map.setLevel(5)
+      }
+    })
+  }, [search, map, rooms])
 
   const { mutate: updateIsWished } = useMutation<unknown, unknown, number, any>(
     (room_id) =>
@@ -138,7 +162,7 @@ export default function Rooms() {
       onError: (__, _, context) => {
         queryClient.setQueryData([WISHLISTS_QUERY_KEY], context.previous)
       },
-      onSuccess: async (room_id) => {
+      onSuccess: async () => {
         queryClient.invalidateQueries([WISHLISTS_QUERY_KEY])
       },
     }
@@ -160,31 +184,44 @@ export default function Rooms() {
   }
 
   const openOverlay = (room_id: number, room_lat: number, room_lng: number) => {
-    setIsPanto(true)
-    setCenter({ lat: room_lat, lng: room_lng })
-    setOverlay({ id: room_id, isOpened: true })
+    setTimeout(() => {
+      setCenter({ lat: room_lat, lng: room_lng })
+      setOverlay({ id: room_id, isOpened: true })
+    }, 100)
+  }
+
+  const onIdle = (e: kakao.maps.Map) => {
+    setS(e.getBounds().getSouthWest().getLat())
+    setW(e.getBounds().getSouthWest().getLng())
+    setN(e.getBounds().getNorthEast().getLat())
+    setE(e.getBounds().getNorthEast().getLng())
+    setSearch('')
   }
 
   return (
     <Rooms_Container>
       <Map
         onCreate={setMap}
+        level={6}
         center={{ lat: center.lat, lng: center.lng }}
-        level={level}
         style={{
           width: '1000px',
           height: '600px',
           margin: '30px 0 30px 0',
         }}
         disableDoubleClick
-        isPanto={isPanto}
+        isPanto={true}
+        onDragStart={() => setOverlay({ id: undefined, isOpened: false })}
+        onZoomStart={() => setOverlay({ id: undefined, isOpened: false })}
+        onIdle={(e) => onIdle(e)}
+        onTileLoaded={(e) => onIdle(e)}
       >
         <ZoomControl />
         <MarkerClusterer
           averageCenter={true} // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
           minLevel={4} // 클러스터 할 최소 지도 레벨
         >
-          {rooms?.map((room) => (
+          {markers?.map((room) => (
             <MapMarker
               key={`${room.lat}-${room.lng}`}
               position={{
@@ -196,8 +233,8 @@ export default function Rooms() {
             />
           ))}
         </MarkerClusterer>
-        {rooms?.map((room) => (
-          <>
+        {markers?.map((room) => (
+          <div key={`Overlay-${room.id}`}>
             {overlay.id === room.id && overlay.isOpened && (
               <CustomOverlayMap
                 zIndex={1}
@@ -262,7 +299,7 @@ export default function Rooms() {
                 </Overlay_Container>
               </CustomOverlayMap>
             )}
-          </>
+          </div>
         ))}
       </Map>
       <Room_Menu_div>
@@ -320,17 +357,7 @@ export default function Rooms() {
             ))}
           </Menu.Dropdown>
         </Menu>
-        <Menu width={160}>
-          <Menu.Target>
-            <Hover_Menu>
-              세부 사항
-              <IconCheckbox size={15} />
-            </Hover_Menu>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Item>checkbox modal</Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
+        <div style={{ marginLeft: 'auto' }} />
         <Menu width={160}>
           <Menu.Target>
             <Hover_Menu>
@@ -352,64 +379,78 @@ export default function Rooms() {
         </Menu>
       </Room_Menu_div>
       <Grid_Container>
-        {isLoading ? (
+        {roomsLoading ? (
           <Center_Div style={{ width: '1000px', margin: '100px 0 100px 0' }}>
             <Loader color="dark" />
           </Center_Div>
         ) : rooms ? (
-          rooms.map((room, idx) => (
-            // (room.lat > bounds)
-            <div key={`${room}-${idx}`}>
-              <Center_Div>
-                <StyledImage
-                  style={{
-                    width: '300px',
-                    height: '225px',
-                  }}
-                >
-                  <Image
-                    className="styled"
-                    src={room.images.split(',')[0]}
-                    alt={'thumbnail'}
-                    fill
-                    onClick={() => router.push(`rooms/${room.id}`)}
-                  />
-                </StyledImage>
-              </Center_Div>
-              <div className="description">
-                <div className="name">
-                  {room.name} {room.area}평
-                  <div className="heart">
-                    <IconHeart
-                      size={26}
-                      stroke={1.5}
-                      color={heartCheck(room.id, { type: 'color' })}
-                      fill={heartCheck(room.id, { type: 'fill' })}
-                      onClick={() =>
-                        status === 'authenticated'
-                          ? updateIsWished(room.id)
-                          : router.push('auth/login')
-                      }
-                    />
+          rooms.map(
+            (room) =>
+              map
+                ?.getBounds()
+                .contain(new kakao.maps.LatLng(room.lat, room.lng)) && (
+                <div key={`${room}-${room.id}`}>
+                  <Center_Div>
+                    <StyledImage
+                      style={{
+                        width: '300px',
+                        height: '225px',
+                      }}
+                    >
+                      <Image
+                        className="styled"
+                        src={room.images.split(',')[0]}
+                        alt={'thumbnail'}
+                        fill
+                        onClick={() => router.push(`rooms/${room.id}`)}
+                      />
+                    </StyledImage>
+                  </Center_Div>
+                  <div className="description">
+                    <div className="name">
+                      {room.name} {room.area}평
+                      <div className="heart">
+                        <IconHeart
+                          size={26}
+                          stroke={1.5}
+                          color={heartCheck(room.id, { type: 'color' })}
+                          fill={heartCheck(room.id, { type: 'fill' })}
+                          onClick={() =>
+                            status === 'authenticated'
+                              ? updateIsWished(room.id)
+                              : router.push('auth/login')
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="main">
+                      {CATEGORY_MAP[room.category_id - 1]}{' '}
+                      {YEAR_MONTH_MAP[room.sType_id - 1]} {room.deposit}
+                      {room.sType_id !== 1 && '/' + room.fee}
+                    </div>
+                    <div>{room.doro}</div>
+                    <div>{room.title}</div>
                   </div>
                 </div>
-                <div className="main">
-                  {CATEGORY_MAP[room.category_id - 1]}{' '}
-                  {YEAR_MONTH_MAP[room.sType_id - 1]} {room.deposit}
-                  {room.sType_id !== 1 && '/' + room.fee}
-                </div>
-                <div>{room.doro}</div>
-                <div>{room.title}</div>
-              </div>
-            </div>
-          ))
+              )
+          )
         ) : (
-          <Center_Div>등록된 매물이 없습니다.</Center_Div>
+          <Center_Div>현재 지도에 등록된 매물이 없습니다.</Center_Div>
         )}
       </Grid_Container>
+      {total && (
+        <Center_Div style={{ margin: '30px 0 30px 0' }}>
+          <CustomPagination
+            page={activePage}
+            onChange={setActivePage}
+            total={total === 0 ? 1 : Math.ceil(total / ROOM_TAKE)}
+          />
+        </Center_Div>
+      )}
     </Rooms_Container>
   )
 }
+
 const Rooms_Container = styled.div`
   font-size: 17px;
 `
@@ -419,7 +460,7 @@ const Room_Menu_div = styled(Center2_Div)`
 `
 
 const Overlay_Container = styled(Center_Div)`
-  border: 1px solid black;
+  border: 0.5px solid black;
   background-color: ${subColor_light};
   flex-flow: column;
   width: 220px;
@@ -431,10 +472,13 @@ const Overlay_Container = styled(Center_Div)`
   }
   .x {
     position: absolute;
-    top: 1px;
+    top: 0px;
     right: -16px;
     z-index: 1;
-    background-color: white;
+    background-color: ${mainColor};
+    color: ${subColor_light};
+    border: 0.5px solid black;
+    border-left: none;
     border-radius: 2px;
     padding: 1px;
     box-shadow: 0px 0px 1px 0.4px gray inset;
@@ -461,12 +505,13 @@ const Overlay_Container = styled(Center_Div)`
 `
 
 const Hover_Menu = styled.div`
+  border-bottom: solid 0.5px ${mainColor};
   display: flex;
   justify-content: center;
   align-items: center;
   :hover {
     cursor: pointer;
-    border-bottom: solid 1px black;
+    border-bottom: solid 1px ${mainColor};
   }
   padding: 3px 3px 3px 5px;
   font-size: 16px;
@@ -504,4 +549,13 @@ const Grid_Container = styled.div`
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+`
+
+const Room_Btn = styled.button`
+  border-radius: 5px;
+  font-size: 14px;
+  color: ${subColor_light};
+  background-color: ${mainColor};
+  padding: 6px 12px 6px 12px;
+  margin: 30px;
 `
