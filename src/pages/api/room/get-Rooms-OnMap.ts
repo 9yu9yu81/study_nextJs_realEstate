@@ -1,14 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 import { useEffect } from 'react'
 
 const prisma = new PrismaClient()
 
-async function getRoom(keyword: string, category_id: number, sType_id: number) {
+async function getRoom(
+  keyword: string,
+  category_id: number,
+  sType_id: number,
+  orderBy: string
+) {
   try {
     const validKeyword = `%${keyword}%`
     const validCategory = category_id === 0 ? '%' : category_id
     const validSType = sType_id === 0 ? '%' : sType_id
+
+    const validOrderBy =
+      orderBy === 'expensive'
+        ? Prisma.sql`and s.type_id = 2`
+        : orderBy === 'cheap'
+        ? Prisma.sql`and s.type_id = 2`
+        : Prisma.sql``
 
     const response: any = await prisma.$queryRaw`
       select r.*,
@@ -24,7 +36,8 @@ async function getRoom(keyword: string, category_id: number, sType_id: number) {
               and r.status_id = 1
               and (a.doro like ${validKeyword} or a.jibun like ${validKeyword} or a.name like ${validKeyword})
               and r.category_id like ${validCategory}
-              and s.type_id like ${validSType}`
+              and s.type_id like ${validSType}
+              ${validOrderBy}`
 
     // console.log(response)
     return response
@@ -43,17 +56,13 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   try {
-    const { keyword, category_id, sType_id, orderBy, s, w, e, n } = req.query
-
-    if (s === '0' || w === '0' || e === '0' || n === '0') {
-      res.status(200).json({ items: [], message: 'no coords' })
-      return
-    }
+    const { keyword, category_id, sType_id, orderBy } = req.query
 
     const items = await getRoom(
       String(keyword),
       Number(category_id),
-      Number(sType_id)
+      Number(sType_id),
+      String(orderBy)
     )
     res.status(200).json({ items: items, message: 'Success' })
   } catch (error) {

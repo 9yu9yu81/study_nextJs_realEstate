@@ -47,34 +47,40 @@ export const FILTERS = [
   { label: '좋아요 순', value: 'mostWished' },
 ]
 
-export const getOrderBy = (orderBy: string) => {
-  return orderBy
-    ? orderBy === 'latest'
-      ? { orderBy: { updatedAt: 'desc' } }
-      : orderBy === 'expensive'
-      ? {
-          orderBy: {
-            fee: 'desc',
-          },
-        }
-      : orderBy === 'cheap'
-      ? {
-          orderBy: {
-            fee: 'asc',
-          },
-        }
-      : orderBy === 'mostViewed'
-      ? {
-          orderBy: {
-            views: 'desc',
-          },
-        }
-      : orderBy === 'mostWished'
-      ? {
-          orderBy: {
-            wished: 'desc',
-          },
-        }
-      : undefined
-    : undefined
+// export const getOrderBy = (orderBy: string) => {
+//   return orderBy
+//     ? orderBy === 'latest'
+//       ? { orderBy: { updatedAt: 'desc' } }
+//       : orderBy === 'expensive'
+//       ? {
+//           orderBy: {
+//             fee: 'desc',
+//           },
+//         }
+//       : orderBy === 'cheap'
+//       ? {
+//           orderBy: {
+//             fee: 'asc',
+//           },
+//         }
+//       : orderBy === 'mostViewed'
+//       ? {
+//           orderBy: {
+//             views: 'desc',
+//           },
+//         }
+//       : orderBy === 'mostWished'
+//       ? {
+//           orderBy: {
+//             wished: 'desc',
+//           },
+//         }
+//       : undefined
+//     : undefined
+// }
+
+export const getOnlyNumber = (e: React.FormEvent<HTMLInputElement>) => {
+  e.currentTarget.value = e.currentTarget.value
+    .replace(/[^0-9.]/g, '')
+    .replace(/(\..*)\./g, '$1')
 }

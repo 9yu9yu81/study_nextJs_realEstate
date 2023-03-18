@@ -34,7 +34,7 @@ export default async function handler(
   const session = await getSession({ req })
 
   if (session == null) {
-    res.status(400).json({ message: 'no Session' })
+    res.status(200).json({ message: 'no Session' })
     return
   }
 

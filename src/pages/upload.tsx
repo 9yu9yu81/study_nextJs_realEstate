@@ -30,6 +30,7 @@ import {
   MAINTENENCE_MAP,
   STRUCTURE_MAP,
   OPTION_MAP,
+  getOnlyNumber,
 } from 'constants/const'
 import { useRouter } from 'next/router'
 import format from 'date-fns/format'
@@ -100,6 +101,7 @@ export default function Upload() {
       border: `0.5px solid ${subColor_medium} !important`,
     },
   }
+
 
   //state
   const [category, setCategory] = useState<string>('1') //매물종류
@@ -638,6 +640,7 @@ export default function Upload() {
                       type="number"
                       placeholder="전세"
                       ref={depositRef}
+                      onInput={(e) => getOnlyNumber(e)}
                     />{' '}
                     만원
                   </Upload_Div_Sub3>
@@ -648,6 +651,7 @@ export default function Upload() {
                         type="number"
                         placeholder="보증금"
                         ref={depositRef}
+                        onInput={(e) => getOnlyNumber(e)}
                       />{' '}
                       /
                       <Upload_Input2
@@ -656,6 +660,7 @@ export default function Upload() {
                         onChange={(e) => setFee(e.target.value)}
                         onBlur={(e) => e.target.value === '' && setFee('0')}
                         value={fee}
+                        onInput={(e) => getOnlyNumber(e)}
                       />{' '}
                       만원
                     </Upload_Div_Sub3>
@@ -674,11 +679,21 @@ export default function Upload() {
               <Upload_Div_Sub1 className="flex-col">
                 <Upload_Div_Sub3 className="border-b">
                   공급 면적
-                  <Upload_Input2 type="number" ref={supAreaRef} /> 평
+                  <Upload_Input2
+                    type="number"
+                    ref={supAreaRef}
+                    onInput={(e) => getOnlyNumber(e)}
+                  />{' '}
+                  평
                 </Upload_Div_Sub3>
                 <Upload_Div_Sub3>
                   전용 면적
-                  <Upload_Input2 type="number" ref={areaRef} /> 평
+                  <Upload_Input2
+                    type="number"
+                    ref={areaRef}
+                    onInput={(e) => getOnlyNumber(e)}
+                  />{' '}
+                  평
                 </Upload_Div_Sub3>
               </Upload_Div_Sub1>
               <Upload_Div_Sub_Title className="flex-col">
@@ -687,11 +702,21 @@ export default function Upload() {
               <Upload_Div_Sub1 className="flex-col">
                 <Upload_Div_Sub3 className="border-b">
                   건물 층수
-                  <Upload_Input2 type="number" ref={totalFloorRef} /> 층
+                  <Upload_Input2
+                    type="number"
+                    ref={totalFloorRef}
+                    onInput={(e) => getOnlyNumber(e)}
+                  />{' '}
+                  층
                 </Upload_Div_Sub3>
                 <Upload_Div_Sub3>
                   해당 층수
-                  <Upload_Input2 type="number" ref={floorRef} /> 층
+                  <Upload_Input2
+                    type="number"
+                    ref={floorRef}
+                    onInput={(e) => getOnlyNumber(e)}
+                  />{' '}
+                  층
                 </Upload_Div_Sub3>
               </Upload_Div_Sub1>
             </Upload_Div_Bt>
@@ -745,6 +770,7 @@ export default function Upload() {
                     onChange={(e) => setMFee(e.target.value)}
                     onBlur={(e) => e.target.value === '' && setMFee('0')}
                     value={mChecked ? '0' : mFee}
+                    onInput={(e) => getOnlyNumber(e)}
                   />{' '}
                   만원
                   <CustomCheckBox
@@ -815,6 +841,7 @@ export default function Upload() {
                       onChange={(e) => setPFee(e.target.value)}
                       onBlur={(e) => e.target.value === '' && setPFee('0')}
                       value={pFee}
+                      onInput={(e) => getOnlyNumber(e)}
                     />{' '}
                     만원
                   </>
@@ -911,15 +938,13 @@ export default function Upload() {
                   disabled={cChecked}
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
+                  onInput={(e) => getOnlyNumber(e)}
                   style={{
                     width: '180px',
                     marginLeft: '20px',
                   }}
                   placeholder=" '-' 를 생략하고 입력해주세요"
                 />
-                {contact.match(/[^0-9.]/) && (
-                  <Upload_Warning>숫자만 입력해주세요.</Upload_Warning>
-                )}
               </Upload_Div_Sub>
             </Upload_Div_Bt>
           </Upload_Div_B>

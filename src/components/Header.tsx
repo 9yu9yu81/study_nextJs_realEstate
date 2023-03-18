@@ -4,30 +4,25 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 import { Menu } from '@mantine/core'
 import HomeLogo from './home/HomeLogo'
-import {
-  Center2_Div,
-  HoverDiv,
-  mainColor,
-  subColor_lighter,
-} from './styledComponent'
+import { Center2_Div, HoverDiv, mainColor } from './styledComponent'
 import styled from '@emotion/styled'
 
 export default function Header() {
   //todo 유저 아이콘 클릭 => list (계약목록, 내가 게시한 매물, 로그아웃 ) 구현
   //todo 커뮤니티 (방구하기, 양도하기, 정보 스팟, 자유 스팟)
   const router = useRouter()
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
 
   return (
     <Header_Div>
-      <HomeLogo size={20} />
+      <HomeLogo size={24} />
       <span className="m-auto" />
       <Header_Btn_B onClick={() => router.push('/introduce')}>
         사업소개
       </Header_Btn_B>
       <Menu width={140}>
         <Menu.Target>
-          <Header_Btn_B>커뮤니티</Header_Btn_B>
+          <Header_Btn_B disabled>커뮤니티</Header_Btn_B>
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Item onClick={() => router.push('/community')}>
@@ -52,27 +47,31 @@ export default function Header() {
       <Header_Btn_B onClick={() => router.push('/mainMap')}>지도</Header_Btn_B>
       <Header_Btn_B
         onClick={() =>
-          session ? router.push('/upload') : router.push('/auth/login')
+          status === 'authenticated'
+            ? router.push('/upload')
+            : router.push('/auth/login')
         }
       >
         방내놓기
       </Header_Btn_B>
       <Header_Btn_B
         onClick={() =>
-          session ? router.push('/wishlist') : router.push('/auth/login')
+          status === 'authenticated'
+            ? router.push('/wishlist')
+            : router.push('/auth/login')
         }
       >
         관심목록
       </Header_Btn_B>
-      {session ? (
+      {status === 'authenticated' ? (
         <Menu width={140}>
           <Menu.Target>
             <HoverDiv className="mr-3 ml-3">
               <Image
                 src={session.user?.image!}
                 alt="profile"
-                width={24}
-                height={24}
+                width={26}
+                height={26}
               />
             </HoverDiv>
           </Menu.Target>
@@ -103,15 +102,13 @@ export default function Header() {
 //Header
 export const Header_Div = styled.div`
   min-width: 1000px;
-  background-color: ${subColor_lighter};
   display: flex;
   align-items: center;
-  padding: 18px;
-  * {
-    font-size: 15px;
-    color: ${mainColor};
-    background-color: ${subColor_lighter};
-  }
+  padding: 20px;
+  font-size: 15px;
+  color: ${mainColor};
+  border-bottom: 0.5px solid ${mainColor};
+  margin: 0 20px 0 20px;
 `
 export const Header_Btn_B = styled.button`
   width: 70px;

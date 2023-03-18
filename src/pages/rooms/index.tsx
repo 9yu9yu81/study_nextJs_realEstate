@@ -15,6 +15,7 @@ import {
   Center_Div,
   StyledImage,
   mainColor,
+  subColor_Dark,
   subColor_light,
 } from 'components/styledComponent'
 import { CATEGORY_MAP, FILTERS, YEAR_MONTH_MAP } from 'constants/const'
@@ -30,6 +31,7 @@ import { useRouter } from 'next/router'
 import { Home_Input, Home_Search_Div } from 'pages'
 import { Loader, Menu } from '@mantine/core'
 import CustomPagination from 'components/CustomPagination'
+import { menuStyle } from 'pages/mainMap'
 
 export default function Rooms() {
   const { status } = useSession()
@@ -99,7 +101,7 @@ export default function Rooms() {
     }
   )
 
-  const ROOMS_ON_MAP_QUERY_KEY = `api/room/get-Rooms-OnMap?keyword=&category_id=${category}&sType_id=${ym}`
+  const ROOMS_ON_MAP_QUERY_KEY = `api/room/get-Rooms-OnMap?keyword=&category_id=${category}&sType_id=${ym}&orderBy=${filter}`
   const { data: markers } = useQuery<
     { markers: RoomAllData[] },
     unknown,
@@ -303,6 +305,19 @@ export default function Rooms() {
         ))}
       </Map>
       <Room_Menu_div>
+        {(filter === 'expensive' || filter === 'cheap') && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50px',
+              left: '10px',
+              fontSize: '13px',
+              color: `${subColor_Dark}`,
+            }}
+          >
+            전세 매물은 제외된 리스트입니다.
+          </div>
+        )}
         <Home_Search_Div style={{ width: '350px' }}>
           <IconSearch size={18} />
           <Home_Input
@@ -321,7 +336,11 @@ export default function Rooms() {
             </Hover_Menu>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item value={'0'} onClick={() => setCategory('0')}>
+            <Menu.Item
+              style={menuStyle(category, 0)}
+              value={'0'}
+              onClick={() => setCategory('0')}
+            >
               <Center_Div>전체</Center_Div>
             </Menu.Item>
             {CATEGORY_MAP.map((cat, idx) => (
@@ -329,6 +348,7 @@ export default function Rooms() {
                 key={`${cat}-${idx}`}
                 value={idx}
                 onClick={() => setCategory(String(idx + 1))}
+                style={menuStyle(category, idx + 1)}
               >
                 <Center_Div>{cat}</Center_Div>
               </Menu.Item>
@@ -343,16 +363,21 @@ export default function Rooms() {
             </Hover_Menu>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item value={0} onClick={() => setYm('0')}>
+            <Menu.Item
+              style={menuStyle(ym, 0)}
+              value={0}
+              onClick={() => setYm('0')}
+            >
               <Center_Div>전체</Center_Div>
             </Menu.Item>
-            {YEAR_MONTH_MAP.map((cat, idx) => (
+            {YEAR_MONTH_MAP.map((item, idx) => (
               <Menu.Item
-                key={`${cat}-${idx}`}
+                style={menuStyle(ym, idx + 1)}
+                key={`${item}-${idx}`}
                 value={idx}
                 onClick={() => setYm(String(idx + 1))}
               >
-                <Center_Div>{cat}</Center_Div>
+                <Center_Div>{item}</Center_Div>
               </Menu.Item>
             ))}
           </Menu.Dropdown>
@@ -366,13 +391,14 @@ export default function Rooms() {
             </Hover_Menu>
           </Menu.Target>
           <Menu.Dropdown>
-            {FILTERS.map((filter, idx) => (
+            {FILTERS.map((item, idx) => (
               <Menu.Item
-                key={`${filter}-${idx}`}
-                value={filter.value}
-                onClick={() => setFilter(filter.value)}
+                style={menuStyle(filter, item.value)}
+                key={`${item.label}-${idx}`}
+                value={item.value}
+                onClick={() => setFilter(item.value)}
               >
-                <Center_Div>{filter.label}</Center_Div>
+                <Center_Div>{item.label}</Center_Div>
               </Menu.Item>
             ))}
           </Menu.Dropdown>
@@ -455,11 +481,12 @@ const Rooms_Container = styled.div`
   font-size: 17px;
 `
 const Room_Menu_div = styled(Center2_Div)`
+  position: relative;
   column-gap: 60px;
   margin: 30px 0 30px 0;
 `
 
-const Overlay_Container = styled(Center_Div)`
+export const Overlay_Container = styled(Center_Div)`
   border: 0.5px solid black;
   background-color: ${subColor_light};
   flex-flow: column;
@@ -504,7 +531,7 @@ const Overlay_Container = styled(Center_Div)`
   }
 `
 
-const Hover_Menu = styled.div`
+export const Hover_Menu = styled.div`
   border-bottom: solid 0.5px ${mainColor};
   display: flex;
   justify-content: center;
@@ -549,13 +576,4 @@ const Grid_Container = styled.div`
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-`
-
-const Room_Btn = styled.button`
-  border-radius: 5px;
-  font-size: 14px;
-  color: ${subColor_light};
-  background-color: ${mainColor};
-  padding: 6px 12px 6px 12px;
-  margin: 30px;
 `

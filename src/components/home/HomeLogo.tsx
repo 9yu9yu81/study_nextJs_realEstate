@@ -5,13 +5,19 @@ import Image from 'next/image'
 export default function HomeLogo({
   size,
   margin,
+  onlyLogo = false,
 }: {
   size: number
   margin?: number
+  onlyLogo?: boolean
 }) {
   const router = useRouter()
   return (
-    <Center_Div style={{ margin: `${margin}px` }}>
+    <Center_Div
+      style={{
+        margin: `${margin}px`,
+      }}
+    >
       <CHoverDiv onClick={() => router.push('/')}>
         <Image
           className="mr-1"
@@ -19,10 +25,14 @@ export default function HomeLogo({
           alt="home"
           width={size * 1.3}
           height={size * 1.3}
-        ></Image>
-        <div style={{ fontSize: `${size}px`, color: `${mainColor}` }}>
-          MySpot
-        </div>
+        />
+        {onlyLogo ? (
+          <></>
+        ) : (
+          <div style={{ fontSize: `${size}px`, color: `${mainColor}` }}>
+            MySpot
+          </div>
+        )}
       </CHoverDiv>
     </Center_Div>
   )

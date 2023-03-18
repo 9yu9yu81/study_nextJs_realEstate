@@ -9,7 +9,7 @@ export default function Footer() {
   const router = useRouter()
   return (
     <Footer_Div>
-      <div className="border-double border-t-2 border-zinc-400 p-4">
+      <div className="border-t p-4">
         <div className="flex space-x-3">
           <HomeLogo size={20} />
           <div className="flex items-center">

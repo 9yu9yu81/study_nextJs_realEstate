@@ -28,6 +28,7 @@ import {
   MAINTENENCE_MAP,
   STRUCTURE_MAP,
   OPTION_MAP,
+  getOnlyNumber,
 } from 'constants/const'
 import format from 'date-fns/format'
 import UploadCaveats from 'components/upload/UploadCaveats'
@@ -126,6 +127,7 @@ export default function RoomEdit(room: RoomAllData) {
   const [contact, setContact] = useState<string>(room.contact) //연락처
   const [cChecked, setCChecked] = useState<boolean>(false) //기존 연락처 사용할지
   //daum-postcode
+  const [name, setName] = useState<string>('') //건물명
   const [doro, setDoro] = useState<string>(room.doro)
   const [jibun, setJibun] = useState<string>(room.jibun)
   const [lat, setLat] = useState<number>(room.lat)
@@ -145,6 +147,7 @@ export default function RoomEdit(room: RoomAllData) {
             // 사용자가 지번 주소를 선택했을 경우(J)
             setAddr(data.jibunAddress)
           }
+          setName(data.buildingName)
           setDoro(data.roadAddress)
           setJibun(data.jibunAddress)
         },
@@ -293,6 +296,7 @@ export default function RoomEdit(room: RoomAllData) {
               heat_id: Number(heat),
             },
             addressInfo: {
+              name: name,
               doro: doro,
               jibun: jibun,
               detail: detailAddr,
@@ -463,6 +467,7 @@ export default function RoomEdit(room: RoomAllData) {
                   placeholder="전세"
                   value={deposit}
                   onChange={(e) => setDeposit(e.target.value)}
+                  onInput={(e) => getOnlyNumber(e)}
                 />{' '}
                 만원
               </Upload_Div_Sub3>
@@ -473,11 +478,13 @@ export default function RoomEdit(room: RoomAllData) {
                     placeholder="보증금"
                     value={deposit}
                     onChange={(e) => setDeposit(e.target.value)}
+                    onInput={(e) => getOnlyNumber(e)}
                   />{' '}
                   /
                   <Upload_Input2
                     placeholder="월세"
                     onChange={(e) => setFee(e.target.value)}
+                    onInput={(e) => getOnlyNumber(e)}
                     value={fee}
                   />{' '}
                   만원
@@ -501,6 +508,7 @@ export default function RoomEdit(room: RoomAllData) {
                 type="number"
                 value={supArea}
                 onChange={(e) => setSupArea(e.target.value)}
+                onInput={(e) => getOnlyNumber(e)}
               />{' '}
               평
             </Upload_Div_Sub3>
@@ -510,6 +518,7 @@ export default function RoomEdit(room: RoomAllData) {
                 type="number"
                 value={area}
                 onChange={(e) => setArea(e.target.value)}
+                onInput={(e) => getOnlyNumber(e)}
               />{' '}
               평
             </Upload_Div_Sub3>
@@ -524,6 +533,7 @@ export default function RoomEdit(room: RoomAllData) {
                 type="number"
                 value={tFloor}
                 onChange={(e) => setTFloor(e.target.value)}
+                onInput={(e) => getOnlyNumber(e)}
               />{' '}
               층
             </Upload_Div_Sub3>
@@ -533,6 +543,7 @@ export default function RoomEdit(room: RoomAllData) {
                 type="number"
                 value={floor}
                 onChange={(e) => setFloor(e.target.value)}
+                onInput={(e) => getOnlyNumber(e)}
               />{' '}
               층
             </Upload_Div_Sub3>
@@ -587,6 +598,7 @@ export default function RoomEdit(room: RoomAllData) {
                 disabled={mChecked}
                 onChange={(e) => setMFee(e.target.value)}
                 onBlur={(e) => e.target.value === '' && setMFee('0')}
+                onInput={(e) => getOnlyNumber(e)}
                 value={mChecked ? '0' : mFee}
               />{' '}
               만원
@@ -658,6 +670,7 @@ export default function RoomEdit(room: RoomAllData) {
                   onChange={(e) => setPFee(e.target.value)}
                   onBlur={(e) => e.target.value === '' && setPFee('0')}
                   value={pFee}
+                  onInput={(e) => getOnlyNumber(e)}
                 />{' '}
                 만원
               </>
@@ -757,14 +770,12 @@ export default function RoomEdit(room: RoomAllData) {
               disabled={cChecked}
               value={contact}
               onChange={(e) => setContact(e.target.value)}
+              onInput={(e) => getOnlyNumber(e)}
               style={{
                 width: '180px',
                 marginLeft: '20px',
               }}
             />
-            {contact.match(/[^0-9.]/) && (
-              <Upload_Warning>숫자만 입력해주세요.</Upload_Warning>
-            )}
           </Upload_Div_Sub>
         </Upload_Div_Bt>
       </Upload_Div_B>

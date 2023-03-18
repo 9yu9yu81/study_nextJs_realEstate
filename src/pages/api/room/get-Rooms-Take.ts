@@ -22,9 +22,9 @@ async function getRoomsTake(
       orderBy === 'latest'
         ? Prisma.sql`order by r.updatedAt desc`
         : orderBy === 'expensive'
-        ? Prisma.sql`order by s.fee desc`
+        ? Prisma.sql`and s.type_id = 2 order by s.fee desc`
         : orderBy === 'cheap'
-        ? Prisma.sql`order by s.fee`
+        ? Prisma.sql`and s.type_id = 2 order by s.fee`
         : orderBy === 'mostViewed'
         ? Prisma.sql`order by r.views desc`
         : Prisma.sql`order by r.wished desc`
@@ -47,7 +47,7 @@ async function getRoomsTake(
           limit ${skip},${take}
       `
 
-    console.log(response)
+    // console.log(response)
     return response
   } catch (error) {
     console.error(error)
