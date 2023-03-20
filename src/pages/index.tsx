@@ -190,9 +190,9 @@ export default function Home() {
           )}
         </Home_Recommend_Div>
       </div>
-      <div style={{ margin: '50px 0 50px 0' }}>
+      {/* <div style={{ margin: '50px 0 50px 0' }}>
         <div className="title">MySpot Analytics</div>
-      </div>
+      </div> */}
     </Home_Container>
   )
 }

@@ -307,7 +307,7 @@ export default function MainMap() {
         style={{
           minWidth: '1000px',
           width: '100vw',
-          height: '100vw',
+          height: '100vh',
         }}
         disableDoubleClick
         isPanto={true}

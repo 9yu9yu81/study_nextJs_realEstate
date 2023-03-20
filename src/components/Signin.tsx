@@ -12,7 +12,7 @@ export default function SignIn() {
     if (status === 'authenticated') {
       router.back()
     }
-  }, [])
+  })
   return (
     <Center_Div style={{ margin: '20vh 0 20vh 0 ' }}>
       {!session && (

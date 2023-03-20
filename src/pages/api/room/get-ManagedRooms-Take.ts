@@ -16,6 +16,7 @@ async function getManagedRooms(user_id: string, skip: number, take: number) {
               and r.id=a.room_id
               and r.id=b.room_id
               and r.user_id=${user_id}
+            order by r.updatedAt desc
             limit ${skip},${take}`
     // console.log(response)
     return response

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { Chip, FileButton, Loader, Modal } from '@mantine/core'
-import { IconExclamationCircle, IconMapPin } from '@tabler/icons'
+import { IconExclamationCircle, IconMapPin, IconX } from '@tabler/icons'
 import Map from 'components/MapN'
 import {
   HoverDiv,
@@ -101,7 +101,6 @@ export default function Upload() {
       border: `0.5px solid ${subColor_medium} !important`,
     },
   }
-
 
   //state
   const [category, setCategory] = useState<string>('1') //매물종류
@@ -975,7 +974,7 @@ export default function Upload() {
                       >
                         <Image alt={'img'} key={idx} src={image} fill />
                         <Img_Hover_Div onClick={() => handleImgDel(image)}>
-                          X
+                          <IconX size={15} color={'white'} />
                         </Img_Hover_Div>
                       </div>
                     ))}
@@ -1384,14 +1383,12 @@ const Manage_Btn_Wrapper = styled.div`
 const Img_Hover_Div = styled(HoverDiv)`
   width: 18px;
   height: 18px;
-  background-color: ${subColor_light};
   display: flex;
+  background-color: ${mainColor};
   align-items: center;
   justify-content: center;
-  font-size: 14px;
   position: absolute;
-  top: 5px;
-  right: 5px;
+  right: 0;
 `
 
 export const Manage_Div_Id = styled.div`

@@ -38,7 +38,6 @@ export default function App({
           {router.pathname === '/mainMap' ? (
             <div>
               <Component {...pageProps} />
-              <Footer />
             </div>
           ) : (
             <>

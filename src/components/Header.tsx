@@ -20,7 +20,7 @@ export default function Header() {
       <Header_Btn_B onClick={() => router.push('/introduce')}>
         사업소개
       </Header_Btn_B>
-      <Menu width={140}>
+      {/* <Menu width={140}>
         <Menu.Target>
           <Header_Btn_B disabled>커뮤니티</Header_Btn_B>
         </Menu.Target>
@@ -43,7 +43,7 @@ export default function Header() {
           <Menu.Divider />
           <Menu.Item icon={<IconSearch size={15} />}>검색</Menu.Item>
         </Menu.Dropdown>
-      </Menu>
+      </Menu> */}
       <Header_Btn_B onClick={() => router.push('/mainMap')}>지도</Header_Btn_B>
       <Header_Btn_B
         onClick={() =>
