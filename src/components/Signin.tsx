@@ -1,21 +1,14 @@
 import { useSession, signIn } from 'next-auth/react'
 import { Button } from '@mantine/core'
 import { IconBrandGoogle } from '@tabler/icons'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
 import { Center_Div } from './styledComponent'
 
 export default function SignIn() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  useEffect(() => {
-    if (status === 'authenticated') {
-      router.back()
-    }
-  })
+  const { status } = useSession()
+
   return (
     <Center_Div style={{ margin: '20vh 0 20vh 0 ' }}>
-      {!session && (
+      {status === 'unauthenticated' && (
         <Center_Div
           style={{
             width: '400px',

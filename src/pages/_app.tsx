@@ -3,10 +3,8 @@ import 'styles/globals.css'
 import type { AppProps } from 'next/app'
 import Header from 'components/Header'
 import Footer from 'components/Footer'
-import { SessionProvider, useSession } from 'next-auth/react'
+import { SessionProvider } from 'next-auth/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Loader } from '@mantine/core'
-import { Center_Div } from 'components/styledComponent'
 import { scheduleJob } from 'node-schedule'
 import { useRouter } from 'next/router'
 
@@ -34,36 +32,36 @@ export default function App({
           <title>Myspot</title>
           <meta name="description" content="My Spot direct transaction" />
         </Head>
-        <Auth>
-          {router.pathname === '/mainMap' ? (
-            <div>
-              <Component {...pageProps} />
-            </div>
-          ) : (
-            <>
-              <Header />
-              <div className="flex justify-center">
-                <div style={{ maxWidth: '1000px', width: '100%' }}>
-                  <Component {...pageProps} />
-                  <Footer />
-                </div>
+        {/* <Auth> */}
+        {router.pathname === '/mainMap' ? (
+          <div>
+            <Component {...pageProps} />
+          </div>
+        ) : (
+          <>
+            <Header />
+            <div className="flex justify-center">
+              <div style={{ maxWidth: '1000px', width: '100%' }}>
+                <Component {...pageProps} />
+                <Footer />
               </div>
-            </>
-          )}
-        </Auth>
+            </div>
+          </>
+        )}
+        {/* </Auth> */}
       </QueryClientProvider>
     </SessionProvider>
   )
 }
 
-function Auth({ children }: { children: any }) {
-  const { status } = useSession()
-  if (status === 'loading') {
-    return (
-      <Center_Div className="m-72">
-        <Loader />
-      </Center_Div>
-    )
-  }
-  return children
-}
+// function Auth({ children }: { children: any }) {
+//   const { status } = useSession()
+//   if (status === 'loading') {
+//     return (
+//       <Center_Div className="m-72">
+//         <Loader />
+//       </Center_Div>
+//     )
+//   }
+//   return children
+// }

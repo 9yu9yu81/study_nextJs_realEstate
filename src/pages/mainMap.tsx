@@ -296,7 +296,12 @@ export default function MainMap() {
               </Menu.Dropdown>
             </Menu>
           ) : (
-            <IconUser size={20} stroke={1.5} color="white" />
+            <IconUser
+              size={20}
+              stroke={1.5}
+              color="white"
+              onClick={() => router.push('/auth/login')}
+            />
           )}
         </Logo_Btn>
       </Menu_Container>

@@ -210,7 +210,6 @@ export default function Upload() {
           .then((res) => res.json())
           .then((data) => {
             console.log(data)
-
             setImages((prev) =>
               Array.from(new Set(prev.concat(data.data.image.url)))
             )

@@ -172,3 +172,9 @@ model Wishlist {
   room        Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
   room_id     Int
 }
+
+
+// model Test {
+//   id          Int      @id @default(autoincrement())
+//   img         String   @db.VarChar(1000)
+// }

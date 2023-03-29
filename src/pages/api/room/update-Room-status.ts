@@ -11,7 +11,7 @@ async function updateStatus(id: number, status_id: number) {
       },
       data: { status_id: status_id },
     })
-    console.log(response)
+    console.log(response.id)
     return response
   } catch (error) {
     console.error(error)
