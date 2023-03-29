@@ -409,7 +409,7 @@ export default function Rooms() {
           <Center_Div style={{ width: '1000px', margin: '100px 0 100px 0' }}>
             <Loader color="dark" />
           </Center_Div>
-        ) : rooms ? (
+        ) : rooms && rooms.length !== 0 ? (
           rooms.map(
             (room) =>
               map
@@ -461,7 +461,9 @@ export default function Rooms() {
               )
           )
         ) : (
-          <Center_Div>현재 지도에 등록된 매물이 없습니다.</Center_Div>
+          <Center_Div style={{ width: '1000px', margin: '100px 0 100px 0' }}>
+            현재 지도에 등록된 매물이 없습니다.
+          </Center_Div>
         )}
       </Grid_Container>
       {total && (

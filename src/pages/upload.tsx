@@ -741,7 +741,10 @@ export default function Upload() {
               >
                 <Center_Div className="flex-col">
                   <Calendar value={moveIn} onChange={setMoveIn} />
-                  <Upload_Btn_Outline onClick={() => setModal(false)}>
+                  <Upload_Btn_Outline
+                    style={{ marginTop: '10px' }}
+                    onClick={() => setModal(false)}
+                  >
                     선택 완료
                   </Upload_Btn_Outline>
                 </Center_Div>
