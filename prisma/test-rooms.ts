@@ -80,6 +80,7 @@ addrMockData.map((addr, idx) => {
       'https://cdn.pixabay.com/photo/2017/03/28/12/11/chairs-2181960__480.jpg,https://cdn.pixabay.com/photo/2017/03/28/12/17/chairs-2181994__480.jpg,https://cdn.pixabay.com/photo/2017/03/28/12/16/chairs-2181980__480.jpg,https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389__480.jpg,https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389__480.jpg',
   })
   AddressInfoMockData.push({
+    name: 'name',
     id: idx + 1,
     room_id: idx + 1,
     doro: addr,

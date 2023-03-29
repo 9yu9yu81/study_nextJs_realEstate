@@ -4,8 +4,13 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import filesToByte from 'hooks/filesToByte'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useRouter } from 'next/router'
 
 export default function test() {
+  const router = useRouter()
+  useEffect(() => {
+    router.push('/')
+  })
   const [files, setFiles] = useState<File[]>([])
 
   // const [images, setImages] = useState<number[][]>([])
