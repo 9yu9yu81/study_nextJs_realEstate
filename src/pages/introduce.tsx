@@ -1,9 +1,5 @@
 import styled from '@emotion/styled'
-import {
-  mainColor,
-  subColor_Dark,
-  subColor_light,
-} from 'components/styledComponent'
+import { mainColor, subColor_Dark } from 'components/styledComponent'
 import Image from 'next/image'
 
 export default function Introduce() {
@@ -24,7 +20,7 @@ MySpot 개발자 9yu9yu81 입니다.
 `}
         </IntroWrapper>
         <ImageWrapper>
-          <Image src="/../public/images/lightRoom.jpg" fill alt="lightRoom" />
+          <Image src="/images/lightRoom.jpg" fill alt="lightRoom" />
         </ImageWrapper>
       </div>
       <div className="main">
@@ -73,7 +69,7 @@ MySpot 개발자 9yu9yu81 입니다.
       <div className="split" />
       <div className="sub">
         <ImageWrapper>
-          <Image src="/../public/images/introRoom.png" fill alt="IntroRoom" />
+          <Image src="/images/introRoom.png" fill alt="IntroRoom" />
         </ImageWrapper>
         <IntroWrapper>
           {`부족한 점이 많습니다.

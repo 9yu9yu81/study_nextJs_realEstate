@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url><loc>https://example.com</loc><lastmod>2023-03-29T10:29:11.976Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://example.com/auth/login</loc><lastmod>2023-03-29T10:29:11.976Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://example.com/community</loc><lastmod>2023-03-29T10:29:11.976Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://example.com/introduce</loc><lastmod>2023-03-29T10:29:11.976Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://example.com/mainMap</loc><lastmod>2023-03-29T10:29:11.976Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://example.com/rooms</loc><lastmod>2023-03-29T10:29:11.976Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://example.com/test</loc><lastmod>2023-03-29T10:29:11.976Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://example.com/upload</loc><lastmod>2023-03-29T10:29:11.976Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://example.com/wishlist</loc><lastmod>2023-03-29T10:29:11.976Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://example.com</loc><lastmod>2023-03-29T10:43:42.574Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://example.com/auth/login</loc><lastmod>2023-03-29T10:43:42.574Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://example.com/community</loc><lastmod>2023-03-29T10:43:42.574Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://example.com/introduce</loc><lastmod>2023-03-29T10:43:42.574Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://example.com/mainMap</loc><lastmod>2023-03-29T10:43:42.574Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://example.com/rooms</loc><lastmod>2023-03-29T10:43:42.574Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://example.com/test</loc><lastmod>2023-03-29T10:43:42.574Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://example.com/upload</loc><lastmod>2023-03-29T10:43:42.574Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://example.com/wishlist</loc><lastmod>2023-03-29T10:43:42.574Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
 </urlset>
