@@ -5,8 +5,6 @@ export default function CustomSegmentedControl({
   value,
   onChange,
   data,
-  margin,
-  padding,
 }: {
   value?: string
   onChange?: any
@@ -20,7 +18,7 @@ export default function CustomSegmentedControl({
       onChange={onChange}
       color={'gray'}
       data={data}
-      styles={(theme) => ({
+      styles={() => ({
         root: {
           backgroundColor: 'white',
           padding: '10px',

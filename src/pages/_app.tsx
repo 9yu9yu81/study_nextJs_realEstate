@@ -17,12 +17,10 @@ export default function App({
       queries: { staleTime: Infinity },
     },
   })
-  const checkExpiredRoom = scheduleJob('0 0 * * *', function () {
+  scheduleJob('0 0 * * *', function () {
     fetch(`http://localhost:3000/api/room/update-ExpiredRooms`)
       .then((res) => res.json())
       .then((data) => data.items)
-    console.log('expired room checking...')
-    console.log(new Date())
   })
   const router = useRouter()
   return (

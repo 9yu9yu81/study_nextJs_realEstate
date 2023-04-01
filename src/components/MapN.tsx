@@ -44,8 +44,7 @@ export default function Map({
               level: 6,
             }
             // 지도를 생성
-            const map =
-              container && new window.kakao.maps.Map(container, options)
+            container && new window.kakao.maps.Map(container, options)
           }
         })
       }

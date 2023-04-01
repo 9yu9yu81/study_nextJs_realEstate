@@ -26,16 +26,16 @@ async function addRoom(
     const roomData = await prisma.room.create({
       data: { ...room, user_id: userId },
     })
-    const saleInfoData = await prisma.saleInfo.create({
+    await prisma.saleInfo.create({
       data: { ...saleInfo, room_id: roomData.id },
     })
-    const basicInfoData = await prisma.basicInfo.create({
+    await prisma.basicInfo.create({
       data: { ...basicInfo, room_id: roomData.id },
     })
-    const addressInfoData = await prisma.addressInfo.create({
+    await prisma.addressInfo.create({
       data: { ...addressInfo, room_id: roomData.id },
     })
-    const moreInfoData = await prisma.moreInfo.create({
+    await prisma.moreInfo.create({
       data: { ...moreInfo, room_id: roomData.id },
     })
 

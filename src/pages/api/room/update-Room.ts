@@ -24,26 +24,26 @@ async function addRoom(
       select user_id from Room as r where r.id = ${room.id}
     `
     if (user[0].user_id === user_id) {
-      const roomData = await prisma.room.update({
-        where: { id: room.id },
-        data: { ...room },
-      })
-      const saleInfoData = await prisma.saleInfo.update({
-        where: { room_id: room.id },
-        data: { ...saleInfo },
-      })
-      const basicInfoData = await prisma.basicInfo.update({
-        where: { room_id: room.id },
-        data: { ...basicInfo },
-      })
-      const addressInfoData = await prisma.addressInfo.update({
-        where: { room_id: room.id },
-        data: { ...addressInfo },
-      })
-      const moreInfoData = await prisma.moreInfo.update({
-        where: { room_id: room.id },
-        data: { ...moreInfo },
-      })
+    await prisma.room.update({
+      where: { id: room.id },
+      data: { ...room },
+    })
+    await prisma.saleInfo.update({
+      where: { room_id: room.id },
+      data: { ...saleInfo },
+    })
+    await prisma.basicInfo.update({
+      where: { room_id: room.id },
+      data: { ...basicInfo },
+    })
+    await prisma.addressInfo.update({
+      where: { room_id: room.id },
+      data: { ...addressInfo },
+    })
+    await prisma.moreInfo.update({
+      where: { room_id: room.id },
+      data: { ...moreInfo },
+    })
       return { message: 'update success' }
     } else return { message: 'update fail' }
   } catch (error) {

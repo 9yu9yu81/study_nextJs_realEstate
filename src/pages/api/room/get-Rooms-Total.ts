@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { Prisma, PrismaClient } from '@prisma/client'
-import { useEffect } from 'react'
 
 const prisma = new PrismaClient()
 
@@ -53,8 +52,7 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   try {
-    const { keyword, category_id, sType_id, orderBy, s, w, e, n, take, skip } =
-      req.query
+    const { keyword, category_id, sType_id, orderBy, s, w, e, n } = req.query
 
     if (s === '0' || w === '0' || e === '0' || n === '0') {
       res.status(200).json({ items: 0, message: 'no coords' })

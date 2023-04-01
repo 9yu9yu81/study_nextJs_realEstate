@@ -210,7 +210,7 @@ export default function RoomIndex(room: RoomAllData) {
           cellAlign="center"
           defaultControlsConfig={carouselConfig}
         >
-          {room.images.split(',').map((image, idx) => (
+          {room.images.split(',').map((_, idx) => (
             <StyledImage1 key={idx} onClick={() => openModal(idx)}>
               <Image
                 sizes="492px"
@@ -423,7 +423,7 @@ export default function RoomIndex(room: RoomAllData) {
                   onClick={() =>
                     session && status === 'authenticated'
                       ? setCModal((prev) => !prev)
-                      : router.push('..//login')
+                      : router.push('/login')
                   }
                   style={{ width: '130px', fontSize: '13px', height: '40px' }}
                 >
@@ -433,7 +433,7 @@ export default function RoomIndex(room: RoomAllData) {
                   onClick={() =>
                     session && status === 'authenticated'
                       ? updateIsWished(room.id)
-                      : router.push('..//login')
+                      : router.push('/login')
                   }
                   style={{ width: '80px', marginLeft: 'auto' }}
                 >

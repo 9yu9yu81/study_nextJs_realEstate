@@ -34,10 +34,7 @@ type Data = {
   items?: any
   message: string
 }
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
+export default async function handler(_: NextApiRequest, res: NextApiResponse<Data>) {
   try {
     const items = await getManagedRooms()
     res.status(200).json({ items: items, message: 'Success' })

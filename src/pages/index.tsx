@@ -92,7 +92,7 @@ export default function Home() {
       onError: (__, _, context) => {
         queryClient.setQueryData([HOME_WISHLISTS_QUERY_KEY], context.previous)
       },
-      onSuccess: async (room_id) => {
+      onSuccess: async () => {
         queryClient.invalidateQueries([HOME_WISHLISTS_QUERY_KEY])
       },
     }

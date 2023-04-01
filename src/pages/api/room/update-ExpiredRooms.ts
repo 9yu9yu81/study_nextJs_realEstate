@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 async function updateExpiredRooms() {
   try {
     const ExpiredDate = sub(new Date(), { days: 30 }) // today - 30days
-    const response = await prisma.$queryRaw`
+    await prisma.$queryRaw`
       update Room set status_id = 3 where updatedAt < ${ExpiredDate} and status_id != 2
     `
     return
@@ -20,10 +20,7 @@ type Data = {
   items?: any
   message: string
 }
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
+export default async function handler(_: NextApiRequest, res: NextApiResponse<Data>) {
   try {
     const rooms = await updateExpiredRooms()
     res.status(200).json({ items: rooms, message: 'Success' })

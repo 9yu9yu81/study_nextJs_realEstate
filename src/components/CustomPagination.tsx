@@ -16,7 +16,7 @@ export default function CustomPagination({
       color={'dark'}
       onChange={onChange}
       total={total}
-      styles={(theme) => ({
+      styles={() => ({
         item: {
           border: 0,
           color: `${mainColor} !important`,

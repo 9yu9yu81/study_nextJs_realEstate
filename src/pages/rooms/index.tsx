@@ -407,7 +407,7 @@ export default function Rooms() {
       </Room_Menu_div>
       <Grid_Container>
         {roomsLoading ? (
-          <Center_Div style={{width:'1000px', padding:'100px'}}>
+          <Center_Div style={{ width: '1000px', padding: '100px' }}>
             <Loader color="dark" />
           </Center_Div>
         ) : rooms && rooms.length !== 0 ? (
@@ -546,7 +546,7 @@ export const Hover_Menu = styled.div`
   }
   padding: 3px 3px 3px 5px;
   font-size: 16px;
-  width: 100px;
+  min-width: 100px;
 `
 const Grid_Container = styled.div`
   width: 1000px;

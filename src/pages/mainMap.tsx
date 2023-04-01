@@ -262,7 +262,7 @@ export default function MainMap() {
           onClick={() =>
             status === 'authenticated'
               ? router.push('/wishlist')
-              : router.push('//login')
+              : router.push('/login')
           }
         >
           <IconHeart size={20} stroke={1.5} color="white" />
@@ -300,7 +300,7 @@ export default function MainMap() {
               size={20}
               stroke={1.5}
               color="white"
-              onClick={() => router.push('//login')}
+              onClick={() => router.push('/login')}
             />
           )}
         </Logo_Btn>
@@ -358,6 +358,7 @@ export default function MainMap() {
                     }}
                   >
                     <Image
+                      sizes="200px"
                       className="styled"
                       src={room.images.split(',')[0]}
                       fill

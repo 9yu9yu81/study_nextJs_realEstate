@@ -27,7 +27,7 @@ interface WishedRoom {
   images: string
 }
 
-const scStyles = (themes: any) => ({
+const scStyles = () => ({
   root: {
     backgroundColor: 'white',
   },

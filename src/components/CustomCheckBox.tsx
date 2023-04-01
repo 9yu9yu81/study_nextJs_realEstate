@@ -1,5 +1,5 @@
 import { Checkbox } from '@mantine/core'
-import { ChangeEventHandler, MouseEventHandler, useState } from 'react'
+import { ChangeEventHandler, MouseEventHandler } from 'react'
 import { subColor_medium } from './styledComponent'
 
 export default function CustomCheckBox({
@@ -20,7 +20,7 @@ export default function CustomCheckBox({
       checked={checked}
       onClick={onClick}
       onChange={onChange}
-      styles={(theme) => ({
+      styles={() => ({
         root: {
           display: 'flex',
           alignItems: 'center',

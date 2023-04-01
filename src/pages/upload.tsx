@@ -799,7 +799,7 @@ export default function Upload() {
                       <Chip
                         key={idx}
                         color={'dark'}
-                        styles={(theme) => chipStyles}
+                        styles={() => chipStyles}
                         value={String(idx + 1)}
                       >
                         {m}
@@ -865,7 +865,7 @@ export default function Upload() {
                     <Chip
                       key={idx}
                       color={'dark'}
-                      styles={(theme) => chipStyles}
+                      styles={() => chipStyles}
                       value={String(idx + 1)}
                     >
                       {s}
@@ -890,7 +890,7 @@ export default function Upload() {
                     <Chip
                       key={idx}
                       color={'dark'}
-                      styles={(theme) => chipStyles}
+                      styles={() => chipStyles}
                       value={String(idx + 1)}
                     >
                       {o.value}
@@ -1400,10 +1400,4 @@ export const Manage_Div_Id = styled.div`
   border-radius: 2px;
   margin-bottom: 10px;
   color: ${subColor_Dark};
-`
-
-const Upload_Warning = styled.div`
-  font-size: 12px;
-  font-weight: 400;
-  color: red;
 `

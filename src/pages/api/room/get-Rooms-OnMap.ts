@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { Prisma, PrismaClient } from '@prisma/client'
-import { useEffect } from 'react'
 
 const prisma = new PrismaClient()
 

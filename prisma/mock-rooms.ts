@@ -13,9 +13,9 @@ const getIntRandom = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 //난수 생성
-const getRandom = (min: number, max: number) => {
-  return Math.random() * (max - min + 1) + min
-}
+// const getRandom = (min: number, max: number) => {
+//   return Math.random() * (max - min + 1) + min
+// }
 
 const addrMockData: { name: string; addr: string; X: number; Y: number }[] = [
   {
