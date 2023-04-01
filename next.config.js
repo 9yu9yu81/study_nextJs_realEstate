@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === 'production' // 프로덕션 모드인지
+
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
@@ -23,6 +25,7 @@ const nextConfig = {
       },
     ],
   },
+  assetPrefix: isProd ? process.env.NEXTAUTH_URL : '',
 }
 
 module.exports = nextConfig

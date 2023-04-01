@@ -72,6 +72,7 @@ export type RoomAllData = Room &
 export default function RoomIndex(room: RoomAllData) {
   const ISWISHED_QUERY_KEY = `/api/wishlist/get-IsWished?room_id=${room.id}`
   const ROOM_WISHED_QUERY_KEY = `/api/room/get-Room-Wished?id=${room.id}`
+
   const queryClient = useQueryClient()
   const router = useRouter()
   const { data: session, status } = useSession()
