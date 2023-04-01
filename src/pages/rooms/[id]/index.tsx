@@ -452,7 +452,7 @@ export default function RoomIndex(room: RoomAllData) {
                         style={{ marginRight: '10px' }}
                       />
                     )}
-                    {wished === undefined ? 0 : wished}
+                    {wished}
                   </Center_Div>
                 </Upload_Btn_Outline>
               </Center2_Div>
