@@ -20,7 +20,7 @@ export default function Footer() {
               <Link href="/introduce">이용약관</Link>
             </div>
             <div className="border-l border-zinc-400 pl-3 pr-3">
-              <Link href="/introduce">개인정보처리방침</Link>
+              <Link href="/privacyPolicy">개인정보처리방침</Link>
             </div>
             <div className="border-l border-zinc-400 pl-3 pr-3">
               <Link href="/introduce">매물관리규정</Link>

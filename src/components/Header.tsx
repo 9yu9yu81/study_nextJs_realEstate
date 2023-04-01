@@ -49,7 +49,7 @@ export default function Header() {
         onClick={() =>
           status === 'authenticated'
             ? router.push('/upload')
-            : router.push('/auth/login')
+            : router.push('//login')
         }
       >
         방내놓기
@@ -58,7 +58,7 @@ export default function Header() {
         onClick={() =>
           status === 'authenticated'
             ? router.push('/wishlist')
-            : router.push('/auth/login')
+            : router.push('//login')
         }
       >
         관심목록
@@ -90,7 +90,7 @@ export default function Header() {
           </Menu.Dropdown>
         </Menu>
       ) : (
-        <Header_Btn_B onClick={() => router.push('/auth/login')}>
+        <Header_Btn_B onClick={() => router.push('//login')}>
           <IconUser size={15} className="mr-1" />
           로그인
         </Header_Btn_B>

@@ -51,7 +51,7 @@ export default function Rooms() {
   const handleEnterKeypress = (e: React.KeyboardEvent) => {
     if (e.key == 'Enter') {
       setSearch(keyword)
-      router.replace(`/rooms?keyword=${search}`, `/rooms?keyword=${search}`, {
+      router.replace(`/rooms?keyword=${keyword}`, `/rooms?keyword=${keyword}`, {
         shallow: true,
       })
     }
@@ -74,7 +74,7 @@ export default function Rooms() {
     lng: number
   }>({ lat: 35.824171, lng: 127.14805 })
 
-  const ROOMS_QUERY_KEY = `api/room/get-Rooms-Take?keyword=&category_id=${category}&sType_id=${ym}&orderBy=${filter}&s=${s}&w=${w}&n=${n}&e=${e}&take=${ROOM_TAKE}&skip=${
+  const ROOMS_QUERY_KEY = `/api/room/get-Rooms-Take?keyword=&category_id=${category}&sType_id=${ym}&orderBy=${filter}&s=${s}&w=${w}&n=${n}&e=${e}&take=${ROOM_TAKE}&skip=${
     (activePage - 1) * ROOM_TAKE
   }`
   const { data: rooms, isLoading: roomsLoading } = useQuery<
@@ -87,7 +87,7 @@ export default function Rooms() {
       .then((data) => data.items)
   )
 
-  const ROOMS_TOTAL_QUERY_KEY = `api/room/get-Rooms-Total?keyword=&category_id=${category}&sType_id=${ym}&orderBy=${filter}&s=${s}&w=${w}&n=${n}&e=${e}`
+  const ROOMS_TOTAL_QUERY_KEY = `/api/room/get-Rooms-Total?keyword=&category_id=${category}&sType_id=${ym}&orderBy=${filter}&s=${s}&w=${w}&n=${n}&e=${e}`
   const { data: total } = useQuery<{ total: number }, unknown, number>(
     [ROOMS_TOTAL_QUERY_KEY],
     () =>
@@ -101,7 +101,7 @@ export default function Rooms() {
     }
   )
 
-  const ROOMS_ON_MAP_QUERY_KEY = `api/room/get-Rooms-OnMap?keyword=&category_id=${category}&sType_id=${ym}&orderBy=${filter}`
+  const ROOMS_ON_MAP_QUERY_KEY = `/api/room/get-Rooms-OnMap?keyword=&category_id=${category}&sType_id=${ym}&orderBy=${filter}`
   const { data: markers } = useQuery<
     { markers: RoomAllData[] },
     unknown,
@@ -112,7 +112,7 @@ export default function Rooms() {
       .then((data) => data.items)
   )
 
-  const WISHLISTS_QUERY_KEY = 'api/wishlist/get-Wishlists-Id'
+  const WISHLISTS_QUERY_KEY = '/api/wishlist/get-Wishlists-Id'
   const { data: wishlists } = useQuery<
     { wishlists: number[] },
     unknown,
@@ -255,6 +255,7 @@ export default function Rooms() {
                     }}
                   >
                     <Image
+                      sizes="200px"
                       className="styled"
                       src={room.images.split(',')[0]}
                       fill
@@ -286,7 +287,7 @@ export default function Rooms() {
                           onClick={() =>
                             status === 'authenticated'
                               ? updateIsWished(room.id)
-                              : router.push('auth/login')
+                              : router.push('/login')
                           }
                         />
                       </div>
@@ -318,11 +319,11 @@ export default function Rooms() {
             전세 매물은 제외된 리스트입니다.
           </div>
         )}
-        <Home_Search_Div style={{ width: '350px' }}>
+        <Home_Search_Div style={{ minWidth: '350px' }}>
           <IconSearch size={18} />
           <Home_Input
             style={{ fontSize: '16px' }}
-            value={keyword}
+            value={keyword === 'undefined' ? '' : keyword}
             onChange={handleChange}
             placeholder="주소나 건물명을 입력하세요"
             onKeyUp={handleEnterKeypress}
@@ -406,7 +407,7 @@ export default function Rooms() {
       </Room_Menu_div>
       <Grid_Container>
         {roomsLoading ? (
-          <Center_Div style={{ width: '1000px', margin: '100px 0 100px 0' }}>
+          <Center_Div style={{width:'1000px', padding:'100px'}}>
             <Loader color="dark" />
           </Center_Div>
         ) : rooms && rooms.length !== 0 ? (
@@ -424,6 +425,7 @@ export default function Rooms() {
                       }}
                     >
                       <Image
+                        sizes="300px"
                         className="styled"
                         src={room.images.split(',')[0]}
                         alt={'thumbnail'}
@@ -444,7 +446,7 @@ export default function Rooms() {
                           onClick={() =>
                             status === 'authenticated'
                               ? updateIsWished(room.id)
-                              : router.push('auth/login')
+                              : router.push('/login')
                           }
                         />
                       </div>
@@ -544,6 +546,7 @@ export const Hover_Menu = styled.div`
   }
   padding: 3px 3px 3px 5px;
   font-size: 16px;
+  width: 100px;
 `
 const Grid_Container = styled.div`
   width: 1000px;

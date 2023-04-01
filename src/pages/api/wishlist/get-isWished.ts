@@ -12,7 +12,7 @@ async function getIsWished(user_id: string, room_id: number) {
         where w.user_id = ${user_id} and w.room_id = ${room_id}
       ) as isWished`
 
-    console.log(response[0])
+    // console.log(response[0])
     return Boolean(response[0].isWished)
   } catch (error) {
     console.error(error)

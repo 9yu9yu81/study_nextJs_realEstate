@@ -8,7 +8,7 @@ async function getRoomWished(room_id: string) {
     const response: any = await prisma.$queryRaw`
       select wished from Room where id = ${room_id}
     `
-    console.log(response[0])
+    // console.log(response[0])
     return response[0].wished
   } catch (error) {
     console.error(error)

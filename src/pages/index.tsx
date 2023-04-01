@@ -16,7 +16,6 @@ import { useRouter } from 'next/router'
 import styled from '@emotion/styled'
 import { useSession } from 'next-auth/react'
 
-//todo myspot analytics 에 어떤 내용 들어갈지도 생각 해봐야함
 interface HomeRoom {
   id: number
   category_id: number
@@ -138,7 +137,7 @@ export default function Home() {
             <div className="sub">조회수가 높은 매물들입니다.</div>
           </div>
           {isLoading ? (
-            <Center_Div style={{ height: '340px' }}>
+            <Center_Div style={{ height: '305px' }}>
               <Loader color="dark" />
             </Center_Div>
           ) : (
@@ -154,10 +153,13 @@ export default function Home() {
                         }}
                       >
                         <Image
+                          sizes="300px, 225px"
+                          fill
                           className="styled"
                           src={room.images.split(',')[0]}
                           alt={'thumbnail'}
-                          fill
+                          placeholder="blur"
+                          blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNksgUAAEcAQcKdpC0AAAAASUVORK5CYII="
                           onClick={() => router.push(`rooms/${room.id}`)}
                         />
                       </StyledImage>
@@ -176,7 +178,7 @@ export default function Home() {
                             onClick={() =>
                               status === 'authenticated'
                                 ? updateIsWished(room.id)
-                                : router.push('auth/login')
+                                : router.push('/login')
                             }
                           />
                         </div>
@@ -190,9 +192,6 @@ export default function Home() {
           )}
         </Home_Recommend_Div>
       </div>
-      {/* <div style={{ margin: '50px 0 50px 0' }}>
-        <div className="title">MySpot Analytics</div>
-      </div> */}
     </Home_Container>
   )
 }

@@ -262,7 +262,7 @@ export default function MainMap() {
           onClick={() =>
             status === 'authenticated'
               ? router.push('/wishlist')
-              : router.push('/auth/login')
+              : router.push('//login')
           }
         >
           <IconHeart size={20} stroke={1.5} color="white" />
@@ -300,7 +300,7 @@ export default function MainMap() {
               size={20}
               stroke={1.5}
               color="white"
-              onClick={() => router.push('/auth/login')}
+              onClick={() => router.push('//login')}
             />
           )}
         </Logo_Btn>
@@ -389,7 +389,7 @@ export default function MainMap() {
                           onClick={() =>
                             status === 'authenticated'
                               ? updateIsWished(room.id)
-                              : router.push('auth/login')
+                              : router.push('/login')
                           }
                         />
                       </div>

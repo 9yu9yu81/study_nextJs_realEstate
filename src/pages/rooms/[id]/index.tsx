@@ -199,7 +199,7 @@ export default function RoomIndex(room: RoomAllData) {
                 className="relative"
                 style={{ width: '1000px', height: '750px' }}
               >
-                <Image src={img} alt="carousel" key={idx} fill />
+                <Image sizes="1000px" src={img} alt="carousel" key={idx} fill />
               </div>
             ))}
           </Carousel>
@@ -213,6 +213,7 @@ export default function RoomIndex(room: RoomAllData) {
           {room.images.split(',').map((image, idx) => (
             <StyledImage1 key={idx} onClick={() => openModal(idx)}>
               <Image
+                sizes="492px"
                 className="styled"
                 alt="img1"
                 src={room.images.split(',')[idx]}
@@ -422,7 +423,7 @@ export default function RoomIndex(room: RoomAllData) {
                   onClick={() =>
                     session && status === 'authenticated'
                       ? setCModal((prev) => !prev)
-                      : router.push('../auth/login')
+                      : router.push('..//login')
                   }
                   style={{ width: '130px', fontSize: '13px', height: '40px' }}
                 >
@@ -432,7 +433,7 @@ export default function RoomIndex(room: RoomAllData) {
                   onClick={() =>
                     session && status === 'authenticated'
                       ? updateIsWished(room.id)
-                      : router.push('../auth/login')
+                      : router.push('..//login')
                   }
                   style={{ width: '80px', marginLeft: 'auto' }}
                 >
