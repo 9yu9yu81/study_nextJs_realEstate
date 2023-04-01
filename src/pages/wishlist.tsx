@@ -201,6 +201,8 @@ export default function wishlist() {
               <WishWrapper key={idx}>
                 <StyledImage style={{ width: '313px', height: '234px' }}>
                   <Image
+                    priority
+                    sizes="313px"
                     className="styled"
                     alt="img"
                     src={wishlist.images.split(',')[0]}

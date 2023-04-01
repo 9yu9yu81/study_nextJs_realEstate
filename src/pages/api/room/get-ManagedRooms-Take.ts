@@ -35,7 +35,7 @@ export default async function handler(
 ) {
   const session = await getSession({ req })
   if (session == null) {
-    res.status(200).json({ items: undefined, message: 'no Session' })
+    res.status(200).json({ items: [], message: 'no Session' })
     return
   }
   const { skip, take } = req.query
