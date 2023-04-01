@@ -18,7 +18,7 @@ export default function App({
     },
   })
   scheduleJob('0 0 * * *', function () {
-    fetch(`http://localhost:3000/api/room/update-ExpiredRooms`)
+    fetch(`${process.env.NEXTAUTH_URL}/api/room/update-ExpiredRooms`)
       .then((res) => res.json())
       .then((data) => data.items)
   })
@@ -30,7 +30,6 @@ export default function App({
           <title>Myspot</title>
           <meta name="description" content="My Spot direct transaction" />
         </Head>
-        {/* <Auth> */}
         {router.pathname === '/mainMap' ? (
           <div>
             <Component {...pageProps} />
@@ -46,7 +45,6 @@ export default function App({
             </div>
           </>
         )}
-        {/* </Auth> */}
       </QueryClientProvider>
     </SessionProvider>
   )
