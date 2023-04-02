@@ -41,15 +41,15 @@ import { useEffect, useState } from 'react'
 
 const carouselConfig = {
   nextButtonText: <IconChevronRight color="black" size={40} stroke={2} />,
-  nextButtonStyle: { background: 'rgba(0,0,0,0)'},
+  nextButtonStyle: { background: 'rgba(0,0,0,0)' },
   prevButtonText: <IconChevronLeft color="black" size={40} stroke={2} />,
-  prevButtonStyle: {background: 'rgba(0,0,0,0)'},
+  prevButtonStyle: { background: 'rgba(0,0,0,0)' },
 }
 
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  const room: Room = await fetch(
+  const room: RoomAllData = await fetch(
     `${process.env.NEXTAUTH_URL}/api/room/get-Room?id=${context.params?.id}`
   )
     .then((res) => res.json())
@@ -70,8 +70,8 @@ export type RoomAllData = Room &
   Omit<MoreInfo, 'id' | 'room_id'>
 
 export default function RoomIndex(room: RoomAllData) {
-  const ISWISHED_QUERY_KEY = `/api/wishlist/get-IsWished?room_id=${room.id}`
-  const ROOM_WISHED_QUERY_KEY = `/api/room/get-Room-Wished?id=${room.id}`
+  const ISWISHED_QUERY_KEY = `${process.env.NEXTAUTH_URL}/../../api/wishlist/get-IsWished?room_id=${room.id}`
+  const ROOM_WISHED_QUERY_KEY = `${process.env.NEXTAUTH_URL}/../../api/room/get-Room-Wished?id=${room.id}`
 
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -122,7 +122,7 @@ export default function RoomIndex(room: RoomAllData) {
     Pick<Room, 'id' | 'views'>,
     any
   >((items) =>
-    fetch('/api/room/update-Room-Views', {
+    fetch(`${process.env.NEXTAUTH_URL}/../../api/room/update-Room-Views`, {
       method: 'POST',
       body: JSON.stringify(items),
     })
@@ -150,7 +150,7 @@ export default function RoomIndex(room: RoomAllData) {
 
   const { mutate: updateIsWished } = useMutation<unknown, unknown, number, any>(
     (room_id) =>
-      fetch('/api/wishlist/update-IsWished', {
+      fetch(`${process.env.NEXTAUTH_URL}/../../api/wishlist/update-IsWished`, {
         method: 'POST',
         body: JSON.stringify(room_id),
       })
