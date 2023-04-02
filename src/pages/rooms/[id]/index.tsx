@@ -50,7 +50,7 @@ export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const room: RoomAllData = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/room/get-Room?id=${context.params?.id}`
+    `${process.env.NEXTAUTH_URL}/../../api/room/get-Room?id=${context.params?.id}`
   )
     .then((res) => res.json())
     .then((data) => data.items)
