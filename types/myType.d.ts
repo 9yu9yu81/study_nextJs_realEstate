@@ -15,8 +15,8 @@ declare global {
 
   namespace NodeJS {
     interface ProcessEnv extends ProcessEnv {
-      GOOGLE_CLIENT_SECRET: string
-      GOOGLE_CLIENT_ID: string
+      GOOGLE_SECRET: string
+      GOOGLE_ID: string
       NEXT_PUBLIC_KAKAOMAP_APPKEY: string
     }
   }
