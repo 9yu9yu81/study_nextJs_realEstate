@@ -7,7 +7,8 @@ import {
   Room,
   SaleInfo,
 } from '@prisma/client'
-import { getSession } from 'next-auth/react'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../auth/[...nextauth]'
 
 const prisma = new PrismaClient()
 
@@ -24,26 +25,26 @@ async function addRoom(
       select user_id from Room as r where r.id = ${room.id}
     `
     if (user[0].user_id === user_id) {
-    await prisma.room.update({
-      where: { id: room.id },
-      data: { ...room },
-    })
-    await prisma.saleInfo.update({
-      where: { room_id: room.id },
-      data: { ...saleInfo },
-    })
-    await prisma.basicInfo.update({
-      where: { room_id: room.id },
-      data: { ...basicInfo },
-    })
-    await prisma.addressInfo.update({
-      where: { room_id: room.id },
-      data: { ...addressInfo },
-    })
-    await prisma.moreInfo.update({
-      where: { room_id: room.id },
-      data: { ...moreInfo },
-    })
+      await prisma.room.update({
+        where: { id: room.id },
+        data: { ...room },
+      })
+      await prisma.saleInfo.update({
+        where: { room_id: room.id },
+        data: { ...saleInfo },
+      })
+      await prisma.basicInfo.update({
+        where: { room_id: room.id },
+        data: { ...basicInfo },
+      })
+      await prisma.addressInfo.update({
+        where: { room_id: room.id },
+        data: { ...addressInfo },
+      })
+      await prisma.moreInfo.update({
+        where: { room_id: room.id },
+        data: { ...moreInfo },
+      })
       return { message: 'update success' }
     } else return { message: 'update fail' }
   } catch (error) {
@@ -60,7 +61,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const session = await getSession({ req })
+  const session = await getServerSession(req, res, authOptions)
   const roomAllData = JSON.parse(req.body)
 
   if (session == null) {

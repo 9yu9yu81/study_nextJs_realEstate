@@ -1,8 +1,8 @@
-import NextAuth from 'next-auth'
+import { DefaultUser } from 'next-auth'
 
 declare module 'next-auth' {
-  interface Session extends Session {
-    user: NextAuth & {
+  interface Session {
+    user: DefaultUser & {
       id: string
     }
   }
@@ -15,8 +15,8 @@ declare global {
 
   namespace NodeJS {
     interface ProcessEnv extends ProcessEnv {
-      GOOGLE_SECRET: string
-      GOOGLE_ID: string
+      GOOGLE_CLIENT_SECRET: string
+      GOOGLE_CLIENT_ID: string
       NEXT_PUBLIC_KAKAOMAP_APPKEY: string
     }
   }

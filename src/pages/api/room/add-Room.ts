@@ -7,7 +7,8 @@ import {
   Room,
   SaleInfo,
 } from '@prisma/client'
-import { getSession } from 'next-auth/react'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../auth/[...nextauth]'
 
 const prisma = new PrismaClient()
 
@@ -54,13 +55,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const session = await getSession({ req })
-  const roomAllData = JSON.parse(req.body)
-
+  const session = await getServerSession(req, res, authOptions)
   if (session == null) {
     res.status(200).json({ items: undefined, message: 'no Session' })
     return
   }
+
+  const roomAllData = JSON.parse(req.body)
 
   try {
     const items = await addRoom(

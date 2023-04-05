@@ -7,8 +7,8 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
@@ -16,7 +16,6 @@ export const authOptions: NextAuthOptions = {
     strategy: 'database',
     maxAge: 1 * 24 * 60 * 60,
   },
-  pages: {},
   callbacks: {
     session: async ({ session, user }) => {
       session.user.id = user.id
