@@ -24,6 +24,7 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -32,6 +33,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
@@ -114,6 +117,11 @@ model Room {
   saleInfos     SaleInfo[]
   moreInfo      MoreInfo[]
   wishlists     Wishlist[]
+
+  @@index([category_id])
+  @@index([user_id])
+  @@index([status_id])
+  @@index([type_id])
 }
 
 model AddressInfo {
@@ -139,6 +147,8 @@ model BasicInfo {
   move_in       DateTime
   heat          RoomHeat     @relation(fields: [heat_id], references: [id], onDelete: Cascade)
   heat_id       Int
+
+  @@index([heat_id])
 }
 
 model SaleInfo {
@@ -149,6 +159,8 @@ model SaleInfo {
   type_id       Int
   deposit       Int
   fee           Int
+
+  @@index([type_id])
 }
 
 
@@ -168,13 +180,9 @@ model MoreInfo {
 model Wishlist {
   id          Int      @id @default(autoincrement())
   user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_id     String   
-  room        Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
-  room_id     Int
+  user_id     String   @unique @default("")
+  room            Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  room_id         Int      @unique @default(0)
+
+  @@index([user_id])
 }
-
-
-// model Test {
-//   id          Int      @id @default(autoincrement())
-//   img         String   @db.VarChar(1000)
-// }
