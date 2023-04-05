@@ -23,7 +23,6 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-  @@index([userId])
 }
 
 model Session {
@@ -33,7 +32,6 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
 }
 
 model User {
@@ -116,11 +114,6 @@ model Room {
   saleInfos     SaleInfo[]
   moreInfo      MoreInfo[]
   wishlists     Wishlist[]
-
-  @@index([category_id])
-  @@index([user_id])
-  @@index([status_id])
-  @@index([type_id])
 }
 
 model AddressInfo {
@@ -147,7 +140,6 @@ model BasicInfo {
   heat          RoomHeat     @relation(fields: [heat_id], references: [id], onDelete: Cascade)
   heat_id       Int
 
-  @@index([heat_id])
 }
 
 model SaleInfo {
@@ -159,7 +151,6 @@ model SaleInfo {
   deposit       Int
   fee           Int
 
-  @@index([type_id])
 }
 
 
@@ -183,5 +174,4 @@ model Wishlist {
   room            Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
   room_id         Int      @unique @default(0)
 
-  @@index([user_id])
 }
