@@ -3,7 +3,7 @@ generator client {
 }
 datasource db {
   provider = "mysql"
-  url = env("DATABASE_URL")
+  url = "mysql://71scq74s1mb99lt1olh8:pscale_pw_6zClRz0gtpaUFJY47RcmVbZBYqkHnsgFNeNIELG5bBV@aws.connect.psdb.cloud/myspot?sslaccept=strict"
   relationMode = "prisma"
 }
 
