@@ -2,8 +2,6 @@ import { Loader } from '@mantine/core'
 import { IconHeart, IconSearch } from '@tabler/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  Center2_Div,
-  Center_Div,
   StyledImage,
   mainColor,
   subColor_Dark,
@@ -195,6 +193,13 @@ export default function Home() {
     </Home_Container>
   )
 }
+export const alignCenter = styled.div`
+  display: flex;
+  align-items: center;
+`
+export const Center_Div = styled(alignCenter)`
+  justify-content: center;
+`
 
 const Home_Container = styled.div`
   * {
@@ -219,7 +224,7 @@ export const Home_Input = styled.input`
   }
 `
 
-export const Home_Search_Div = styled(Center2_Div)`
+export const Home_Search_Div = styled(alignCenter)`
   :hover {
     border: 0.5px solid ${mainColor};
   }

@@ -13,8 +13,9 @@ import { IconHeart } from '@tabler/icons'
 import { useSession } from 'next-auth/react'
 import { RoomAllData } from './rooms/[id]'
 import styled from '@emotion/styled'
-import CustomPagination from 'components/CustomPagination'
 import { useRouter } from 'next/router'
+import dynamic from 'next/dynamic'
+const CustomPagination = dynamic(() => import('components/CustomPagination'))
 
 interface WishedRoom {
   id: number

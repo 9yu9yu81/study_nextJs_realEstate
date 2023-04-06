@@ -170,8 +170,7 @@ model MoreInfo {
 model Wishlist {
   id          Int      @id @default(autoincrement())
   user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_id     String   @unique @default("")
+  user_id     String   
   room            Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
   room_id         Int      @unique @default(0)
-
 }

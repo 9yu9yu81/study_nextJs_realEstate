@@ -5,7 +5,7 @@ import Header from 'components/Header'
 import Footer from 'components/Footer'
 import { SessionProvider } from 'next-auth/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { scheduleJob } from 'node-schedule'
+// import { scheduleJob } from 'node-schedule'
 import { useRouter } from 'next/router'
 
 export default function App({
@@ -17,11 +17,11 @@ export default function App({
       queries: { staleTime: Infinity },
     },
   })
-  scheduleJob('0 0 * * *', function () {
-    fetch(`${process.env.NEXTAUTH_URL}/api/room/update-ExpiredRooms`)
-      .then((res) => res.json())
-      .then((data) => data.items)
-  })
+  // scheduleJob('0 0 * * *', function () {
+  //   fetch(`${process.env.NEXTAUTH_URL}/api/room/update-ExpiredRooms`)
+  //     .then((res) => res.json())
+  //     .then((data) => data.items)
+  // })
   const router = useRouter()
   return (
     <SessionProvider session={session}>

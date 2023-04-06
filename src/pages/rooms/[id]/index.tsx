@@ -11,8 +11,6 @@ import { IconChevronLeft, IconChevronRight, IconHeart } from '@tabler/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import MapN from 'components/MapN'
 import {
-  Center2_Div,
-  Center_Div,
   StyledImage,
   mainColor,
   subColor_Dark,
@@ -31,13 +29,14 @@ import {
   YEAR_MONTH_MAP,
 } from 'constants/const'
 import { compareAsc, format } from 'date-fns'
-import { GetServerSideProps, GetServerSidePropsContext } from 'next'
+import { GetServerSidePropsContext } from 'next'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import Carousel from 'nuka-carousel'
 import { Upload_Btn_Outline } from 'pages/upload'
 import { useEffect, useState } from 'react'
+// import dynamic from 'next/dynamic'
 
 const carouselConfig = {
   nextButtonText: <IconChevronRight color="black" size={40} stroke={2} />,
@@ -46,10 +45,9 @@ const carouselConfig = {
   prevButtonStyle: { background: 'rgba(0,0,0,0)' },
 }
 
-export const getServerSideProps: GetServerSideProps = async (
+export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  console.log(process.env.NEXTAUTH_URL)
   const room: RoomAllData = await fetch(
     `${process.env.NEXTAUTH_URL}/api/room/get-Room?id=${context.params?.id}`
   )
@@ -500,7 +498,15 @@ const Card_img = ({ src }: { src: string }) => {
     />
   )
 }
-
+export const Center_Div = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+export const Center2_Div = styled.div`
+  display: flex;
+  align-items: center;
+`
 const Card_Img_Wrapper = styled(Center2_Div)`
   width: 120px;
   font-size: 16px;
